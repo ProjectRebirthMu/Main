@@ -1,0 +1,136 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32901.215
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Main", "Main.vcxproj", "{83C6A8DE-5418-41B5-BD9C-471F99FEAAA0}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConnectServer", "..\Source Server\ConnectServer\ConnectServer\ConnectServer.vcxproj", "{206DE6CA-4B65-4027-B96D-69DBC02AEF53}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ConnectServer_Config", "ConnectServer_Config", "{3BEFEC7B-69CC-4F64-9865-1143EDB14A29}"
+	ProjectSection(SolutionItems) = preProject
+		..\Source Server\ConnectServer\Release\ConnectServer_EX603\ServerList.xml = ..\Source Server\ConnectServer\Release\ConnectServer_EX603\ServerList.xml
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DataServer", "..\Source Server\DataServer\DataServer\DataServer.vcxproj", "{DCCBB883-D3B5-486A-8658-4E469C575023}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GameServer", "..\Source Server\GameServer\GameServer\GameServer.vcxproj", "{93F80160-07A8-42A6-B46C-70B72AFF74C4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GameServer_Config", "GameServer_Config", "{5C2C06A2-98E6-45B7-B620-7284AE562628}"
+	ProjectSection(SolutionItems) = preProject
+		..\Source Server\GameServer\Release\Data\MapServerInfo.dat = ..\Source Server\GameServer\Release\Data\MapServerInfo.dat
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JoinServer", "..\Source Server\JoinServer\JoinServer\JoinServer.vcxproj", "{1BEFA73B-17C6-4E97-A35F-A4CBFA7678A1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		(ConnectServer)Release_EX603|x86 = (ConnectServer)Release_EX603|x86
+		(DataServer)Debug|x86 = (DataServer)Debug|x86
+		(DataServer)Release_EX603|x86 = (DataServer)Release_EX603|x86
+		(GameServer)Debug|x86 = (GameServer)Debug|x86
+		(GameServer)Release_EX603|x86 = (GameServer)Release_EX603|x86
+		(GameServer)Release_EX603CS|x86 = (GameServer)Release_EX603CS|x86
+		(JoinServer)Release_EX603|x86 = (JoinServer)Release_EX603|x86
+		Global Debug|x86 = Global Debug|x86
+		Global Release|x86 = Global Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{83C6A8DE-5418-41B5-BD9C-471F99FEAAA0}.(ConnectServer)Release_EX603|x86.ActiveCfg = Global Release|Win32
+		{83C6A8DE-5418-41B5-BD9C-471F99FEAAA0}.(ConnectServer)Release_EX603|x86.Build.0 = Global Release|Win32
+		{83C6A8DE-5418-41B5-BD9C-471F99FEAAA0}.(DataServer)Debug|x86.ActiveCfg = Global Release|Win32
+		{83C6A8DE-5418-41B5-BD9C-471F99FEAAA0}.(DataServer)Debug|x86.Build.0 = Global Release|Win32
+		{83C6A8DE-5418-41B5-BD9C-471F99FEAAA0}.(DataServer)Release_EX603|x86.ActiveCfg = Global Release|Win32
+		{83C6A8DE-5418-41B5-BD9C-471F99FEAAA0}.(DataServer)Release_EX603|x86.Build.0 = Global Release|Win32
+		{83C6A8DE-5418-41B5-BD9C-471F99FEAAA0}.(GameServer)Debug|x86.ActiveCfg = Global Release|Win32
+		{83C6A8DE-5418-41B5-BD9C-471F99FEAAA0}.(GameServer)Debug|x86.Build.0 = Global Release|Win32
+		{83C6A8DE-5418-41B5-BD9C-471F99FEAAA0}.(GameServer)Release_EX603|x86.ActiveCfg = Global Release|Win32
+		{83C6A8DE-5418-41B5-BD9C-471F99FEAAA0}.(GameServer)Release_EX603|x86.Build.0 = Global Release|Win32
+		{83C6A8DE-5418-41B5-BD9C-471F99FEAAA0}.(GameServer)Release_EX603CS|x86.ActiveCfg = Global Release|Win32
+		{83C6A8DE-5418-41B5-BD9C-471F99FEAAA0}.(GameServer)Release_EX603CS|x86.Build.0 = Global Release|Win32
+		{83C6A8DE-5418-41B5-BD9C-471F99FEAAA0}.(JoinServer)Release_EX603|x86.ActiveCfg = Global Release|Win32
+		{83C6A8DE-5418-41B5-BD9C-471F99FEAAA0}.(JoinServer)Release_EX603|x86.Build.0 = Global Release|Win32
+		{83C6A8DE-5418-41B5-BD9C-471F99FEAAA0}.Global Debug|x86.ActiveCfg = Global Debug|Win32
+		{83C6A8DE-5418-41B5-BD9C-471F99FEAAA0}.Global Debug|x86.Build.0 = Global Debug|Win32
+		{83C6A8DE-5418-41B5-BD9C-471F99FEAAA0}.Global Release|x86.ActiveCfg = Global Release|Win32
+		{83C6A8DE-5418-41B5-BD9C-471F99FEAAA0}.Global Release|x86.Build.0 = Global Release|Win32
+		{206DE6CA-4B65-4027-B96D-69DBC02AEF53}.(ConnectServer)Release_EX603|x86.ActiveCfg = (ConnectServer)Release_EX603|Win32
+		{206DE6CA-4B65-4027-B96D-69DBC02AEF53}.(ConnectServer)Release_EX603|x86.Build.0 = (ConnectServer)Release_EX603|Win32
+		{206DE6CA-4B65-4027-B96D-69DBC02AEF53}.(DataServer)Debug|x86.ActiveCfg = (ConnectServer)Release_EX603|Win32
+		{206DE6CA-4B65-4027-B96D-69DBC02AEF53}.(DataServer)Debug|x86.Build.0 = (ConnectServer)Release_EX603|Win32
+		{206DE6CA-4B65-4027-B96D-69DBC02AEF53}.(DataServer)Release_EX603|x86.ActiveCfg = (ConnectServer)Release_EX603|Win32
+		{206DE6CA-4B65-4027-B96D-69DBC02AEF53}.(DataServer)Release_EX603|x86.Build.0 = (ConnectServer)Release_EX603|Win32
+		{206DE6CA-4B65-4027-B96D-69DBC02AEF53}.(GameServer)Debug|x86.ActiveCfg = (ConnectServer)Release_EX603|Win32
+		{206DE6CA-4B65-4027-B96D-69DBC02AEF53}.(GameServer)Debug|x86.Build.0 = (ConnectServer)Release_EX603|Win32
+		{206DE6CA-4B65-4027-B96D-69DBC02AEF53}.(GameServer)Release_EX603|x86.ActiveCfg = (ConnectServer)Release_EX603|Win32
+		{206DE6CA-4B65-4027-B96D-69DBC02AEF53}.(GameServer)Release_EX603|x86.Build.0 = (ConnectServer)Release_EX603|Win32
+		{206DE6CA-4B65-4027-B96D-69DBC02AEF53}.(GameServer)Release_EX603CS|x86.ActiveCfg = (ConnectServer)Release_EX603|Win32
+		{206DE6CA-4B65-4027-B96D-69DBC02AEF53}.(GameServer)Release_EX603CS|x86.Build.0 = (ConnectServer)Release_EX603|Win32
+		{206DE6CA-4B65-4027-B96D-69DBC02AEF53}.(JoinServer)Release_EX603|x86.ActiveCfg = (ConnectServer)Release_EX603|Win32
+		{206DE6CA-4B65-4027-B96D-69DBC02AEF53}.(JoinServer)Release_EX603|x86.Build.0 = (ConnectServer)Release_EX603|Win32
+		{206DE6CA-4B65-4027-B96D-69DBC02AEF53}.Global Debug|x86.ActiveCfg = (ConnectServer)Release_EX603|Win32
+		{206DE6CA-4B65-4027-B96D-69DBC02AEF53}.Global Debug|x86.Build.0 = (ConnectServer)Release_EX603|Win32
+		{206DE6CA-4B65-4027-B96D-69DBC02AEF53}.Global Release|x86.ActiveCfg = (ConnectServer)Release_EX603|Win32
+		{206DE6CA-4B65-4027-B96D-69DBC02AEF53}.Global Release|x86.Build.0 = (ConnectServer)Release_EX603|Win32
+		{DCCBB883-D3B5-486A-8658-4E469C575023}.(ConnectServer)Release_EX603|x86.ActiveCfg = (DataServer)Release_EX603|Win32
+		{DCCBB883-D3B5-486A-8658-4E469C575023}.(ConnectServer)Release_EX603|x86.Build.0 = (DataServer)Release_EX603|Win32
+		{DCCBB883-D3B5-486A-8658-4E469C575023}.(DataServer)Debug|x86.ActiveCfg = (DataServer)Debug|Win32
+		{DCCBB883-D3B5-486A-8658-4E469C575023}.(DataServer)Debug|x86.Build.0 = (DataServer)Debug|Win32
+		{DCCBB883-D3B5-486A-8658-4E469C575023}.(DataServer)Release_EX603|x86.ActiveCfg = (DataServer)Release_EX603|Win32
+		{DCCBB883-D3B5-486A-8658-4E469C575023}.(DataServer)Release_EX603|x86.Build.0 = (DataServer)Release_EX603|Win32
+		{DCCBB883-D3B5-486A-8658-4E469C575023}.(GameServer)Debug|x86.ActiveCfg = (DataServer)Debug|Win32
+		{DCCBB883-D3B5-486A-8658-4E469C575023}.(GameServer)Debug|x86.Build.0 = (DataServer)Debug|Win32
+		{DCCBB883-D3B5-486A-8658-4E469C575023}.(GameServer)Release_EX603|x86.ActiveCfg = (DataServer)Release_EX603|Win32
+		{DCCBB883-D3B5-486A-8658-4E469C575023}.(GameServer)Release_EX603|x86.Build.0 = (DataServer)Release_EX603|Win32
+		{DCCBB883-D3B5-486A-8658-4E469C575023}.(GameServer)Release_EX603CS|x86.ActiveCfg = (DataServer)Release_EX603|Win32
+		{DCCBB883-D3B5-486A-8658-4E469C575023}.(GameServer)Release_EX603CS|x86.Build.0 = (DataServer)Release_EX603|Win32
+		{DCCBB883-D3B5-486A-8658-4E469C575023}.(JoinServer)Release_EX603|x86.ActiveCfg = (DataServer)Release_EX603|Win32
+		{DCCBB883-D3B5-486A-8658-4E469C575023}.(JoinServer)Release_EX603|x86.Build.0 = (DataServer)Release_EX603|Win32
+		{DCCBB883-D3B5-486A-8658-4E469C575023}.Global Debug|x86.ActiveCfg = (DataServer)Debug|Win32
+		{DCCBB883-D3B5-486A-8658-4E469C575023}.Global Debug|x86.Build.0 = (DataServer)Debug|Win32
+		{DCCBB883-D3B5-486A-8658-4E469C575023}.Global Release|x86.ActiveCfg = (DataServer)Debug|Win32
+		{DCCBB883-D3B5-486A-8658-4E469C575023}.Global Release|x86.Build.0 = (DataServer)Debug|Win32
+		{93F80160-07A8-42A6-B46C-70B72AFF74C4}.(ConnectServer)Release_EX603|x86.ActiveCfg = (GameServer)Release_EX603CS|Win32
+		{93F80160-07A8-42A6-B46C-70B72AFF74C4}.(ConnectServer)Release_EX603|x86.Build.0 = (GameServer)Release_EX603CS|Win32
+		{93F80160-07A8-42A6-B46C-70B72AFF74C4}.(DataServer)Debug|x86.ActiveCfg = (GameServer)Release_EX603|Win32
+		{93F80160-07A8-42A6-B46C-70B72AFF74C4}.(DataServer)Debug|x86.Build.0 = (GameServer)Release_EX603|Win32
+		{93F80160-07A8-42A6-B46C-70B72AFF74C4}.(DataServer)Release_EX603|x86.ActiveCfg = (GameServer)Release_EX603|Win32
+		{93F80160-07A8-42A6-B46C-70B72AFF74C4}.(DataServer)Release_EX603|x86.Build.0 = (GameServer)Release_EX603|Win32
+		{93F80160-07A8-42A6-B46C-70B72AFF74C4}.(GameServer)Debug|x86.ActiveCfg = (GameServer)Debug|Win32
+		{93F80160-07A8-42A6-B46C-70B72AFF74C4}.(GameServer)Debug|x86.Build.0 = (GameServer)Debug|Win32
+		{93F80160-07A8-42A6-B46C-70B72AFF74C4}.(GameServer)Release_EX603|x86.ActiveCfg = (GameServer)Release_EX603|Win32
+		{93F80160-07A8-42A6-B46C-70B72AFF74C4}.(GameServer)Release_EX603|x86.Build.0 = (GameServer)Release_EX603|Win32
+		{93F80160-07A8-42A6-B46C-70B72AFF74C4}.(GameServer)Release_EX603CS|x86.ActiveCfg = (GameServer)Release_EX603CS|Win32
+		{93F80160-07A8-42A6-B46C-70B72AFF74C4}.(GameServer)Release_EX603CS|x86.Build.0 = (GameServer)Release_EX603CS|Win32
+		{93F80160-07A8-42A6-B46C-70B72AFF74C4}.(JoinServer)Release_EX603|x86.ActiveCfg = (GameServer)Release_EX603|Win32
+		{93F80160-07A8-42A6-B46C-70B72AFF74C4}.(JoinServer)Release_EX603|x86.Build.0 = (GameServer)Release_EX603|Win32
+		{93F80160-07A8-42A6-B46C-70B72AFF74C4}.Global Debug|x86.ActiveCfg = (GameServer)Release_EX603|Win32
+		{93F80160-07A8-42A6-B46C-70B72AFF74C4}.Global Debug|x86.Build.0 = (GameServer)Release_EX603|Win32
+		{93F80160-07A8-42A6-B46C-70B72AFF74C4}.Global Release|x86.ActiveCfg = (GameServer)Release_EX603|Win32
+		{93F80160-07A8-42A6-B46C-70B72AFF74C4}.Global Release|x86.Build.0 = (GameServer)Release_EX603|Win32
+		{1BEFA73B-17C6-4E97-A35F-A4CBFA7678A1}.(ConnectServer)Release_EX603|x86.ActiveCfg = (JoinServer)Release_EX603|Win32
+		{1BEFA73B-17C6-4E97-A35F-A4CBFA7678A1}.(ConnectServer)Release_EX603|x86.Build.0 = (JoinServer)Release_EX603|Win32
+		{1BEFA73B-17C6-4E97-A35F-A4CBFA7678A1}.(DataServer)Debug|x86.ActiveCfg = (JoinServer)Release_EX603|Win32
+		{1BEFA73B-17C6-4E97-A35F-A4CBFA7678A1}.(DataServer)Debug|x86.Build.0 = (JoinServer)Release_EX603|Win32
+		{1BEFA73B-17C6-4E97-A35F-A4CBFA7678A1}.(DataServer)Release_EX603|x86.ActiveCfg = (JoinServer)Release_EX603|Win32
+		{1BEFA73B-17C6-4E97-A35F-A4CBFA7678A1}.(DataServer)Release_EX603|x86.Build.0 = (JoinServer)Release_EX603|Win32
+		{1BEFA73B-17C6-4E97-A35F-A4CBFA7678A1}.(GameServer)Debug|x86.ActiveCfg = (JoinServer)Release_EX603|Win32
+		{1BEFA73B-17C6-4E97-A35F-A4CBFA7678A1}.(GameServer)Debug|x86.Build.0 = (JoinServer)Release_EX603|Win32
+		{1BEFA73B-17C6-4E97-A35F-A4CBFA7678A1}.(GameServer)Release_EX603|x86.ActiveCfg = (JoinServer)Release_EX603|Win32
+		{1BEFA73B-17C6-4E97-A35F-A4CBFA7678A1}.(GameServer)Release_EX603|x86.Build.0 = (JoinServer)Release_EX603|Win32
+		{1BEFA73B-17C6-4E97-A35F-A4CBFA7678A1}.(GameServer)Release_EX603CS|x86.ActiveCfg = (JoinServer)Release_EX603|Win32
+		{1BEFA73B-17C6-4E97-A35F-A4CBFA7678A1}.(GameServer)Release_EX603CS|x86.Build.0 = (JoinServer)Release_EX603|Win32
+		{1BEFA73B-17C6-4E97-A35F-A4CBFA7678A1}.(JoinServer)Release_EX603|x86.ActiveCfg = (JoinServer)Release_EX603|Win32
+		{1BEFA73B-17C6-4E97-A35F-A4CBFA7678A1}.(JoinServer)Release_EX603|x86.Build.0 = (JoinServer)Release_EX603|Win32
+		{1BEFA73B-17C6-4E97-A35F-A4CBFA7678A1}.Global Debug|x86.ActiveCfg = (JoinServer)Release_EX603|Win32
+		{1BEFA73B-17C6-4E97-A35F-A4CBFA7678A1}.Global Debug|x86.Build.0 = (JoinServer)Release_EX603|Win32
+		{1BEFA73B-17C6-4E97-A35F-A4CBFA7678A1}.Global Release|x86.ActiveCfg = (JoinServer)Release_EX603|Win32
+		{1BEFA73B-17C6-4E97-A35F-A4CBFA7678A1}.Global Release|x86.Build.0 = (JoinServer)Release_EX603|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {46CBD986-0778-4FA7-8B9E-62CE67735BE4}
+	EndGlobalSection
+EndGlobal
