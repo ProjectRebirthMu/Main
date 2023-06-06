@@ -1,0 +1,28 @@
+//============================
+//  by CJ
+//============================
+struct VertOut
+{
+	float4 pos : POSITION;
+	float4 col : COLOR0;
+	float2 tex0 : TEXCOORD0;
+	float2 tex1 : TEXCOORD1;
+};
+
+struct FragOut
+{
+	float4 col : COLOR;
+};
+
+FragOut main(VertOut vin,
+	uniform samplerRECT texNormal : TEXUNIT0,
+	uniform samplerRECT texGlow : TEXUNIT1)
+{
+	FragOut fout;
+
+	float4 colGlow = texRECT(texGlow, vin.tex1);
+	float4 colNormal = texRECT(texNormal, vin.tex0);
+	fout.col = colNormal + colGlow*1.8;
+
+	return fout;
+}

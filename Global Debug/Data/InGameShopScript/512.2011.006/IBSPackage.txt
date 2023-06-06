@@ -1,0 +1,3 @@
+61@1@100@Jewel of Bless@170@50@A Jewel of Bless é um item utilizado para melhorar o nível de um item. Cada uso da Jewel of Bless aumenta o nível do item em 1, podendo chegar até o nível +6.@@182@185@0@0@177@1@Goblin Points@Goblin Points@181@200@0@1000|@7181@5@1@1000|@1@0@669
+61@2@101@Jewel of Bless@170@50@TEST 10UN@@182@185@0@0@177@1@Goblin Points@Goblin Points@181@200@0@1010|@7181@5@1@1010|@1@0@669
+61@3@102@Jewel of Bless@170@50@TEST 10@@182@185@0@0@177@1@Goblin Points@Goblin Points@181@200@0@1020|@7181@5@1@1020|@1@0@669

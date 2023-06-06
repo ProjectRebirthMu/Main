@@ -1,0 +1,36 @@
+//============================
+//  by CJ
+//============================
+struct VertIn
+{
+	float4 pos : POSITION;
+	float4 diffuse : COLOR0;
+	float2 tex0 : TEXCOORD0;
+};
+
+struct VertOut
+{
+	float4 pos : POSITION;
+	float4 col : COLOR0;
+	float2 tex0 : TEXCOORD0;
+	float2 tex1 : TEXCOORD1;
+	float2 tex2 : TEXCOORD2;
+	float2 tex3 : TEXCOORD3;
+};
+
+VertOut main(VertIn vin,
+	uniform float XOffset,
+	uniform float YOffset,
+	uniform float4x4 ModelViewProj)
+{
+	VertOut vout;
+
+	vout.pos = mul(ModelViewProj, vin.pos);
+	vout.col = vin.diffuse;
+	vout.tex0 = vin.tex0 + float2(XOffset,YOffset);
+	vout.tex1 = vin.tex0 + float2(XOffset*0.5,YOffset*0.5);
+	vout.tex2 = vin.tex0 - float2(XOffset,YOffset);
+	vout.tex3 = vin.tex0 - float2(XOffset*0.5,YOffset*0.5);
+
+	return vout;
+}

@@ -1,0 +1,39 @@
+//============================
+//  by CJ
+//============================
+
+struct VertOut
+{
+	float4 pos : POSITION;
+	float4 col : COLOR0;
+	float2 tex0 : TEXCOORD0;
+	float2 tex1 : TEXCOORD1;
+	float2 tex2 : TEXCOORD2;
+	float2 tex3 : TEXCOORD3;
+};
+
+struct FragOut
+{
+	float4 col : COLOR;
+};
+
+FragOut main(VertOut vin,
+	uniform samplerRECT tex0 : TEXUNIT0,
+	uniform samplerRECT tex1 : TEXUNIT1,
+	uniform samplerRECT tex2 : TEXUNIT2,
+	uniform samplerRECT tex3 : TEXUNIT3)
+{
+	FragOut fout;
+
+	float4 col1 = texRECT(tex0, vin.tex0) *0.105f;/// 2.0f;
+	float4 col2 = texRECT(tex1, vin.tex1) *0.86f;/// 2.0f;
+	float4 col3 = texRECT(tex2, vin.tex2) *0.085f;/// 2.0f;
+	float4 col4 = texRECT(tex3, vin.tex3) *0.86f;/// 2.0f;
+
+	float4 avg1 = (col1 + col2) / 2.0f;
+	float4 avg2 = (col3 + col4) / 2.0f;
+
+	fout.col = avg1 + avg2;
+
+	return fout;
+}
