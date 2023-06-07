@@ -1,5 +1,4 @@
 ///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "UIManager.h"
@@ -104,7 +103,7 @@ bool EnableEdit    = false;
 
 int g_iLengthAuthorityCode = 20;
 
-char *szServerIpAddress = "Your-IP";
+char *szServerIpAddress = "Your-IP"; //Change IP
 WORD g_ServerPort = 44405;
 
 #ifdef MOVIE_DIRECTSHOW
