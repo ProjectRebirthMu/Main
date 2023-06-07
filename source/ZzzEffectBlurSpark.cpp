@@ -40,25 +40,20 @@ BLUR Blur[MAX_BLURS];
 
 void AddBlur(BLUR* b, vec3_t p1, vec3_t p2, vec3_t Light, int Type)
 {
-	if (!b) {
-		return; // ponteiro nulo, sai da função
-	}
-
 	b->Type = Type;
 	VectorCopy(Light, b->Light);
-	if (b->Number >= MAX_BLUR_TAILS)
+	for (int i = b->Number - 1; i >= 0; i--)
 	{
-		for (int i = 0; i < MAX_BLUR_TAILS - 1; i++) {
-			VectorCopy(b->p1[i + 1], b->p1[i]);
-			VectorCopy(b->p2[i + 1], b->p2[i]);
-		}
+		VectorCopy(b->p1[i], b->p1[i + 1]);
+		VectorCopy(b->p2[i], b->p2[i + 1]);
+	}
+	VectorCopy(p1, b->p1[0]);
+	VectorCopy(p2, b->p2[0]);
+	b->Number++;
+	if (b->Number >= MAX_BLUR_TAILS - 1)
+	{
 		b->Number = MAX_BLUR_TAILS - 1;
 	}
-	else {
-		b->Number++;
-	}
-	VectorCopy(p1, b->p1[b->Number - 1]);
-	VectorCopy(p2, b->p2[b->Number - 1]);
 }
 
 void CreateBlur(CHARACTER* Owner, vec3_t p1, vec3_t p2, vec3_t Light, int Type, bool Short, int SubType)
