@@ -90,4 +90,4 @@ Direitos Autorais (c) 2023. ProjectRebirth & ProjectRebirthMu
 
 Este projeto é um código aberto e não possui nenhuma relação com a Webzen. Qualquer referência à Webzen no código, nos arquivos ou nos créditos é meramente informativa e não implica em afiliação ou endosso.
 
-Você é livre para utilizar, modificar e distribuir este software nos termos da licença [MIT License](LICENSE.txt). Consulte o arquivo LICENSE para obter mais informações.
+Você é livre para utilizar, modificar e distribuir este software nos termos da licença [MIT License](LICENSE). Consulte o arquivo LICENSE para obter mais informações.
