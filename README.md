@@ -78,3 +78,15 @@ Este projeto está licenciado sob a [MIT License](LICENSE.txt).
 
 Confira a postagem oficial do fórum no tópico [TuServerMu](https://tuservermu.com.ve/index.php?topic=57374.msg294187#msg294187) para obter mais informações e discussões relacionadas.
 
+Créditos:
+- [Webzen](https://en.wikipedia.org/wiki/Webzen)
+- [louis](https://tuservermu.com.ve/index.php?action=profile;u=4199)
+- [OgoCx](https://tuservermu.com.ve/index.php?action=profile;u=8220)
+- [myheart](https://tuservermu.com.ve/index.php?action=profile;u=10705) (Cashshop files)
+- [kayito](https://tuservermu.com.ve/index.php?action=profile;u=5033)
+- [takumi12](https://tuservermu.com.ve/index.php?action=profile;u=16349) (MuHelper + Right Click)
+- [Qubit](https://tuservermu.com.ve/index.php?action=profile;u=36306) (Discord: Qubit#4783)
+
+Direitos Autorais (c) [2023] [ProjectRebirth] & [ProjectRebirthMu]
+
+Este projeto é um código aberto e não possui nenhuma relação com a Webzen. Qualquer referência à Webzen no código, nos arquivos ou nos créditos é meramente informativa e não implica em afiliação ou endosso.
