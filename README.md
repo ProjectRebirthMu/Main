@@ -87,6 +87,6 @@ Créditos:
 - [takumi12](https://tuservermu.com.ve/index.php?action=profile;u=16349) (MuHelper + Right Click)
 - [Qubit](https://tuservermu.com.ve/index.php?action=profile;u=36306) (Discord: Qubit#4783)
 
-Direitos Autorais (c) [2023] [ProjectRebirth] & [ProjectRebirthMu]
+Direitos Autorais (c) 2023. ProjectRebirth & ProjectRebirthMu
 
 Este projeto é um código aberto e não possui nenhuma relação com a Webzen. Qualquer referência à Webzen no código, nos arquivos ou nos créditos é meramente informativa e não implica em afiliação ou endosso.
