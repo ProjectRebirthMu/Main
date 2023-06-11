@@ -2519,19 +2519,19 @@ void MainScene(HDC hDC)
 
 #if defined(_DEBUG) || defined(LDS_FOR_DEVELOPMENT_TESTMODE) || defined(LDS_UNFIXED_FIXEDFRAME_FORDEBUG)
 	BeginBitmap();
-	unicode::t_char szDebugText[128];
-	unicode::_sprintf(szDebugText, "FPS : %.1f Connected: %d", FPS,g_bGameServerConnected);
-	unicode::t_char szMousePos[128];
-	unicode::_sprintf(szMousePos, "MousePos : %d %d %d", MouseX, MouseY, MouseLButtonPush);
-	unicode::t_char szCamera3D[128];
-	unicode::_sprintf(szCamera3D, "Camera3D : %.1f %.1f:%.1f:%.1f", CameraFOV, CameraAngle[0], CameraAngle[1], CameraAngle[2]);
+
+	std::string debugText = "FPS : " + std::to_string(FPS) + " Connected: " + std::to_string(g_bGameServerConnected);
+	std::string mousePos = "MousePos : " + std::to_string(MouseX) + " " + std::to_string(MouseY) + " " + std::to_string(MouseLButtonPush);
+	std::string camera3D = "Camera3D : " + std::to_string(CameraFOV) + " " + std::to_string(CameraAngle[0]) + ":" + std::to_string(CameraAngle[1]) + ":" + std::to_string(CameraAngle[2]);
+
 	g_pRenderText->SetFont(g_hFontBold);
 	g_pRenderText->SetBgColor(0, 0, 0, 100);
 	g_pRenderText->SetTextColor(255, 255, 255, 200);
-	g_pRenderText->RenderText(10, 26, szDebugText);
-	g_pRenderText->RenderText(10, 36, szMousePos);
-	g_pRenderText->RenderText(10, 46, szCamera3D);
+	g_pRenderText->RenderText(10, 26, debugText.c_str());
+	g_pRenderText->RenderText(10, 36, mousePos.c_str());
+	g_pRenderText->RenderText(10, 46, camera3D.c_str());
 	g_pRenderText->SetFont(g_hFont);
+
 	EndBitmap();
 #endif // defined(_DEBUG) || defined(LDS_FOR_DEVELOPMENT_TESTMODE) || defined(LDS_UNFIXED_FIXEDFRAME_FORDEBUG)
 
@@ -2546,7 +2546,6 @@ void MainScene(HDC hDC)
 	if (DifTimer < 40)
 	{
 		int32_t dwMilliseconds = 40 - DifTimer;
-		//std::this_thread::sleep_for(std::chrono::milliseconds(dwMilliseconds)); 
 		Sleep(dwMilliseconds);
 		TimePrior += dwMilliseconds;
 		DifTimer = 40;
@@ -2855,8 +2854,9 @@ extern GLvoid KillGLWindow(GLvoid);
 
 void Scene(HDC hDC)
 {
-	g_Luminosity = sinf(WorldTime*0.004f)*0.15f+0.6f;
-	switch(SceneFlag)
+	g_Luminosity = sin(WorldTime * 0.004f) * 0.15f + 0.6f;
+
+	switch (SceneFlag)
 	{
 #ifdef MOVIE_DIRECTSHOW
 	case MOVIE_SCENE:
@@ -2864,19 +2864,19 @@ void Scene(HDC hDC)
 		break;
 #endif // MOVIE_DIRECTSHOW
 	case WEBZEN_SCENE:
-        WebzenScene(hDC);
+		WebzenScene(hDC);
 		break;
 	case LOADING_SCENE:
-      	LoadingScene(hDC);
+		LoadingScene(hDC);
 		break;
 	case LOG_IN_SCENE:
 	case CHARACTER_SCENE:
 	case MAIN_SCENE:
 		MainScene(hDC);
 		break;
-	}
+    }
 
-	if ( g_iNoMouseTime > 31)
+	if (g_iNoMouseTime > 31)
 	{
 		KillGLWindow();
 	}
