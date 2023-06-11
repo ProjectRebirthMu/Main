@@ -1950,7 +1950,7 @@ void CreateFrustrum2D(vec3_t Position)
 				}
 				else
 				{
-					Width = (float)GetScreenWidth() / 640.f;
+					Width = (float)GetScreenWidth() / 500.f;
 				}
 
 				if (SceneFlag == LOG_IN_SCENE)
