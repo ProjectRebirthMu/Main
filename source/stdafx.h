@@ -65,6 +65,7 @@
 #include <algorithm>
 #include <vector>
 #include <queue>
+#include <cmath>
 
 #pragma warning( pop )
 

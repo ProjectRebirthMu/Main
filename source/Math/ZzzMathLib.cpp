@@ -7,23 +7,23 @@ vec3_t vec3_origin = {0,0,0};
 
 int VectorCompare(const vec3_t v1, const vec3_t v2)
 {
-	const float EPSILON = 0.0001f; // defina uma constante de processador com um valor adequado
+	const float EPSILON = 0.0001f;
 	for (int i = 0; i < 3; ++i)
 	{
-		if (fabsf(v1[i] - v2[i]) > EPSILON) // use fabsf em vez de fabs para floats
+		if (std::fabs(v1[i] - v2[i]) > EPSILON)
 		{
-			return 0;
+			return false;
 		}
 	}
-	return 1;
+	return true;
 }
 
-int QuaternionCompare(vec4_t v1, vec4_t v2)
+int QuaternionCompare(const vec4_t v1, const vec4_t v2)
 {
-	int i;
-	for (i = 0; i < 4; i++)
+#pragma omp parallel for
+	for (int i = 0; i < 4; i++)
 	{
-		if (fabs(v1[i] - v2[i]) > EQUAL_EPSILON)
+		if (std::fabs(v1[i] - v2[i]) > EQUAL_EPSILON)
 		{
 			return 0;
 		}
@@ -59,9 +59,10 @@ void VectorDistanceInterpolation_F(vec3_t& v_out, const vec3_t& v_Distance, cons
 
 float VectorDistance3D(const vec3_t& vPosStart, const vec3_t& vPosEnd)
 {
-	vec3_t v3Dist;
-	VectorSubtract(vPosEnd, vPosStart, v3Dist);
-	return sqrt(v3Dist[0] * v3Dist[0] + v3Dist[1] * v3Dist[1] + v3Dist[2] * v3Dist[2]);
+	vec3_t vDist;
+	VectorSubtract(vPosEnd, vPosStart, vDist);
+	float squaredDist = vDist[0] * vDist[0] + vDist[1] * vDist[1] + vDist[2] * vDist[2];
+	return sqrtf(squaredDist);
 }
 
 void VectorDistance3D_Dir(const vec3_t& vPosStart, const vec3_t& vPosEnd, vec3_t& vDirDist)
@@ -71,8 +72,10 @@ void VectorDistance3D_Dir(const vec3_t& vPosStart, const vec3_t& vPosEnd, vec3_t
 
 float VectorDistance3D_DirDist(const vec3_t& vPosStart, const vec3_t& vPosEnd, vec3_t& vOut)
 {
-	VectorSubtract(vPosEnd, vPosStart, vOut);
-	return sqrt(vOut[0] * vOut[0] + vOut[1] * vOut[1] + vOut[2] * vOut[2]);
+	vec3_t vDist;
+	VectorSubtract(vPosEnd, vPosStart, vDist);
+	float squaredDist = vDist[0] * vDist[0] + vDist[1] * vDist[1] + vDist[2] * vDist[2];
+	return sqrtf(squaredDist);
 }
 
 vec_t Q_rint(vec_t in)
@@ -136,20 +139,16 @@ void CrossProduct(vec3_t v1, vec3_t v2, vec3_t cross)
 
 vec_t VectorNormalize(vec3_t v)
 {
-	int i;
-	float length;
-	if (fabs(v[1] - 0.000215956) < 0.0001)
-		i = 1;
+	float lengthSquared = 0.0f;
+	for (int i = 0; i < 3; i++)
+		lengthSquared += v[i] * v[i];
 
-	length = 0;
-	for (i = 0; i < 3; i++)
-		length += v[i] * v[i];
-	length = sqrtf(length);
-	if (length == 0)
-		return 0;
-
-	for (i = 0; i < 3; i++)
-		v[i] /= length;
+	float length = sqrtf(lengthSquared);
+	if (length != 0.0f)
+	{
+		for (int i = 0; i < 3; i++)
+			v[i] /= length;
+	}
 
 	return length;
 }
@@ -163,21 +162,16 @@ void VectorInverse(vec3_t v)
 
 void ClearBounds(vec3_t mins, vec3_t maxs)
 {
-	mins[0] = mins[1] = mins[2] = 99999;
-	maxs[0] = maxs[1] = maxs[2] = -99999;
+	mins[0] = mins[1] = mins[2] = FLT_MAX;
+	maxs[0] = maxs[1] = maxs[2] = -FLT_MAX;
 }
 
-void AddPointToBounds(vec3_t v, vec3_t mins, vec3_t maxs)
+void AddPointToBounds(const vec3_t v, vec3_t mins, vec3_t maxs)
 {
-	int i;
-	vec_t val;
-	for (i = 0; i < 3; i++)
+	for (int i = 0; i < 3; i++)
 	{
-		val = v[i];
-		if (val < mins[i])
-			mins[i] = val;
-		if (val > maxs[i])
-			maxs[i] = val;
+		mins[i] = min(mins[i], v[i]);
+		maxs[i] = max(maxs[i], v[i]);
 	}
 }
 
@@ -203,70 +197,58 @@ void AngleMatrix(const vec3_t angles, float(*matrix)[4])
 	matrix[0][1] = sr * sp * cy + cr * -sy;
 	matrix[1][1] = sr * sp * sy + cr * cy;
 	matrix[2][1] = sr * cp;
-	matrix[0][2] = (cr * sp * cy + -sr * -sy);
-	matrix[1][2] = (cr * sp * sy + -sr * cy);
+	matrix[0][2] = cr * sp * cy + -sr * -sy;
+	matrix[1][2] = cr * sp * sy + -sr * cy;
 	matrix[2][2] = cr * cp;
 	matrix[0][3] = 0.0;
 	matrix[1][3] = 0.0;
 	matrix[2][3] = 0.0;
 }
 
-void AngleIMatrix (const vec3_t angles, float matrix[3][4] )
+void AngleIMatrix(const vec3_t angles, float matrix[3][4])
 {
-	float		angle;
-	float		sr, sp, sy, cr, cp, cy;
-	
-	angle = angles[2] * (Q_PI*2 / 360);
+	float angle;
+	float sr, sp, sy, cr, cp, cy;
+
+	angle = angles[2] * (Q_PI * 2 / 360);
 	sy = sinf(angle);
 	cy = cosf(angle);
-	angle = angles[1] * (Q_PI*2 / 360);
+
+	angle = angles[1] * (Q_PI * 2 / 360);
 	sp = sinf(angle);
 	cp = cosf(angle);
-	angle = angles[0] * (Q_PI*2 / 360);
+
+	angle = angles[0] * (Q_PI * 2 / 360);
 	sr = sinf(angle);
 	cr = cosf(angle);
 
 	// matrix = (Z * Y) * X
-	matrix[0][0] = cp*cy;
-	matrix[0][1] = cp*sy;
+	matrix[0][0] = cp * cy;
+	matrix[0][1] = cp * sy;
 	matrix[0][2] = -sp;
-	matrix[1][0] = sr*sp*cy+cr*-sy;
-	matrix[1][1] = sr*sp*sy+cr*cy;
-	matrix[1][2] = sr*cp;
-	matrix[2][0] = (cr*sp*cy+-sr*-sy);
-	matrix[2][1] = (cr*sp*sy+-sr*cy);
-	matrix[2][2] = cr*cp;
 	matrix[0][3] = 0.0f;
+
+	matrix[1][0] = sr * sp * cy + cr * -sy;
+	matrix[1][1] = sr * sp * sy + cr * cy;
+	matrix[1][2] = sr * cp;
 	matrix[1][3] = 0.0f;
+
+	matrix[2][0] = cr * sp * cy + -sr * -sy;
+	matrix[2][1] = cr * sp * sy + -sr * cy;
+	matrix[2][2] = cr * cp;
 	matrix[2][3] = 0.0f;
 }
 
 void R_ConcatTransforms(const float in1[3][4], const float in2[3][4], float out[3][4])
 {
-	out[0][0] = in1[0][0] * in2[0][0] + in1[0][1] * in2[1][0] +
-		in1[0][2] * in2[2][0];
-	out[0][1] = in1[0][0] * in2[0][1] + in1[0][1] * in2[1][1] +
-		in1[0][2] * in2[2][1];
-	out[0][2] = in1[0][0] * in2[0][2] + in1[0][1] * in2[1][2] +
-		in1[0][2] * in2[2][2];
-	out[0][3] = in1[0][0] * in2[0][3] + in1[0][1] * in2[1][3] +
-		in1[0][2] * in2[2][3] + in1[0][3];
-	out[1][0] = in1[1][0] * in2[0][0] + in1[1][1] * in2[1][0] +
-		in1[1][2] * in2[2][0];
-	out[1][1] = in1[1][0] * in2[0][1] + in1[1][1] * in2[1][1] +
-		in1[1][2] * in2[2][1];
-	out[1][2] = in1[1][0] * in2[0][2] + in1[1][1] * in2[1][2] +
-		in1[1][2] * in2[2][2];
-	out[1][3] = in1[1][0] * in2[0][3] + in1[1][1] * in2[1][3] +
-		in1[1][2] * in2[2][3] + in1[1][3];
-	out[2][0] = in1[2][0] * in2[0][0] + in1[2][1] * in2[1][0] +
-		in1[2][2] * in2[2][0];
-	out[2][1] = in1[2][0] * in2[0][1] + in1[2][1] * in2[1][1] +
-		in1[2][2] * in2[2][1];
-	out[2][2] = in1[2][0] * in2[0][2] + in1[2][1] * in2[1][2] +
-		in1[2][2] * in2[2][2];
-	out[2][3] = in1[2][0] * in2[0][3] + in1[2][1] * in2[1][3] +
-		in1[2][2] * in2[2][3] + in1[2][3];
+	for (int row = 0; row < 3; row++) {
+		for (int col = 0; col < 4; col++) {
+			out[row][col] = in1[row][0] * in2[0][col] +
+				in1[row][1] * in2[1][col] +
+				in1[row][2] * in2[2][col];
+		}
+		out[row][3] += in1[row][3];
+	}
 }
 
 void VectorRotate (const vec3_t in1, const float in2[3][4], vec3_t out)
@@ -320,7 +302,7 @@ void AngleQuaternion(const vec3_t angles, vec4_t quaternion)
 	quaternion[3] = cr * cp * cy + sr * sp * sy; // W
 }
 
-void QuaternionMatrix(const vec4_t quaternion, float(*matrix)[4])
+void QuaternionMatrix(const vec4_t quaternion, float matrix[3][4])
 {
 	matrix[0][0] = 1.0f - 2.0f * quaternion[1] * quaternion[1] - 2.0f * quaternion[2] * quaternion[2];
 	matrix[1][0] = 2.0f * quaternion[0] * quaternion[1] + 2.0f * quaternion[3] * quaternion[2];

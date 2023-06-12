@@ -2039,7 +2039,7 @@ bool GMEmpireGuardian1::RenderMonsterVisual(CHARACTER* c, OBJECT* o, BMD* b)
 		{
 			vec3_t vRelative;
 			Vector( 0.0f, 0.0f ,0.0f ,vRelative )
-			float fLumi1 = (sinf(WorldTime*0.004f) + 0.9f) * 0.25f;
+			float fLumi1 = (std::sin(WorldTime * 0.004f) + 0.9f) * 0.25f;
 			
 			Vector(0.05f+fLumi1, 0.75f+fLumi1, 0.35f+fLumi1, vLight);
 
