@@ -1,3 +1,4 @@
+// Object Manager
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -49,350 +50,337 @@
 extern vec3_t VertexTransform[MAX_MESH][MAX_VERTICES];
 extern vec3_t LightTransform[MAX_MESH][MAX_VERTICES];
 
-int          g_iTotalObj = 0;
-OBJECT_BLOCK ObjectBlock [256];
-OBJECT       Boids		 [MAX_BOIDS];
-OBJECT       Fishs		 [MAX_FISHS];
-OBJECT       Butterfles  [MAX_BUTTERFLES];
-OPERATE      Operates    [MAX_OPERATES];
-//int   World = -1;
-float EarthQuake;
+int g_iTotalObj = 0;
+OBJECT_BLOCK ObjectBlock[256];
+OBJECT Boids[MAX_BOIDS];
+OBJECT Fishs[MAX_FISHS];
+OBJECT Butterfles[MAX_BUTTERFLES];
+OPERATE Operates[MAX_OPERATES];
+float EarthQuake = 0.0f;
 
+static int g_iThunderTime = 0;
+int g_iActionObjectType = -1;
+int g_iActionWorld = -1;
+int g_iActionTime = -1;
+float g_fActionObjectVelocity = -1.0f;
 
-static  int g_iThunderTime = 0;
-        int g_iActionObjectType = -1;
-        int g_iActionWorld = -1;
-        int g_iActionTime  = -1;
-        float g_fActionObjectVelocity = -1;
-
-void ClearActionObject ()
+void ClearActionObject()
 {
-    g_iActionObjectType = -1;
-    g_iActionWorld = -1;
-    g_iActionTime  = -1;
-    g_fActionObjectVelocity = -1;
+	g_iActionObjectType = -1;
+	g_iActionWorld = -1;
+	g_iActionTime = -1;
+	g_fActionObjectVelocity = -1.0f;
 }
 
-void SetActionObject ( int iWorld, int iType, int iLifeTime, int iVel )
+void SetActionObject(int iWorld, int iType, int iLifeTime, int iVel)
 {
-    g_iActionWorld      = iWorld;
-    g_iActionObjectType = iType;
-    g_iActionTime       = iLifeTime;
-    g_fActionObjectVelocity = (float)iVel;
+	g_iActionWorld = iWorld;
+	g_iActionObjectType = iType;
+	g_iActionTime = iLifeTime;
+	g_fActionObjectVelocity = static_cast<float>(iVel);
 }
 
-void ActionObject ( OBJECT* o )
+void ActionObject(OBJECT* o)
 {
-    if ( g_iActionWorld<0 )     return;
-    if ( g_iActionObjectType<0 )return;
-    if ( g_iActionTime<0 )      return;
+	if (g_iActionWorld < 0) return;
+	if (g_iActionObjectType < 0) return;
+	if (g_iActionTime < 0) return;
 
-    if ( gMapManager.WorldActive == g_iActionWorld )
-    {
-        if ( MoveChaosCastleAllObject( o ) ) return;
-        {
-            vec3_t  Position, Light;
-
-            Vector ( 1.f, 1.f, 1.f, Light );
-            if ( o->Type==g_iActionObjectType || o->Type==9 || o->Type==10 )
-            {
-                if ( o->Type==9 )
-                {
-                    if ( g_iActionTime==0 )
-                    {
-                        o->HiddenMesh = -1;
-                        o->PKKey = 4;
-                    }
-                }
-                else if ( o->Type==10 )
-                {
-                    if ( g_iActionTime==0 )
-                    {
-                        o->HiddenMesh = -1;
-                        o->PKKey = 4;
-                    }
-                }
-                else if ( o->Type==g_iActionObjectType )
-                {
-                    if ( g_iActionTime==20 )
-                    {
-                        o->Angle[0] = 35.f;
-                        o->HiddenMesh = -1;
-
-                        PlayBuffer ( SOUND_DOWN_GATE );
-                    }
-
-                    if ( g_iActionTime>=0 )
-                    {
-                        o->Angle[0] += g_fActionObjectVelocity;
-                        g_fActionObjectVelocity += 1.5f;
-
-                        if ( o->Angle[0]>=90.f )
-                        {
-                            o->Angle[0] -= g_iActionTime;
-                            g_fActionObjectVelocity = 2.f;
-
-					        VectorCopy ( o->Position, Position );
-
-                            if ( o->Angle[0]==80 )
-                            {
-                                for ( int i=0; i<10; ++i )
-                                {
-                                    Position[0] = o->Position[0] + (rand()%300-150.f);
-                                    Position[1] = o->Position[1] - (rand()%20+600.f);
-                                    CreateParticle(BITMAP_SMOKE+1,Position,o->Angle,o->Light);
-                                }
-                            }
-                        }
-                        if ( g_iActionTime==0 )
-                        {
-                            o->HiddenMesh = -2;
-                            o->Angle[0] = 90.f;
-                            ClearActionObject ();
-
-                            AddTerrainAttributeRange ( 13, 70, 3, 6, TW_NOGROUND, false );
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-OBJECT *CollisionDetectObjects(OBJECT *PickObject)
-{
-	OBJECT *Object = NULL;
-	InitCollisionDetectLineToFace();
-	for(int i=0;i<16;i++)
+	if (gMapManager.WorldActive == g_iActionWorld)
 	{
-		for(int j=0;j<16;j++)
+		if (MoveChaosCastleAllObject(o)) return;
+
+		vec3_t Position, Light;
+		Vector(1.0f, 1.0f, 1.0f, Light);
+
+		if (o->Type == g_iActionObjectType || o->Type == 9 || o->Type == 10)
 		{
-			OBJECT_BLOCK *ob = &ObjectBlock[i*16+j];
-			OBJECT       *o  = ob->Head;
-			while(1)
+			if (o->Type == 9 && g_iActionTime == 0)
 			{
-				if(o != NULL) 
+				o->HiddenMesh = -1;
+				o->PKKey = 4;
+			}
+			else if (o->Type == 10 && g_iActionTime == 0)
+			{
+				o->HiddenMesh = -1;
+				o->PKKey = 4;
+			}
+			else if (o->Type == g_iActionObjectType)
+			{
+				if (g_iActionTime == 20)
 				{
-					if(o->Live && o->Visible && o->Alpha>=0.01f)
+					o->Angle[0] = 35.0f;
+					o->HiddenMesh = -1;
+					PlayBuffer(SOUND_DOWN_GATE);
+				}
+
+				if (g_iActionTime >= 0)
+				{
+					o->Angle[0] += g_fActionObjectVelocity;
+					g_fActionObjectVelocity += 1.5f;
+
+					if (o->Angle[0] >= 90.0f)
 					{
-						//if(o != PickObject)
+						o->Angle[0] -= g_iActionTime;
+						g_fActionObjectVelocity = 2.0f;
+						VectorCopy(o->Position, Position);
+
+						if (o->Angle[0] == 80)
 						{
-							BMD *b = &Models[o->Type];
-							b->BodyScale     = o->Scale;
-							b->CurrentAction = o->CurrentAction;
-							VectorCopy(o->Position,b->BodyOrigin);
-							b->Animation(BoneTransform,o->AnimationFrame,o->PriorAnimationFrame,o->PriorAction,o->Angle,o->HeadAngle,false,false);
-							b->Transform(BoneTransform,o->BoundingBoxMin,o->BoundingBoxMax,&o->OBB,true);
-							if(CollisionDetectLineToOBB(MousePosition,MouseTarget,o->OBB))
+							for (int i = 0; i < 10; ++i)
 							{
-								if(b->CollisionDetectLineToMesh(MousePosition,MouseTarget))
-								{
-									Object = o;
-									//return Object;
-								}
+								Position[0] = o->Position[0] + (rand() % 300 - 150.0f);
+								Position[1] = o->Position[1] - (rand() % 20 + 600.0f);
+								CreateParticle(BITMAP_SMOKE + 1, Position, o->Angle, o->Light);
 							}
 						}
 					}
-					if(o->Next == NULL) break;
-					o = o->Next;
+
+					if (g_iActionTime == 0)
+					{
+						o->HiddenMesh = -2;
+						o->Angle[0] = 90.0f;
+						ClearActionObject();
+						AddTerrainAttributeRange(13, 70, 3, 6, TW_NOGROUND, false);
+					}
 				}
-				else break;
 			}
 		}
 	}
+}
+
+OBJECT* CollisionDetectObjects(OBJECT* PickObject)
+{
+	OBJECT* Object = NULL;
+	InitCollisionDetectLineToFace();
+
+	for (int i = 0; i < 16; i++)
+	{
+		for (int j = 0; j < 16; j++)
+		{
+			OBJECT_BLOCK* ob = &ObjectBlock[i * 16 + j];
+			OBJECT* o = ob->Head;
+
+			while (o != NULL)
+			{
+				if (o->Live && o->Visible && o->Alpha >= 0.01f)
+				{
+					BMD* b = &Models[o->Type];
+					b->BodyScale = o->Scale;
+					b->CurrentAction = o->CurrentAction;
+					VectorCopy(o->Position, b->BodyOrigin);
+					b->Animation(BoneTransform, o->AnimationFrame, o->PriorAnimationFrame, o->PriorAction, o->Angle, o->HeadAngle, false, false);
+					b->Transform(BoneTransform, o->BoundingBoxMin, o->BoundingBoxMax, &o->OBB, true);
+
+					if (CollisionDetectLineToOBB(MousePosition, MouseTarget, o->OBB) && b->CollisionDetectLineToMesh(MousePosition, MouseTarget))
+					{
+						Object = o;
+						break;
+					}
+				}
+
+				o = o->Next;
+			}
+		}
+	}
+
 	return Object;
 }
 
-void BodyLight(OBJECT *o,BMD *b)
+void BodyLight(OBJECT* o, BMD* b)
 {
-	if ( o->Type == MODEL_MONSTER01+55)
+	if (o->Type == MODEL_MONSTER01 + 55)
 	{
-		Vector( .6f, .6f, .6f, b->BodyLight);
+		Vector(0.6f, 0.6f, 0.6f, b->BodyLight);
 		return;
 	}
-    if ( o->Type==MODEL_PROTECT )
-    {
-        float Luminosity = sinf( WorldTime*0.003f )*0.5f+0.5f;
-        Vector( Luminosity, Luminosity, Luminosity, b->BodyLight );
-        return;
-    }
 
-	b->LightEnable    = o->LightEnable;
-	if(o->LightEnable)
+	if (o->Type == MODEL_PROTECT)
 	{
-		vec3_t Light;
-		RequestTerrainLight(o->Position[0],o->Position[1],Light);
-		VectorAdd(Light,o->Light,b->BodyLight);
+		float Luminosity = sinf(WorldTime * 0.003f) * 0.5f + 0.5f;
+		Vector(Luminosity, Luminosity, Luminosity, b->BodyLight);
+		return;
+	}
+
+	b->LightEnable = o->LightEnable;
+
+	vec3_t Light;
+	RequestTerrainLight(o->Position[0], o->Position[1], Light);
+
+	if (o->LightEnable)
+	{
+		VectorAdd(Light, o->Light, b->BodyLight);
 	}
 	else
 	{
-		vec3_t Light;
-		RequestTerrainLight(o->Position[0],o->Position[1],Light);
-		VectorScale(Light,0.1f,Light);
-		VectorAdd(Light,o->Light,b->BodyLight);
+		VectorScale(Light, 0.1f, Light);
+		VectorAdd(Light, o->Light, b->BodyLight);
 	}
 }
 
 extern float BoneScale;
 
-bool Calc_RenderObject(OBJECT *o,bool Translate,int Select, int ExtraMon)
+bool Calc_RenderObject(OBJECT* o, bool Translate, int Select, int ExtraMon)
 {
-    if(gMapManager.InChaosCastle() == true && Hero->Object.m_bActionStart == true)
-    {
-        o->Alpha -= 0.15f;
-    }
+	if (gMapManager.InChaosCastle() && Hero->Object.m_bActionStart)
+	{
+		o->Alpha -= 0.15f;
+	}
 
-	if(o->Alpha < 0.01f)
+	if (o->Alpha < 0.01f)
 	{
 		return false;
 	}
-	
-	BMD *b = &Models[o->Type];
+
+	BMD* b = &Models[o->Type];
 	b->BodyHeight = 0.f;
 	b->ContrastEnable = o->ContrastEnable;
-	BodyLight(o,b);
+	BodyLight(o, b);
 	b->BodyScale = o->Scale;
 	b->CurrentAction = o->CurrentAction;
-	VectorCopy(o->Position,b->BodyOrigin);
+	VectorCopy(o->Position, b->BodyOrigin);
 
-    if ( o->Type==MODEL_MONSTER01+61 )
-    {
-        vec3_t Position;
-		VectorCopy(o->Position,Position);
-
-        Position[1] += 60.f;
-		VectorCopy(Position,b->BodyOrigin);
-    }
-    else if ( o->Type==MODEL_MONSTER01+60 )
-    {
-        vec3_t Position;
-		VectorCopy(o->Position,Position);
-
-        Position[1] += 120.f;
-		VectorCopy(Position,b->BodyOrigin);
-    }
-
-	if(o->Owner != NULL)
+	if (o->Type == MODEL_MONSTER01 + 61)
 	{
-		if(g_isCharacterBuff(o->Owner, eDeBuff_Stun) || g_isCharacterBuff(o->Owner, eDeBuff_Sleep) )	
+		vec3_t Position;
+		VectorCopy(o->Position, Position);
+		Position[1] += 60.f;
+		VectorCopy(Position, b->BodyOrigin);
+	}
+	else if (o->Type == MODEL_MONSTER01 + 60)
+	{
+		vec3_t Position;
+		VectorCopy(o->Position, Position);
+		Position[1] += 120.f;
+		VectorCopy(Position, b->BodyOrigin);
+	}
+
+	if (o->Owner != NULL)
+	{
+		if (g_isCharacterBuff(o->Owner, eDeBuff_Stun) || g_isCharacterBuff(o->Owner, eDeBuff_Sleep))
 		{
 			o->AnimationFrame = 0.f;
 		}
 	}
 
-	if(o->EnableBoneMatrix)
+	if (o->EnableBoneMatrix)
 	{
-		b->Animation(o->BoneTransform,o->AnimationFrame,o->PriorAnimationFrame,o->PriorAction,o->Angle,o->HeadAngle,false,!Translate);
+		b->Animation(o->BoneTransform, o->AnimationFrame, o->PriorAnimationFrame, o->PriorAction, o->Angle, o->HeadAngle, false, !Translate);
 	}
 	else
 	{
-        b->Animation(BoneTransform,o->AnimationFrame,o->PriorAnimationFrame,o->PriorAction,o->Angle,o->HeadAngle,false,!Translate );
+		b->Animation(BoneTransform, o->AnimationFrame, o->PriorAnimationFrame, o->PriorAction, o->Angle, o->HeadAngle, false, !Translate);
 	}
 
 	BoneScale = 1.f;
-	if(3==Select)
+	if (Select == 3)
 	{
 		BoneScale = 1.4f;
 	}
-	else if(2==Select)
+	else if (Select == 2)
 	{
 		BoneScale = 1.2f;
 	}
-	else if(1==Select)
+	else if (Select == 1)
 	{
-      	b->LightEnable = false;
-			
-	    if(gMapManager.InChaosCastle() == true || o->Kind != KIND_NPC )
+		b->LightEnable = false;
+
+		if (gMapManager.InChaosCastle() || o->Kind != KIND_NPC)
 		{
-			Vector(0.1f,0.01f,0.f,b->BodyLight);
-			if(o->Type == MODEL_MONSTER01+32)
+			Vector(0.1f, 0.01f, 0.f, b->BodyLight);
+			if (o->Type == MODEL_MONSTER01 + 32)
 			{
-		     	BoneScale = 1.2f;
+				BoneScale = 1.2f;
 			}
 			else
 			{
 				BoneScale = 1.f + (0.1f / o->Scale);
 			}
-	        if( o->m_fEdgeScale != 1.2f)
-	        {
-	            BoneScale = o->m_fEdgeScale;
-	        }
+			if (o->m_fEdgeScale != 1.2f)
+			{
+				BoneScale = o->m_fEdgeScale;
+			}
 		}
 		else
 		{
-			Vector(0.02f,0.1f,0.f,b->BodyLight);
+			Vector(0.02f, 0.1f, 0.f, b->BodyLight);
 			BoneScale = 1.2f;
-	        BoneScale = o->m_fEdgeScale;
+			BoneScale = o->m_fEdgeScale;
 		}
+
 		float Scale = BoneScale;
-	    RenderPartObjectEdge(b, o, RENDER_BRIGHT, Translate, Scale);
-		
-	    if(gMapManager.InChaosCastle() == true || o->Kind != KIND_NPC)
+		RenderPartObjectEdge(b, o, RENDER_BRIGHT, Translate, Scale);
+
+		if (gMapManager.InChaosCastle() || o->Kind != KIND_NPC)
 		{
-			Vector(0.7f,0.07f,0.f,b->BodyLight);
-			if(o->Type == MODEL_MONSTER01+32)
+			Vector(0.7f, 0.07f, 0.f, b->BodyLight);
+			if (o->Type == MODEL_MONSTER01 + 32)
 			{
-		     	BoneScale = 1.08f;
+				BoneScale =
+
+					1.08f;
 			}
 			else
 			{
-		     	BoneScale = 1.f + (0.04f / o->Scale);
+				BoneScale = 1.f + (0.04f / o->Scale);
 			}
-	        if(o->m_fEdgeScale != 1.2f)
-	        {
-	            BoneScale = maxf(o->m_fEdgeScale - 0.04f, 1.01f);
-	        }
+			if (o->m_fEdgeScale != 1.2f)
+			{
+				BoneScale = maxf(o->m_fEdgeScale - 0.04f, 1.01f);
+			}
 		}
 		else
 		{
-			Vector(0.16f,0.7f,0.f,b->BodyLight);
+			Vector(0.16f, 0.7f, 0.f, b->BodyLight);
 			BoneScale = 1.08f;
-	        BoneScale = maxf(o->m_fEdgeScale - 0.12f, 1.01f);
+			BoneScale = maxf(o->m_fEdgeScale - 0.12f, 1.01f);
 		}
 
-	    Scale = BoneScale;
-	    RenderPartObjectEdge(b, o, RENDER_BRIGHT, Translate, Scale);
-		BodyLight(o,b);
+		Scale = BoneScale;
+		RenderPartObjectEdge(b, o, RENDER_BRIGHT, Translate, Scale);
+		BodyLight(o, b);
 		BoneScale = 1.f;
 	}
 
-	if(o->EnableBoneMatrix)
+	if (o->EnableBoneMatrix)
 	{
-		b->Transform(o->BoneTransform,o->BoundingBoxMin,o->BoundingBoxMax,&o->OBB,Translate);
+		b->Transform(o->BoneTransform, o->BoundingBoxMin, o->BoundingBoxMax, &o->OBB, Translate);
 	}
 	else
 	{
-		b->Transform(BoneTransform,o->BoundingBoxMin,o->BoundingBoxMax,&o->OBB,Translate);
+		b->Transform(BoneTransform, o->BoundingBoxMin, o->BoundingBoxMax, &o->OBB, Translate);
 	}
 
 	return true;
 }
 
-bool Calc_ObjectAnimation ( OBJECT* o, bool Translate, int Select )
+bool Calc_ObjectAnimation(OBJECT* o, bool Translate, int Select)
 {
-    if ( gMapManager.InChaosCastle()==true && Hero->Object.m_bActionStart )
-    {
-        o->Alpha -= 0.15f;
-    }
-
-	if(o->Alpha < 0.01f) return false;
-	
-	BMD *b = &Models[o->Type];
-	b->BodyHeight     = 0.f;
-	b->ContrastEnable = o->ContrastEnable;
-	BodyLight(o,b);
-	b->BodyScale     = o->Scale;
-	b->CurrentAction = o->CurrentAction;
-	VectorCopy(o->Position,b->BodyOrigin);
-
-	if ( o->EnableBoneMatrix )
+	if (gMapManager.InChaosCastle() && Hero->Object.m_bActionStart)
 	{
-		b->Animation ( o->BoneTransform, o->AnimationFrame, o->PriorAnimationFrame, o->PriorAction, o->Angle, o->HeadAngle, false, !Translate );
+		o->Alpha -= 0.15f;
+	}
+
+	if (o->Alpha < 0.01f)
+		return false;
+
+	BMD* b = &Models[o->Type];
+	b->BodyHeight = 0.f;
+	b->ContrastEnable = o->ContrastEnable;
+	BodyLight(o, b);
+	b->BodyScale = o->Scale;
+	b->CurrentAction = o->CurrentAction;
+	VectorCopy(o->Position, b->BodyOrigin);
+
+	if (o->EnableBoneMatrix)
+	{
+		b->Animation(o->BoneTransform, o->AnimationFrame, o->PriorAnimationFrame, o->PriorAction, o->Angle, o->HeadAngle, false, !Translate);
 	}
 	else
 	{
-        b->Animation ( BoneTransform, o->AnimationFrame, o->PriorAnimationFrame, o->PriorAction, o->Angle, o->HeadAngle, false, !Translate );
+		b->Animation(BoneTransform, o->AnimationFrame, o->PriorAnimationFrame, o->PriorAction, o->Angle, o->HeadAngle, false, !Translate);
 	}
+
 	return true;
 }
 
@@ -407,48 +395,43 @@ void Draw_RenderObject(OBJECT *o,bool Translate,int Select, int ExtraMon)
 		{
 			float Alpha = 0.5f;
 
-			for ( int i=0; i<MAX_CHARACTERS_CLIENT; ++i )
+			for (int i = 0; i < MAX_CHARACTERS_CLIENT; ++i)
 			{
-				CHARACTER *c = &CharactersClient[i];
-				OBJECT *oa = &c->Object;
-				OBJECT *ob = o->Owner;
-				
+				CHARACTER* c = &CharactersClient[i];
+				OBJECT* oa = &c->Object;
+				OBJECT* ob = o->Owner;
 
-				if(oa == ob)
+				if (oa == ob)
 				{
-					if ( c!=Hero && battleCastle::IsBattleCastleStart()==true && g_isCharacterBuff(ob, eBuff_Cloaking) )
+					if (c != Hero && battleCastle::IsBattleCastleStart() == true && g_isCharacterBuff(ob, eBuff_Cloaking))
 					{
-
-						if ( Hero->EtcPart==PARTS_ATTACK_KING_TEAM_MARK || Hero->EtcPart==PARTS_ATTACK_TEAM_MARK )
+						if (Hero->EtcPart == PARTS_ATTACK_KING_TEAM_MARK || Hero->EtcPart == PARTS_ATTACK_TEAM_MARK)
 						{
-							if(!( c->EtcPart==PARTS_ATTACK_KING_TEAM_MARK || c->EtcPart==PARTS_ATTACK_TEAM_MARK ))
+							if (!(c->EtcPart == PARTS_ATTACK_KING_TEAM_MARK || c->EtcPart == PARTS_ATTACK_TEAM_MARK))
 							{
 								View = false;
 								break;
 							}
 						}
-						else
-						if ( Hero->EtcPart==PARTS_ATTACK_KING_TEAM_MARK2 || Hero->EtcPart==PARTS_ATTACK_TEAM_MARK2 )
+						else if (Hero->EtcPart == PARTS_ATTACK_KING_TEAM_MARK2 || Hero->EtcPart == PARTS_ATTACK_TEAM_MARK2)
 						{
-							if(!( c->EtcPart==PARTS_ATTACK_KING_TEAM_MARK2 || c->EtcPart==PARTS_ATTACK_TEAM_MARK2 ))
+							if (!(c->EtcPart == PARTS_ATTACK_KING_TEAM_MARK2 || c->EtcPart == PARTS_ATTACK_TEAM_MARK2))
 							{
 								View = false;
 								break;
 							}
 						}
-						else
-						if ( Hero->EtcPart==PARTS_ATTACK_KING_TEAM_MARK3 || Hero->EtcPart==PARTS_ATTACK_TEAM_MARK3 )
+						else if (Hero->EtcPart == PARTS_ATTACK_KING_TEAM_MARK3 || Hero->EtcPart == PARTS_ATTACK_TEAM_MARK3)
 						{
-							if(!( c->EtcPart==PARTS_ATTACK_KING_TEAM_MARK3 || c->EtcPart==PARTS_ATTACK_TEAM_MARK3 ))
+							if (!(c->EtcPart == PARTS_ATTACK_KING_TEAM_MARK3 || c->EtcPart == PARTS_ATTACK_TEAM_MARK3))
 							{
 								View = false;
 								break;
 							}
 						}
-						else
-						if ( Hero->EtcPart==PARTS_DEFENSE_KING_TEAM_MARK || Hero->EtcPart==PARTS_DEFENSE_TEAM_MARK )
+						else if (Hero->EtcPart == PARTS_DEFENSE_KING_TEAM_MARK || Hero->EtcPart == PARTS_DEFENSE_TEAM_MARK)
 						{
-							if(!( c->EtcPart==PARTS_DEFENSE_KING_TEAM_MARK || c->EtcPart==PARTS_DEFENSE_TEAM_MARK ))
+							if (!(c->EtcPart == PARTS_DEFENSE_KING_TEAM_MARK || c->EtcPart == PARTS_DEFENSE_TEAM_MARK))
 							{
 								View = false;
 								break;
@@ -514,8 +497,6 @@ void Draw_RenderObject(OBJECT *o,bool Translate,int Select, int ExtraMon)
 		}
 		else if (o->Type == MODEL_SUMMON)
 		{
-//			Vector(0.4f,0.5f,1.f,b->BodyLight);
-//			b->RenderBody(RENDER_TEXTURE,o->Alpha,o->BlendMesh,o->BlendMeshLight,o->BlendMeshTexCoordU,o->BlendMeshTexCoordV);
 			if(!M39Kanturu3rd::IsInKanturu3rd())
 			{
 				VectorCopy ( o->Light,b->BodyLight )

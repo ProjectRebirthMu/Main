@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
 
-vec3_t vec3_origin = {0,0,0};
+vec3_t vec3_origin = { 0,0,0 };
 
 int VectorCompare(const vec3_t v1, const vec3_t v2)
 {
@@ -241,14 +241,30 @@ void AngleIMatrix(const vec3_t angles, float matrix[3][4])
 
 void R_ConcatTransforms(const float in1[3][4], const float in2[3][4], float out[3][4])
 {
-	for (int row = 0; row < 3; row++) {
-		for (int col = 0; col < 4; col++) {
-			out[row][col] = in1[row][0] * in2[0][col] +
-				in1[row][1] * in2[1][col] +
-				in1[row][2] * in2[2][col];
-		}
-		out[row][3] += in1[row][3];
-	}
+	out[0][0] = in1[0][0] * in2[0][0] + in1[0][1] * in2[1][0] +
+		in1[0][2] * in2[2][0];
+	out[0][1] = in1[0][0] * in2[0][1] + in1[0][1] * in2[1][1] +
+		in1[0][2] * in2[2][1];
+	out[0][2] = in1[0][0] * in2[0][2] + in1[0][1] * in2[1][2] +
+		in1[0][2] * in2[2][2];
+	out[0][3] = in1[0][0] * in2[0][3] + in1[0][1] * in2[1][3] +
+		in1[0][2] * in2[2][3] + in1[0][3];
+	out[1][0] = in1[1][0] * in2[0][0] + in1[1][1] * in2[1][0] +
+		in1[1][2] * in2[2][0];
+	out[1][1] = in1[1][0] * in2[0][1] + in1[1][1] * in2[1][1] +
+		in1[1][2] * in2[2][1];
+	out[1][2] = in1[1][0] * in2[0][2] + in1[1][1] * in2[1][2] +
+		in1[1][2] * in2[2][2];
+	out[1][3] = in1[1][0] * in2[0][3] + in1[1][1] * in2[1][3] +
+		in1[1][2] * in2[2][3] + in1[1][3];
+	out[2][0] = in1[2][0] * in2[0][0] + in1[2][1] * in2[1][0] +
+		in1[2][2] * in2[2][0];
+	out[2][1] = in1[2][0] * in2[0][1] + in1[2][1] * in2[1][1] +
+		in1[2][2] * in2[2][1];
+	out[2][2] = in1[2][0] * in2[0][2] + in1[2][1] * in2[1][2] +
+		in1[2][2] * in2[2][2];
+	out[2][3] = in1[2][0] * in2[0][3] + in1[2][1] * in2[1][3] +
+		in1[2][2] * in2[2][3] + in1[2][3];
 }
 
 void VectorRotate (const vec3_t in1, const float in2[3][4], vec3_t out)
@@ -304,15 +320,20 @@ void AngleQuaternion(const vec3_t angles, vec4_t quaternion)
 
 void QuaternionMatrix(const vec4_t quaternion, float matrix[3][4])
 {
-	matrix[0][0] = 1.0f - 2.0f * quaternion[1] * quaternion[1] - 2.0f * quaternion[2] * quaternion[2];
-	matrix[1][0] = 2.0f * quaternion[0] * quaternion[1] + 2.0f * quaternion[3] * quaternion[2];
-	matrix[2][0] = 2.0f * quaternion[0] * quaternion[2] - 2.0f * quaternion[3] * quaternion[1];
-	matrix[0][1] = 2.0f * quaternion[0] * quaternion[1] - 2.0f * quaternion[3] * quaternion[2];
-	matrix[1][1] = 1.0f - 2.0f * quaternion[0] * quaternion[0] - 2.0f * quaternion[2] * quaternion[2];
-	matrix[2][1] = 2.0f * quaternion[1] * quaternion[2] + 2.0f * quaternion[3] * quaternion[0];
-	matrix[0][2] = 2.0f * quaternion[0] * quaternion[2] + 2.0f * quaternion[3] * quaternion[1];
-	matrix[1][2] = 2.0f * quaternion[1] * quaternion[2] - 2.0f * quaternion[3] * quaternion[0];
-	matrix[2][2] = 1.0f - 2.0f * quaternion[0] * quaternion[0] - 2.0f * quaternion[1] * quaternion[1];
+	const float& a = quaternion[0];
+	const float& b = quaternion[1];
+	const float& c = quaternion[2];
+	const float& d = quaternion[3];
+
+	matrix[0][0] = 1.0f - 2.0f * std::pow(b, 2) - 2.0f * std::pow(c, 2);
+	matrix[1][0] = 2.0f * a * b + 2.0f * d * c;
+	matrix[2][0] = 2.0f * a * c - 2.0f * d * b;
+	matrix[0][1] = 2.0f * a * b - 2.0f * d * c;
+	matrix[1][1] = 1.0f - 2.0f * std::pow(a, 2) - 2.0f * std::pow(c, 2);
+	matrix[2][1] = 2.0f * b * c + 2.0f * d * a;
+	matrix[0][2] = 2.0f * a * c + 2.0f * d * b;
+	matrix[1][2] = 2.0f * b * c - 2.0f * d * a;
+	matrix[2][2] = 1.0f - 2.0f * std::pow(a, 2) - 2.0f * std::pow(b, 2);
 	matrix[0][3] = 0.0f;
 	matrix[1][3] = 0.0f;
 	matrix[2][3] = 0.0f;
