@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
+// Binary Model Data 2.0
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -14,12 +14,10 @@
 #include "zzzEffect.h"
 #include "MapManager.h"
 #include "./Utilities/Log/muConsoleDebug.h"
-//#include "FillPolygon.h"
 #include "GMBattleCastle.h"
 #include "UIMng.h"
 #include "CameraMove.h"
 
-//BMD Models[MAX_MODELS];
 BMD *Models;
 BMD *ModelsDump;
 
@@ -35,124 +33,127 @@ vec3_t NormalTransform[MAX_MESH][MAX_VERTICES];
 float  IntensityTransform[MAX_MESH][MAX_VERTICES];
 vec3_t LightTransform[MAX_MESH][MAX_VERTICES];
 
-unsigned char ShadowBuffer[256*256];
-int           ShadowBufferWidth  = 256;
-int           ShadowBufferHeight = 256;
+#include <cstdint>
+#include <array>
 
-extern int  MouseX;
-extern int  MouseY;
+constexpr uint16_t ShadowBufferWidth = 256;
+constexpr uint16_t ShadowBufferHeight = 256;
+
+std::array<std::array<uint8_t, ShadowBufferWidth>, ShadowBufferHeight> ShadowBuffer;
+
+extern int MouseX;
+extern int MouseY;
 extern bool MouseLButton;
 
 bool  StopMotion = false;
 float ParentMatrix[3][4];
 
-static vec3_t LightVector = { 0.f, -0.1f, -0.8f };
-static vec3_t LightVector2 = { 0.f, -0.5f, -0.8f };
+#include <glm/glm.hpp>
+
+static glm::vec3 LightVector(0.0f, -0.1f, -0.8f);
+static glm::vec3 LightVector2(0.0f, -0.5f, -0.8f);
 
 #ifdef PBG_ADD_NEWCHAR_MONK_ANI
-void BMD::Animation(float (*BoneMatrix)[3][4],float AnimationFrame,float PriorFrame,unsigned short PriorAction,vec3_t Angle,vec3_t HeadAngle,bool Parent,bool Translate)
+void BMD::Animation(float(*BoneMatrix)[3][4], float AnimationFrame, float PriorFrame, unsigned short PriorAction, vec3_t Angle, vec3_t HeadAngle, bool Parent, bool Translate)
 #else //PBG_ADD_NEWCHAR_MONK_ANI
-void BMD::Animation(float (*BoneMatrix)[3][4],float AnimationFrame,float PriorFrame,unsigned char PriorAction,vec3_t Angle,vec3_t HeadAngle,bool Parent,bool Translate)
+void BMD::Animation(float(*BoneMatrix)[3][4], float AnimationFrame, float PriorFrame, unsigned char PriorAction, vec3_t Angle, vec3_t HeadAngle, bool Parent, bool Translate)
 #endif //PBG_ADD_NEWCHAR_MONK_ANI
 {
-    if ( NumActions<=0 ) return;
+	if (NumActions <= 0)
+		return;
 
-    if(PriorAction >= NumActions) PriorAction = 0;
-	if(CurrentAction >= NumActions)CurrentAction = 0;
-	VectorCopy(Angle,BodyAngle);
+	if (PriorAction >= NumActions)
+		PriorAction = 0;
+	if (CurrentAction >= NumActions)
+		CurrentAction = 0;
+	VectorCopy(Angle, BodyAngle);
 
- 	CurrentAnimation = AnimationFrame;
-	CurrentAnimationFrame = (int)AnimationFrame;
-	float s1 = (CurrentAnimation - CurrentAnimationFrame);
-	//if(StopMotion)
-	//	s1 = (int)(s1*4)/4;
-	float s2 = 1.f-s1;
-	int PriorAnimationFrame = (int)PriorFrame;
-	if(NumActions > 0)
+	CurrentAnimation = AnimationFrame;
+	CurrentAnimationFrame = static_cast<int>(AnimationFrame);
+
+	float s1 = CurrentAnimation - CurrentAnimationFrame;
+	float s2 = 1.f - s1;
+
+	int PriorAnimationFrame = static_cast<int>(PriorFrame);
+	if (NumActions > 0)
 	{
-        if(PriorAnimationFrame < 0 )
-            PriorAnimationFrame = 0;
-        if(CurrentAnimationFrame < 0 )
-            CurrentAnimationFrame = 0;
-		if(PriorAnimationFrame >= Actions[PriorAction].NumAnimationKeys)
+		if (PriorAnimationFrame < 0)
 			PriorAnimationFrame = 0;
-		if(CurrentAnimationFrame >= Actions[CurrentAction].NumAnimationKeys)
+		if (CurrentAnimationFrame < 0)
+			CurrentAnimationFrame = 0;
+		if (PriorAnimationFrame >= Actions[PriorAction].NumAnimationKeys)
+			PriorAnimationFrame = 0;
+		if (CurrentAnimationFrame >= Actions[CurrentAction].NumAnimationKeys)
 			CurrentAnimationFrame = 0;
 	}
 
-	// bones
-	for(int i=0;i<NumBones;i++)
+	// Bones
+	for (int i = 0; i < NumBones; i++)
 	{
-       	Bone_t *b = &Bones[i];
-		if(b->Dummy)
-		{
+		Bone_t* b = &Bones[i];
+		if (b->Dummy)
 			continue;
-		}
-		BoneMatrix_t *bm1 = &b->BoneMatrixes[PriorAction  ];
-		BoneMatrix_t *bm2 = &b->BoneMatrixes[CurrentAction];
-		vec4_t q1,q2;
 
-		if ( i==BoneHead )
+		BoneMatrix_t* bm1 = &b->BoneMatrixes[PriorAction];
+		BoneMatrix_t* bm2 = &b->BoneMatrixes[CurrentAction];
+		vec4_t q1, q2;
+
+		if (i == BoneHead)
 		{
-			vec3_t Angle1,Angle2;
-			VectorCopy(bm1->Rotation[PriorAnimationFrame  ],Angle1);
-			VectorCopy(bm2->Rotation[CurrentAnimationFrame],Angle2);
+			vec3_t Angle1, Angle2;
+			VectorCopy(bm1->Rotation[PriorAnimationFrame], Angle1);
+			VectorCopy(bm2->Rotation[CurrentAnimationFrame], Angle2);
 
-            float HeadAngleX = HeadAngle[0] / (180.f / Q_PI);
-            float HeadAngleY = HeadAngle[1] / (180.f / Q_PI);
+			float HeadAngleX = HeadAngle[0] / (180.f / Q_PI);
+			float HeadAngleY = HeadAngle[1] / (180.f / Q_PI);
 			Angle1[0] -= HeadAngleX;
 			Angle2[0] -= HeadAngleX;
 			Angle1[2] -= HeadAngleY;
 			Angle2[2] -= HeadAngleY;
-			AngleQuaternion( Angle1, q1 );
-			AngleQuaternion( Angle2, q2 );
+			AngleQuaternion(Angle1, q1);
+			AngleQuaternion(Angle2, q2);
 		}
 		else
 		{
-			QuaternionCopy(bm1->Quaternion[PriorAnimationFrame  ],q1);
-			QuaternionCopy(bm2->Quaternion[CurrentAnimationFrame],q2);
+			QuaternionCopy(bm1->Quaternion[PriorAnimationFrame], q1);
+			QuaternionCopy(bm2->Quaternion[CurrentAnimationFrame], q2);
 		}
-		if (!QuaternionCompare( q1, q2 ))
-		{
-			QuaternionSlerp(q1 , q2, s1, BoneQuaternion[i] );
-		}
+
+		if (!QuaternionCompare(q1, q2))
+			QuaternionSlerp(q1, q2, s1, BoneQuaternion[i]);
 		else
-		{
-			QuaternionCopy( q1, BoneQuaternion[i] );
-		}
+			QuaternionCopy(q1, BoneQuaternion[i]);
 
 		float Matrix[3][4];
-		QuaternionMatrix(BoneQuaternion[i],Matrix);
-		float *Position1 = bm1->Position[PriorAnimationFrame];
-		float *Position2 = bm2->Position[CurrentAnimationFrame];
+		QuaternionMatrix(BoneQuaternion[i], Matrix);
+		float* Position1 = bm1->Position[PriorAnimationFrame];
+		float* Position2 = bm2->Position[CurrentAnimationFrame];
 
-		if(i==0 && (Actions[PriorAction].LockPositions || Actions[CurrentAction].LockPositions))
+		if (i == 0 && (Actions[PriorAction].LockPositions || Actions[CurrentAction].LockPositions))
 		{
 			Matrix[0][3] = bm2->Position[0][0];
-			Matrix[1][3] = bm2->Position[0][1];
-			Matrix[2][3] = Position1[2]*s2+Position2[2]*s1+BodyHeight;
+			Matrix[1][3] = bm2->Position[
+
+				0][1];
+				Matrix[2][3] = Position1[2] * s2 + Position2[2] * s1 + BodyHeight;
 		}
 		else
 		{
-			Matrix[0][3] = Position1[0]*s2+Position2[0]*s1;
-			Matrix[1][3] = Position1[1]*s2+Position2[1]*s1;
-			Matrix[2][3] = Position1[2]*s2+Position2[2]*s1;
+			Matrix[0][3] = Position1[0] * s2 + Position2[0] * s1;
+			Matrix[1][3] = Position1[1] * s2 + Position2[1] * s1;
+			Matrix[2][3] = Position1[2] * s2 + Position2[2] * s1;
 		}
 
-		if(b->Parent == -1)
+		if (b->Parent == -1)
 		{
-			if(!Parent)
+			if (!Parent)
 			{
-				//memcpy(BoneMatrix[i],BoneMatrix,sizeof(float)*12);
-				AngleMatrix(BodyAngle,ParentMatrix);
-				if(Translate)
+				AngleMatrix(BodyAngle, ParentMatrix);
+				if (Translate)
 				{
-					//ParentMatrix[0][0] *= BodyScale;
-					//ParentMatrix[1][1] *= BodyScale;
-					//ParentMatrix[2][2] *= BodyScale;
-					for ( int y = 0; y < 3; ++y)
+					for (int y = 0; y < 3; ++y)
 					{
-						for ( int x = 0; x < 3; ++x)
+						for (int x = 0; x < 3; ++x)
 						{
 							ParentMatrix[y][x] *= BodyScale;
 						}
@@ -163,143 +164,147 @@ void BMD::Animation(float (*BoneMatrix)[3][4],float AnimationFrame,float PriorFr
 					ParentMatrix[2][3] = BodyOrigin[2];
 				}
 			}
-			R_ConcatTransforms(ParentMatrix,Matrix,BoneMatrix[i]);
-		} 
-		else 
+			R_ConcatTransforms(ParentMatrix, Matrix, BoneMatrix[i]);
+		}
+		else
 		{
-			R_ConcatTransforms(BoneMatrix[b->Parent],Matrix,BoneMatrix[i]);
+			R_ConcatTransforms(BoneMatrix[b->Parent], Matrix, BoneMatrix[i]);
 		}
 	}
 }
 
-extern int  SceneFlag;
+extern int SceneFlag;
 extern int EditFlag;
 
 bool HighLight = true;
 float BoneScale = 1.f;
 
 #ifdef PBG_ADD_NEWCHAR_MONK_ITEM
-void BMD::Transform(float (*BoneMatrix)[3][4],vec3_t BoundingBoxMin,vec3_t BoundingBoxMax,OBB_t *OBB,bool Translate, float _Scale)
+void BMD::Transform(float(*BoneMatrix)[3][4], vec3_t BoundingBoxMin, vec3_t BoundingBoxMax, OBB_t* OBB, bool Translate, float _Scale)
 #else //PBG_ADD_NEWCHAR_MONK_ITEM
-void BMD::Transform(float (*BoneMatrix)[3][4],vec3_t BoundingBoxMin,vec3_t BoundingBoxMax,OBB_t *OBB,bool Translate)
+void BMD::Transform(float(*BoneMatrix)[3][4], vec3_t BoundingBoxMin, vec3_t BoundingBoxMax, OBB_t* OBB, bool Translate)
 #endif //PBG_ADD_NEWCHAR_MONK_ITEM
 {
-	// transform
 	vec3_t LightPosition;
 
-	if(LightEnable)
+	if (LightEnable)
 	{
-     	vec3_t Position;
-
+		vec3_t Position;
 		float Matrix[3][4];
-		if(HighLight)
+
+		if (HighLight)
 		{
-			Vector(1.3f,0.f,2.f,Position);
+			Vector(1.3f, 0.f, 2.f, Position);
 		}
-        else if ( gMapManager.InBattleCastle() )
-        {
-            Vector ( 0.5f, -1.f, 1.f, Position );
-            Vector ( 0.f, 0.f, -45.f, ShadowAngle );
-        }
+		else if (gMapManager.InBattleCastle())
+		{
+			Vector(0.5f, -1.f, 1.f, Position);
+			Vector(0.f, 0.f, -45.f, ShadowAngle);
+		}
 		else
 		{
-		    Vector(0.f,-1.5f,0.f,Position);
+			Vector(0.f, -1.5f, 0.f, Position);
 		}
 
-		AngleMatrix(ShadowAngle,Matrix);
-		VectorIRotate(Position,Matrix,LightPosition);
+		AngleMatrix(ShadowAngle, Matrix);
+		VectorIRotate(Position, Matrix, LightPosition);
 	}
+
 	vec3_t BoundingMin;
 	vec3_t BoundingMax;
-#ifdef _DEBUG
-#else
-	if(EditFlag==2)
+
+#ifndef _DEBUG
+	if (EditFlag == 2)
 #endif
 	{
-		Vector( 999999.f, 999999.f, 999999.f,BoundingMin);
-		Vector(-999999.f,-999999.f,-999999.f,BoundingMax);
+		Vector(999999.f, 999999.f, 999999.f, BoundingMin);
+		Vector(-999999.f, -999999.f, -999999.f, BoundingMax);
 	}
-	for(int i=0;i<NumMeshs;i++)
-	{
-       	Mesh_t *m = &Meshs[i];
-		for(int j=0;j<m->NumVertices;j++)
-		{
-			Vertex_t *v = &m->Vertices[j];
-			float *vp = VertexTransform[i][j];
 
-			if(BoneScale == 1.f)
+	for (int i = 0; i < NumMeshs; i++)
+	{
+		Mesh_t* m = &Meshs[i];
+
+		for (int j = 0; j < m->NumVertices; j++)
+		{
+			Vertex_t* v = &m->Vertices[j];
+			float* vp = VertexTransform[i][j];
+
+			if (BoneScale == 1.f)
 			{
 #ifdef PBG_ADD_NEWCHAR_MONK_ITEM
- 				if(_Scale)
- 				{
+				if (_Scale)
+				{
 					vec3_t Position;
 					VectorCopy(v->Position, Position);
 					VectorScale(Position, _Scale, Position);
-					VectorTransform(Position,BoneMatrix[v->Node],vp);
- 				}
- 				else
+					VectorTransform(Position, BoneMatrix[v->Node], vp);
+				}
+				else
 #endif //PBG_ADD_NEWCHAR_MONK_ITEM
-				VectorTransform(v->Position,BoneMatrix[v->Node],vp);
-				if(Translate)
-					VectorScale(vp,BodyScale,vp);
+					VectorTransform(v->Position, BoneMatrix[v->Node], vp);
+
+				if (Translate)
+					VectorScale(vp, BodyScale, vp);
 			}
 			else
 			{
-				VectorRotate(v->Position,BoneMatrix[v->Node],vp);
+				VectorRotate(v->Position, BoneMatrix[v->Node], vp);
 				vp[0] = vp[0] * BoneScale + BoneMatrix[v->Node][0][3];
 				vp[1] = vp[1] * BoneScale + BoneMatrix[v->Node][1][3];
 				vp[2] = vp[2] * BoneScale + BoneMatrix[v->Node][2][3];
-				if(Translate)
-					VectorScale(vp,BodyScale,vp);
+
+				if (Translate)
+					VectorScale(vp, BodyScale, vp);
 			}
-#ifdef _DEBUG
-#else
-			if(EditFlag==2)
+
+#ifndef _DEBUG
+			if (EditFlag == 2)
 #endif
 			{
-				for(int k=0;k<3;k++)
+				for (int k = 0; k < 3; k++)
 				{
-					if(vp[k] < BoundingMin[k]) BoundingMin[k] = vp[k];
-					if(vp[k] > BoundingMax[k]) BoundingMax[k] = vp[k];
+					BoundingMin[k] = std::min(BoundingMin[k], vp[k]);
+					BoundingMax[k] = std::max(BoundingMax[k], vp[k]);
 				}
 			}
-			if(Translate)
-				VectorAdd(vp,BodyOrigin,vp);
+
+			if (Translate)
+				VectorAdd(vp, BodyOrigin, vp);
 		}
 
-		for(int j=0;j<m->NumNormals;j++)
+		for (int j = 0; j < m->NumNormals; j++)
 		{
-			Normal_t *sn = &m->Normals[j];
-			float    *tn = NormalTransform[i][j];
-			VectorRotate(sn->Normal,BoneMatrix[sn->Node],tn);
-			if(LightEnable)
-			{
-				float Luminosity;
-					Luminosity = DotProduct(tn,LightPosition)*0.8f+0.4f;
+			Normal_t* sn = &m->Normals[j];
+			float* tn = NormalTransform[i][j];
+			VectorRotate(sn->Normal, BoneMatrix[sn->Node], tn);
 
-				if(Luminosity < 0.2f) Luminosity = 0.2f;
+			if (LightEnable)
+			{
+				float Luminosity = DotProduct(tn, LightPosition) * 0.8f + 0.4f;
+				Luminosity = std::max(Luminosity, 0.2f);
 				IntensityTransform[i][j] = Luminosity;
 			}
 		}
 	}
-	if(EditFlag==2)
+
+	if (EditFlag == 2)
 	{
-		VectorCopy(BoundingMin,OBB->StartPos);
+		VectorCopy(BoundingMin, OBB->StartPos);
 		OBB->XAxis[0] = (BoundingMax[0] - BoundingMin[0]);
 		OBB->YAxis[1] = (BoundingMax[1] - BoundingMin[1]);
 		OBB->ZAxis[2] = (BoundingMax[2] - BoundingMin[2]);
 	}
 	else
 	{
-		VectorCopy(BoundingBoxMin,OBB->StartPos);
+		VectorCopy(BoundingBoxMin, OBB->StartPos);
 		OBB->XAxis[0] = (BoundingBoxMax[0] - BoundingBoxMin[0]);
 		OBB->YAxis[1] = (BoundingBoxMax[1] - BoundingBoxMin[1]);
 		OBB->ZAxis[2] = (BoundingBoxMax[2] - BoundingBoxMin[2]);
 	}
-	fTransformedSize = max( max( BoundingMax[0] - BoundingMin[0], BoundingMax[1] - BoundingMin[1]),
-								BoundingMax[2] - BoundingMin[2]);
-	//fTransformedSize *= 0.3f;
-	VectorAdd(OBB->StartPos,BodyOrigin,OBB->StartPos);
+
+	float fTransformedSize = std::max({ BoundingMax[0] - BoundingMin[0], BoundingMax[1] - BoundingMin[1], BoundingMax[2] - BoundingMin[2] });
+	VectorAdd(OBB->StartPos, BodyOrigin, OBB->StartPos);
 	OBB->XAxis[1] = 0.f;
 	OBB->XAxis[2] = 0.f;
 	OBB->YAxis[0] = 0.f;
@@ -308,7 +313,6 @@ void BMD::Transform(float (*BoneMatrix)[3][4],vec3_t BoundingBoxMin,vec3_t Bound
 	OBB->ZAxis[1] = 0.f;
 }
 
-// vResultPosition = (BoneTransformMatrix * vRelativePosition) * BMD::BodyScale + vObjectPosition;
 void BMD::TransformByObjectBone(vec3_t vResultPosition, OBJECT * pObject, int iBoneNumber, vec3_t vRelativePosition)
 {
 	if (iBoneNumber < 0 || iBoneNumber >= NumBones)
@@ -2352,13 +2356,12 @@ void BMD::RenderBone(float (*BoneMatrix)[3][4])
 
 void BlurShadow()
 {
-	for(int i=1;i<ShadowBufferHeight-1;i++)
+	for (int i = 1; i < ShadowBufferHeight - 1; i++)
 	{
-      	unsigned char *ptr = &ShadowBuffer[i*ShadowBufferWidth];
-		for(int j=1;j<ShadowBufferWidth-1;j++)
+		auto& row = ShadowBuffer[i];
+		for (int j = 1; j < ShadowBufferWidth - 1; j++)
 		{
-			ptr[j] = (ptr[j-ShadowBufferWidth]+ptr[j+ShadowBufferWidth]+
-				ptr[j-1]+ptr[j+1])>>2;
+			row[j] = (row[j - 1] + row[j + 1] + ShadowBuffer[i - 1][j] + ShadowBuffer[i + 1][j]) >> 2;
 		}
 	}
 }
@@ -2522,11 +2525,11 @@ bool BMD::Open(char *DirName,char *ModelFileName)
 	NumBones         = *((short *)(Data+DataPtr));DataPtr+=2;
 	NumActions       = *((short *)(Data+DataPtr));DataPtr+=2;
 
-	Meshs            = new Mesh_t    [max( 1, NumMeshs)  ];
-	Bones            = new Bone_t    [max( 1, NumBones)  ];
-	Actions          = new Action_t  [max( 1, NumActions)];
-	Textures         = new Texture_t [max( 1, NumMeshs)  ];
-	IndexTexture     = new GLuint    [max( 1, NumMeshs)  ];
+	Meshs = new Mesh_t[(NumMeshs > 0) ? NumMeshs : 1];
+	Bones = new Bone_t[(NumBones > 0) ? NumBones : 1];
+	Actions = new Action_t[(NumActions > 0) ? NumActions : 1];
+	Textures = new Texture_t[(NumMeshs > 0) ? NumMeshs : 1];
+	IndexTexture = new GLuint[(NumMeshs > 0) ? NumMeshs : 1];
 
 	int i;
 	for(i=0;i<NumMeshs;i++)
@@ -2744,11 +2747,11 @@ bool BMD::Open2(char *DirName,char *ModelFileName, bool bReAlloc)
 	assert(NumBones <= MAX_BONES && "Bones 200");
 	NumActions       = *((short *)(Data+DataPtr));DataPtr+=2;
 
-	Meshs            = new Mesh_t    [max( 1, NumMeshs)  ];
-	Bones            = new Bone_t    [max( 1, NumBones)  ];
-	Actions          = new Action_t  [max( 1, NumActions)];
-	Textures         = new Texture_t [max( 1, NumMeshs)  ];
-	IndexTexture     = new GLuint    [max( 1, NumMeshs)  ];
+	Meshs = new Mesh_t[(NumMeshs > 0) ? NumMeshs : 1];
+	Bones = new Bone_t[(NumBones > 0) ? NumBones : 1];
+	Actions = new Action_t[(NumActions > 0) ? NumActions : 1];
+	Textures = new Texture_t[(NumMeshs > 0) ? NumMeshs : 1];
+	IndexTexture = new GLuint[(NumMeshs > 0) ? NumMeshs : 1];
 	
 	int i;
 

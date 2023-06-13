@@ -46,8 +46,8 @@
 #include "CDirection.h"
 #include "GM_Kanturu_3rd.h"
 #ifdef MOVIE_DIRECTSHOW
-#include <dshow.h>
-#include "MovieScene.h"
+	#include <dshow.h>
+	#include "MovieScene.h"
 #endif // MOVIE_DIRECTSHOW
 #include "Event.h"
 #include "./Utilities/Log/muConsoleDebug.h"
@@ -66,6 +66,7 @@
 #include "ProtocolSend.h"
 #include "MapManager.h"
 
+
 extern CUITextInputBox * g_pSingleTextInputBox;
 extern CUITextInputBox * g_pSinglePasswdInputBox;
 extern int g_iChatInputType;
@@ -78,17 +79,28 @@ extern bool HighLight;
 extern CTimer*	g_pTimer;
 
 #ifdef MOVIE_DIRECTSHOW
-extern CMovieScene* g_pMovieScene;
+	extern CMovieScene* g_pMovieScene;
 #endif // MOVIE_DIRECTSHOW
 	
-bool g_bTimeCheck = false;
-int g_iBackupTime = 0;
 
-float g_fMULogoAlpha = 0;
+bool	g_bTimeCheck = false;
+int 	g_iBackupTime = 0;
+
+float	g_fMULogoAlpha = 0;
+
+
+   // extern CGuildCache g_GuildCache;
 
 extern float g_fSpecialHeight;
 
-short g_shCameraLevel = 0;
+short   g_shCameraLevel = 0;
+
+
+/*#ifdef _DEBUG
+bool EnableEdit    = true;
+#else
+bool EnableEdit    = false;
+#endif*/
 
 int g_iLengthAuthorityCode = 20;
 
@@ -96,16 +108,18 @@ char *szServerIpAddress = "169.254.107.213";
 WORD g_ServerPort = 44405;
 
 #ifdef MOVIE_DIRECTSHOW
-int SceneFlag = MOVIE_SCENE;
+int  SceneFlag = MOVIE_SCENE;
 #else // MOVIE_DIRECTSHOW
-int SceneFlag = WEBZEN_SCENE;
+int  SceneFlag = WEBZEN_SCENE;
 #endif // MOVIE_DIRECTSHOW
 
-int MoveSceneFrame = 0;
+int  MoveSceneFrame = 0;
 
 extern int g_iKeyPadEnable;
 
+
 CPhysicsManager g_PhysicsManager;
+
 
 char *g_lpszMp3[NUM_MUSIC] =
 {
@@ -164,24 +178,26 @@ extern char Mp3FileName[256];
 
 #define MAX_LENGTH_CMB	( 38)
 
-DWORD g_dwWaitingStartTick = 0;
-int g_iRequestCount = 0;
+DWORD   g_dwWaitingStartTick;
+int     g_iRequestCount;
 
-int g_iMessageTextStart = 0;
-char g_cMessageTextCurrNum = 0;
-char g_cMessageTextNum = 0;
-int g_iNumLineMessageBoxCustom = 0;
-char g_lpszMessageBoxCustom[NUM_LINE_CMB][MAX_LENGTH_CMB];
-int g_iCustomMessageBoxButton[NUM_BUTTON_CMB][NUM_PAR_BUTTON_CMB];
+int     g_iMessageTextStart     = 0;
+char    g_cMessageTextCurrNum   = 0;
+char    g_cMessageTextNum       = 0;
+int     g_iNumLineMessageBoxCustom;
+char    g_lpszMessageBoxCustom[NUM_LINE_CMB][MAX_LENGTH_CMB];
+int     g_iCustomMessageBoxButton[NUM_BUTTON_CMB][NUM_PAR_BUTTON_CMB];
 
-int g_iCustomMessageBoxButton_Cancel[NUM_PAR_BUTTON_CMB];
+int     g_iCustomMessageBoxButton_Cancel[NUM_PAR_BUTTON_CMB];
 
-int g_iCancelSkillTarget = 0;
+int		g_iCancelSkillTarget	= 0;
 
-#define NUM_LINE_DA	(1)
+#define NUM_LINE_DA		( 1)
 int g_iCurrentDialogScript = -1;
 int g_iNumAnswer = 0;
 char g_lpszDialogAnswer[MAX_ANSWER_FOR_DIALOG][NUM_LINE_DA][MAX_LENGTH_CMB];
+
+DWORD GenerateCheckSum2( BYTE *pbyBuffer, DWORD dwSize, WORD wKey);
 
 void StopMusic()
 {
@@ -249,22 +265,12 @@ bool CheckAbuseNameFilter(char *Text)
 
 bool CheckName()
 {
-	if (CheckAbuseNameFilter(InputText[0]) ||
-		CheckAbuseFilter(InputText[0]) ||
-		FindText(InputText[0], " ") ||
-		FindText(InputText[0], "��") ||
-		FindText(InputText[0], ".") ||
-		FindText(InputText[0], "��") ||
-		FindText(InputText[0], "��") ||
-		FindText(InputText[0], "Webzen") ||
-		FindText(InputText[0], "WebZen") ||
-		FindText(InputText[0], "webzen") ||
-		FindText(InputText[0], "WEBZEN") ||
-		FindText(InputText[0], GlobalText[457]) ||
-		FindText(InputText[0], GlobalText[458]))
-	{
+    if( CheckAbuseNameFilter(InputText[0]) || CheckAbuseFilter(InputText[0]) ||
+		FindText(InputText[0]," ") || FindText(InputText[0],"　") ||
+		FindText(InputText[0],".") || FindText(InputText[0],"·") || FindText(InputText[0],"∼") ||
+		FindText(InputText[0],"Webzen") || FindText(InputText[0],"WebZen") || FindText(InputText[0],"webzen") ||  FindText(InputText[0],"WEBZEN") ||
+		FindText(InputText[0],GlobalText[457]) || FindText(InputText[0],GlobalText[458]))
 		return true;
-	}
 	return false;
 }
 
@@ -321,64 +327,62 @@ extern int HeroKey;
 void WebzenScene(HDC hDC)
 {
 	CUIMng& rUIMng = CUIMng::Instance();
+
 	OpenFont();
 	ClearInput();
 
 	LoadBitmap("Interface\\New_lo_back_01.jpg", BITMAP_TITLE, GL_LINEAR);
-	LoadBitmap("Interface\\New_lo_back_02.jpg", BITMAP_TITLE + 1, GL_LINEAR);
-	LoadBitmap("Interface\\MU_TITLE.tga", BITMAP_TITLE + 2, GL_LINEAR);
-	LoadBitmap("Interface\\lo_121518.tga", BITMAP_TITLE + 3, GL_LINEAR);
-	LoadBitmap("Interface\\New_lo_webzen_logo.tga", BITMAP_TITLE + 4, GL_LINEAR);
-	LoadBitmap("Interface\\lo_lo.jpg", BITMAP_TITLE + 5, GL_LINEAR, GL_REPEAT);
-	LoadBitmap("Interface\\lo_back_s5_03.jpg", BITMAP_TITLE + 6, GL_LINEAR);
-	LoadBitmap("Interface\\lo_back_s5_04.jpg", BITMAP_TITLE + 7, GL_LINEAR);
-
-	bool useNewImages = (rand() % 100) <= 70;
-
-	if (useNewImages)
+	LoadBitmap("Interface\\New_lo_back_02.jpg", BITMAP_TITLE+1, GL_LINEAR);
+	LoadBitmap("Interface\\MU_TITLE.tga", BITMAP_TITLE+2, GL_LINEAR);
+	LoadBitmap("Interface\\lo_121518.tga", BITMAP_TITLE+3, GL_LINEAR);
+	LoadBitmap("Interface\\New_lo_webzen_logo.tga", BITMAP_TITLE+4, GL_LINEAR);
+	LoadBitmap("Interface\\lo_lo.jpg", BITMAP_TITLE+5, GL_LINEAR, GL_REPEAT);
+	LoadBitmap("Interface\\lo_back_s5_03.jpg", BITMAP_TITLE+6, GL_LINEAR);
+	LoadBitmap("Interface\\lo_back_s5_04.jpg", BITMAP_TITLE+7, GL_LINEAR);
+	if(rand()%100 <= 70)
 	{
-		LoadBitmap("Interface\\lo_back_im01.jpg", BITMAP_TITLE + 8, GL_LINEAR);
-		LoadBitmap("Interface\\lo_back_im02.jpg", BITMAP_TITLE + 9, GL_LINEAR);
-		LoadBitmap("Interface\\lo_back_im03.jpg", BITMAP_TITLE + 10, GL_LINEAR);
-		LoadBitmap("Interface\\lo_back_im04.jpg", BITMAP_TITLE + 11, GL_LINEAR);
-		LoadBitmap("Interface\\lo_back_im05.jpg", BITMAP_TITLE + 12, GL_LINEAR);
-		LoadBitmap("Interface\\lo_back_im06.jpg", BITMAP_TITLE + 13, GL_LINEAR);
+		LoadBitmap("Interface\\lo_back_im01.jpg", BITMAP_TITLE+8, GL_LINEAR);
+		LoadBitmap("Interface\\lo_back_im02.jpg", BITMAP_TITLE+9, GL_LINEAR);	
+		LoadBitmap("Interface\\lo_back_im03.jpg", BITMAP_TITLE+10, GL_LINEAR);
+		LoadBitmap("Interface\\lo_back_im04.jpg", BITMAP_TITLE+11, GL_LINEAR);
+		LoadBitmap("Interface\\lo_back_im05.jpg", BITMAP_TITLE+12, GL_LINEAR);
+		LoadBitmap("Interface\\lo_back_im06.jpg", BITMAP_TITLE+13, GL_LINEAR);
 	}
 	else
 	{
-		LoadBitmap("Interface\\lo_back_s5_im01.jpg", BITMAP_TITLE + 8, GL_LINEAR);
-		LoadBitmap("Interface\\lo_back_s5_im02.jpg", BITMAP_TITLE + 9, GL_LINEAR);
-		LoadBitmap("Interface\\lo_back_s5_im03.jpg", BITMAP_TITLE + 10, GL_LINEAR);
-		LoadBitmap("Interface\\lo_back_s5_im04.jpg", BITMAP_TITLE + 11, GL_LINEAR);
-		LoadBitmap("Interface\\lo_back_s5_im05.jpg", BITMAP_TITLE + 12, GL_LINEAR);
-		LoadBitmap("Interface\\lo_back_s5_im06.jpg", BITMAP_TITLE + 13, GL_LINEAR);
+		LoadBitmap("Interface\\lo_back_s5_im01.jpg", BITMAP_TITLE+8, GL_LINEAR);
+		LoadBitmap("Interface\\lo_back_s5_im02.jpg", BITMAP_TITLE+9, GL_LINEAR);	
+		LoadBitmap("Interface\\lo_back_s5_im03.jpg", BITMAP_TITLE+10, GL_LINEAR);
+		LoadBitmap("Interface\\lo_back_s5_im04.jpg", BITMAP_TITLE+11, GL_LINEAR);
+		LoadBitmap("Interface\\lo_back_s5_im05.jpg", BITMAP_TITLE+12, GL_LINEAR);
+		LoadBitmap("Interface\\lo_back_s5_im06.jpg", BITMAP_TITLE+13, GL_LINEAR);
 	}
 
 	rUIMng.CreateTitleSceneUI();
-
+	
 	FogEnable = false;
-
-	EnableAlphaTest();
+	
+	::EnableAlphaTest();
 	OpenBasicData(hDC);
 
 	g_pNewUISystem->LoadMainSceneInterface();
 
-	rUIMng.RenderTitleSceneUI(hDC, 11, 11);
+	CUIMng::Instance().RenderTitleSceneUI(hDC, 11, 11);
 
 	rUIMng.ReleaseTitleSceneUI();
-	DeleteBitmap(BITMAP_TITLE);
-	DeleteBitmap(BITMAP_TITLE + 1);
-	DeleteBitmap(BITMAP_TITLE + 2);
-	DeleteBitmap(BITMAP_TITLE + 3);
-	DeleteBitmap(BITMAP_TITLE + 4);
-	DeleteBitmap(BITMAP_TITLE + 5);
+		DeleteBitmap(BITMAP_TITLE);
+   	DeleteBitmap(BITMAP_TITLE+1);
+	DeleteBitmap(BITMAP_TITLE+2);
+   	DeleteBitmap(BITMAP_TITLE+3);
+	DeleteBitmap(BITMAP_TITLE+4);
+   	DeleteBitmap(BITMAP_TITLE+5);
 
-	for (int i = 6; i < 14; ++i)
-		DeleteBitmap(BITMAP_TITLE + i);
+	for(int i=6; i<14; ++i)
+		DeleteBitmap(BITMAP_TITLE+i);
 
-	g_ErrorReport.Write("> Loading ok.\r\n");
+	g_ErrorReport.Write( "> Loading ok.\r\n");
 
-	SceneFlag = LOG_IN_SCENE;
+	SceneFlag = LOG_IN_SCENE;	//
 }
 
 int MenuStateCurrent = MENU_SERVER_LIST;
@@ -387,117 +391,101 @@ int DeleteGuildIndex = -1;
 
 void DeleteCharacter()
 {
-	if (SelectedHero == -1)
-		return;
+	SelectedHero = -1;
 	if (g_iChatInputType == 1)
 	{
 		g_pSinglePasswdInputBox->GetText(InputText[0]);
 		g_pSinglePasswdInputBox->SetText(NULL);
 		g_pSinglePasswdInputBox->SetState(UISTATE_HIDE);
 	}
+	SendRequestDeleteCharacter(CharactersClient[SelectedHero].ID,InputText[0]);
 
-	SendRequestDeleteCharacter(CharactersClient[SelectedHero].ID, InputText[0]);
-
-	SelectedHero = -1;
 	MenuStateCurrent = MENU_DELETE_LEFT;
-	MenuStateNext = MENU_NEW_DOWN;
+	MenuStateNext    = MENU_NEW_DOWN;
 	PlayBuffer(SOUND_MENU01);
-
+	
 	ClearInput();
 	InputEnable = false;
 }
-
 int  ErrorMessage = NULL;
 int	 ErrorMessageNext = NULL;
+extern bool g_bEnterPressed;
 
-std::atomic<bool> g_bEnterPressed(false);
-
-bool IsEnterPressed() 
-{
-	return g_bEnterPressed.load();
+bool IsEnterPressed() {
+	return g_bEnterPressed;
 }
 
-void SetEnterPressed(bool enterPressed) 
-{
-	g_bEnterPressed.store(enterPressed);
+void SetEnterPressed( bool enterpressed ) {
+	g_bEnterPressed = enterpressed;
 }
 
-bool CheckOptionMouseClick(int iOptionPos_y, bool bPlayClickSound = true)
+BOOL CheckOptionMouseClick(int iOptionPos_y, BOOL bPlayClickSound = TRUE)
 {
-	const int optionWidth = 120;
-	const int optionHeight = 22;
-	const int optionX = (640 - optionWidth) / 2;
-	const int optionY = 30 + iOptionPos_y;
-
-	if (CheckMouseIn(optionX, optionY, optionWidth, optionHeight) && MouseLButtonPush)
+	if (CheckMouseIn((640-120)/2, 30+iOptionPos_y, 120, 22) && MouseLButtonPush)
 	{
 		MouseLButtonPush = false;
 		MouseUpdateTime = 0;
 		MouseUpdateTimeMax = 6;
-
-		if (bPlayClickSound)
-			PlayBuffer(SOUND_CLICK01);
-
-		return true;
+		if (bPlayClickSound == TRUE) PlayBuffer(SOUND_CLICK01);
+		return TRUE;
 	}
-
-	return false;
+	return FALSE;
 }
 
-int SeparateTextIntoLines(const char* lpszText, char* lpszSeparated, int iMaxLine, int iLineSize)
+int SeparateTextIntoLines( const char *lpszText, char *lpszSeparated, int iMaxLine, int iLineSize)
 {
 	int iLine = 0;
-	const char* lpLineStart = lpszText;
-	char* lpDst = lpszSeparated;
-	const char* lpSpace = nullptr;
+	const char *lpLineStart = lpszText;
+	char *lpDst = lpszSeparated;
+	const char *lpSpace = NULL;
 	int iMbclen = 0;
-	for (const char* lpSeek = lpszText; *lpSeek; lpSeek += iMbclen, lpDst += iMbclen)
+	for ( const char* lpSeek = lpszText; *lpSeek; lpSeek += iMbclen, lpDst += iMbclen)
 	{
-		iMbclen = _mbclen((unsigned char*)lpSeek);
-
-		if (iMbclen + (int)(lpSeek - lpLineStart) >= iLineSize)
+		iMbclen = _mbclen( ( unsigned char*)lpSeek);
+		if ( iMbclen + ( int)( lpSeek - lpLineStart) >= iLineSize)
 		{
-			if (lpSpace && (int)(lpSeek - lpSpace) < min(10, iLineSize / 2))
+			if ( lpSpace && ( int)( lpSeek - lpSpace) < min( 10, iLineSize / 2))
 			{
-				lpDst -= (lpSeek - lpSpace - 1);
+				lpDst -= ( lpSeek - lpSpace - 1);
 				lpSeek = lpSpace + 1;
 			}
 
 			lpLineStart = lpSeek;
 			*lpDst = '\0';
-
-			if (iLine >= iMaxLine - 1)
+			if ( iLine >= iMaxLine - 1)
+			{
 				break;
-
+			}
 			++iLine;
 			lpDst = lpszSeparated + iLine * iLineSize;
-			lpSpace = nullptr;
+			lpSpace = NULL;
 		}
 
-		memcpy(lpDst, lpSeek, iMbclen);
-
-		if (*lpSeek == ' ')
+		memcpy( lpDst, lpSeek, iMbclen);
+		if ( *lpSeek == ' ')
+		{
 			lpSpace = lpSeek;
+		}
 	}
-
 	*lpDst = '\0';
-	return (iLine + 1);
+
+	return ( iLine + 1);
 }
 
-void SetEffectVolumeLevel(int level)
+void SetEffectVolumeLevel ( int level )
 {
-	if (level > 9)
+	if(level > 9)
 		level = 9;
-	if (level < 0)
+	if(level < 0)
 		level = 0;
-	if (level == 0)
+
+	if(level == 0)
 	{
 		SetMasterVolume(-10000);
 	}
 	else
 	{
-		float fLevel = static_cast<float>(level);
-		long vol = static_cast<long>(-2000 * log10(10.0f / fLevel));
+		long vol = -2000*log10(10.f/float(level));
 		SetMasterVolume(vol);
 	}
 }
@@ -522,65 +510,64 @@ void SetViewPortLevel ( int Wheel )
 
 void RenderInfomation3D()
 {
-	bool success = false;
-	if (((ErrorMessage == MESSAGE_TRADE_CHECK || ErrorMessage == MESSAGE_CHECK) && AskYesOrNo == 1) ||
-		ErrorMessage == MESSAGE_USE_STATE ||
-		ErrorMessage == MESSAGE_USE_STATE2)
+	bool Success = false;
+
+	if ( ( ( ErrorMessage==MESSAGE_TRADE_CHECK || ErrorMessage==MESSAGE_CHECK ) && AskYesOrNo==1 ) 
+		|| ErrorMessage==MESSAGE_USE_STATE 
+		|| ErrorMessage==MESSAGE_USE_STATE2) 
 	{
-		success = true;
+		Success = true;
 	}
 
-	if (ErrorMessage == MESSAGE_TRADE_CHECK && AskYesOrNo == 5)
+    if ( ErrorMessage==MESSAGE_TRADE_CHECK && AskYesOrNo==5 )
 	{
-		success = true;
+		Success = true;
+	}
+	if ( ErrorMessage==MESSAGE_PERSONALSHOP_WARNING ) 
+	{
+		Success = true;
 	}
 
-	if (ErrorMessage == MESSAGE_PERSONALSHOP_WARNING)
-	{
-		success = true;
-	}
+	if ( Success )
+    {
+        glMatrixMode(GL_PROJECTION);
+        glPushMatrix();
+        glLoadIdentity();
+        glViewport2(0,0,WindowWidth,WindowHeight);
+        gluPerspective2(1.f,(float)(WindowWidth)/(float)(WindowHeight),CameraViewNear,CameraViewFar);
+        glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
+        glLoadIdentity();
+        GetOpenGLMatrix(CameraMatrix);
+        EnableDepthTest();
+        EnableDepthMask();
 
-	if (success)
-	{
-		glMatrixMode(GL_PROJECTION);
-		glPushMatrix();
-		glLoadIdentity();
-		glViewport2(0, 0, WindowWidth, WindowHeight);
-		gluPerspective2(1.0f, static_cast<float>(WindowWidth) / static_cast<float>(WindowHeight), CameraViewNear, CameraViewFar);
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-		glLoadIdentity();
-		GetOpenGLMatrix(CameraMatrix);
-		EnableDepthTest();
-		EnableDepthMask();
+        float Width, Height;
+        float x = (640-150)/2;
+        float y;
+        if ( ErrorMessage==MESSAGE_TRADE_CHECK )
+        {
+            y = 60+55;
+        }
+        else
+        {
+            y = 60+55;
+        }
 
-		float width, height;
-		float x = (640 - 150) / 2;
-		float y;
-		if (ErrorMessage == MESSAGE_TRADE_CHECK)
+	    Width=40.f;Height=60.f;
+		int iRenderType = ErrorMessage;
+		if(AskYesOrNo == 5)
+			iRenderType = MESSAGE_USE_STATE;
+		switch( iRenderType )
 		{
-			y = 60 + 55;
-		}
-		else
-		{
-			y = 60 + 55;
-		}
-
-		width = 40.0f;
-		height = 60.0f;
-		int renderType = ErrorMessage;
-		if (AskYesOrNo == 5)
-			renderType = MESSAGE_USE_STATE;
-		switch (renderType)
-		{
-		case MESSAGE_USE_STATE:
-		case MESSAGE_USE_STATE2:
-		case MESSAGE_PERSONALSHOP_WARNING:
-			RenderItem3D(x, y, width, height, TargetItem.Type, TargetItem.Level, TargetItem.Option1, TargetItem.ExtOption, true);
+		case MESSAGE_USE_STATE :
+		case MESSAGE_USE_STATE2 :
+        case MESSAGE_PERSONALSHOP_WARNING :
+            RenderItem3D(x,y,Width,Height,TargetItem.Type,TargetItem.Level,TargetItem.Option1,TargetItem.ExtOption,true);
 			break;
 
-		default:
-			RenderItem3D(x, y, width, height, PickItem.Type, PickItem.Level, PickItem.Option1, PickItem.ExtOption, true);
+		default :
+            RenderItem3D(x,y,Width,Height,PickItem.Type,PickItem.Level,PickItem.Option1,PickItem.ExtOption,true);
 			break;
 		}
 
@@ -589,7 +576,7 @@ void RenderInfomation3D()
 		glMatrixMode(GL_PROJECTION);
 		glPopMatrix();
 		UpdateMousePositionn();
-	}
+    }
 }
 
 void RenderInfomation()
@@ -742,23 +729,21 @@ BOOL ShowCheckBox( int num, int index, int message )
 	return true;
 }
 
-int CameraWalkCut;
-int CurrentCameraCount = -1;
-int CurrentCameraWalkType = 0;
-int CurrentCameraNumber = 0;
+int    CameraWalkCut;
+int    CurrentCameraCount    = -1;
+int    CurrentCameraWalkType = 0;
+int    CurrentCameraNumber   = 0;
 vec3_t CurrentCameraPosition;
 vec3_t CurrentCameraAngle;
-
-float CurrentCameraWalkDelta[6];
-
-float CameraWalk[] =
+float  CurrentCameraWalkDelta[6]; 
+float  CameraWalk[] = 
 {
-	0.0f, -1000.0f, 500.0f, -80.0f, 0.0f, 0.0f,
-	0.0f, -1100.0f, 500.0f, -80.0f, 0.0f, 0.0f,
-	0.0f, -1100.0f, 500.0f, -80.0f, 0.0f, 0.0f,
-	0.0f, -1100.0f, 500.0f, -80.0f, 0.0f, 0.0f,
-	0.0f, -1100.0f, 500.0f, -80.0f, 0.0f, 0.0f,
-	200.0f, -800.0f, 250.0f, -87.0f, 0.0f, -10.0f,
+	 0.f,-1000.f,500.f,-80.f,0.f, 0.f,
+	 0.f,-1100.f,500.f,-80.f,0.f, 0.f,
+	 0.f,-1100.f,500.f,-80.f,0.f, 0.f,
+     0.f,-1100.f,500.f,-80.f,0.f, 0.f,
+	 0.f,-1100.f,500.f,-80.f,0.f, 0.f,
+	200.f,-800.f,250.f,-87.f,0.f, -10.f,
 };
 
 void MoveCharacterCamera(vec3_t Origin,vec3_t Position,vec3_t Angle)
@@ -867,20 +852,20 @@ bool MoveMainCamera();
 
 void StartGame()
 {
-	if (CTLCODE_01BLOCKCHAR & CharactersClient[SelectedHero].CtlCode)
 	{
-		CUIMng::Instance().PopUpMsgWin(MESSAGE_BLOCKED_CHARACTER);
-	}
-	else
-	{
-		CharacterAttribute->Level = CharactersClient[SelectedHero].Level;
-		CharacterAttribute->Class = CharactersClient[SelectedHero].Class;
-		CharacterAttribute->Skin = CharactersClient[SelectedHero].Skin;
-		::strcpy(CharacterAttribute->Name, CharactersClient[SelectedHero].ID);
+		if (CTLCODE_01BLOCKCHAR & CharactersClient[SelectedHero].CtlCode)
+			CUIMng::Instance().PopUpMsgWin(MESSAGE_BLOCKED_CHARACTER);
+		else
+		{
+			CharacterAttribute->Level = CharactersClient[SelectedHero].Level;
+			CharacterAttribute->Class = CharactersClient[SelectedHero].Class;
+			CharacterAttribute->Skin  = CharactersClient[SelectedHero].Skin;
+			::strcpy(CharacterAttribute->Name, CharactersClient[SelectedHero].ID);
 
-		::ReleaseCharacterSceneData();
-		InitLoading = false;
-		SceneFlag = LOADING_SCENE;
+			::ReleaseCharacterSceneData();
+			InitLoading = false;
+			SceneFlag = LOADING_SCENE;
+		}
 	}
 }
 
@@ -899,43 +884,43 @@ void CreateCharacterScene()
 #endif //PJH_NEW_SERVER_SELECT_MAP
 
 	gMapManager.LoadWorld(gMapManager.WorldActive);
-	OpenCharacterSceneData();
+    OpenCharacterSceneData();
 
-	CreateCharacterPointer(&CharacterView, MODEL_FACE + 1, 0, 0);
+    CreateCharacterPointer(&CharacterView,MODEL_FACE+1,0,0);
 	CharacterView.Class = 1;
 	CharacterView.Object.Kind = 0;
 
 	SelectedHero = -1;
 	CUIMng::Instance().CreateCharacterScene();
 
-	ClearInventory();
-	CharacterAttribute->SkillNumber = 0;
+    ClearInventory();
+    CharacterAttribute->SkillNumber = 0;
 
-	for (int i = 0; i < MAX_MAGIC; i++)
+	for(int i=0;i<MAX_MAGIC;i++)
 		CharacterAttribute->Skill[i] = 0;
 
-	for (int i = EQUIPMENT_WEAPON_RIGHT; i < EQUIPMENT_HELPER; i++)
+	for(int i=EQUIPMENT_WEAPON_RIGHT;i<EQUIPMENT_HELPER;i++)
 		CharacterMachine->Equipment[i].Level = 0;
 
 	g_pNewUISystem->HideAll();
 
 	g_iKeyPadEnable = 0;
 	GuildInputEnable = false;
-	TabInputEnable = false;
-	GoldInputEnable = false;
-	InputEnable = true;
-	ClearInput();
+	TabInputEnable   = false;
+	GoldInputEnable  = false;
+	InputEnable      = true;
+    ClearInput();
 	InputIndex = 0;
-	InputTextWidth = 90;
-	InputNumber = 1;
+    InputTextWidth = 90;
+    InputNumber = 1;
 
-	for (int i = 0; i < MAX_WHISPER; i++)
+	for(int i=0;i<MAX_WHISPER;i++)
 	{
 		g_pChatListBox->AddText("", "", SEASON3B::TYPE_WHISPER_MESSAGE);
 	}
 
 	HIMC hIMC = ImmGetContext(g_hWnd);
-	DWORD Conversion, Sentence;
+    DWORD Conversion, Sentence;
 
 	Conversion = IME_CMODE_NATIVE;
 	Sentence = IME_SMODE_NONE;
@@ -948,7 +933,7 @@ void CreateCharacterScene()
 	ImmReleaseContext(g_hWnd, hIMC);
 	g_bIMEBlock = TRUE;
 
-	g_ErrorReport.Write("> Character scene init success.\r\n");
+    g_ErrorReport.Write( "> Character scene init success.\r\n");
 }
 
 void NewMoveCharacterScene()
@@ -963,20 +948,20 @@ void NewMoveCharacterScene()
 		InitCharacterScene = true;
 		CreateCharacterScene();
 	}
-	InitTerrainLight();
-	MoveObjects();
+    InitTerrainLight();
+    MoveObjects();
 	MoveBugs();
-	MoveCharactersClient();
-	MoveCharacterClient(&CharacterView);
+    MoveCharactersClient();
+    MoveCharacterClient(&CharacterView);
 
 	MoveEffects();
-	MoveJoints();
-	MoveParticles();
+    MoveJoints();
+    MoveParticles();
 	MoveBoids();
 
 	ThePetProcess().UpdatePets();
 
-	MoveCamera();
+    MoveCamera();
 
 #if defined _DEBUG || defined FOR_WORK
 	char lpszTemp[256];
@@ -993,12 +978,12 @@ void NewMoveCharacterScene()
 	if (rInput.IsKeyDown(VK_RETURN))
 	{
 		if (!(rUIMng.m_MsgWin.IsShow() || rUIMng.m_CharMakeWin.IsShow()
-			  || rUIMng.m_SysMenuWin.IsShow() || rUIMng.m_OptionWin.IsShow())
+			|| rUIMng.m_SysMenuWin.IsShow() || rUIMng.m_OptionWin.IsShow())
 			&& SelectedHero > -1 && SelectedHero < 5)
 		{
 			::PlayBuffer(SOUND_CLICK01);
 
-			if (SelectedCharacter >= 0)
+			if(SelectedCharacter >= 0)
 				SelectedHero = SelectedCharacter;
 
 			::StartGame();
@@ -1007,12 +992,13 @@ void NewMoveCharacterScene()
 	else if (rInput.IsKeyDown(VK_ESCAPE))
 	{
 		if (!(rUIMng.m_MsgWin.IsShow() || rUIMng.m_CharMakeWin.IsShow()
-			  || rUIMng.m_SysMenuWin.IsShow() || rUIMng.m_OptionWin.IsShow())
-			&& rUIMng.IsSysMenuWinShow())
-			{
-				::PlayBuffer(SOUND_CLICK01);
-				rUIMng.ShowWin(&rUIMng.m_SysMenuWin);
-			}
+			|| rUIMng.m_SysMenuWin.IsShow() || rUIMng.m_OptionWin.IsShow()
+			)
+			&& rUIMng.IsSysMenuWinShow() )
+		{
+			::PlayBuffer(SOUND_CLICK01);
+			rUIMng.ShowWin(&rUIMng.m_SysMenuWin);
+		}
 	}
 
 	if (rUIMng.IsCursorOnUI())
@@ -1022,18 +1008,20 @@ void NewMoveCharacterScene()
 
 	if (rInput.IsLBtnDbl() && rUIMng.m_CharSelMainWin.IsShow())
 	{
-		if (SelectedCharacter >= 0 && SelectedCharacter <= 4)
+		if (SelectedCharacter < 0 || SelectedCharacter > 4)
 		{
-			SelectedHero = SelectedCharacter;
-			::StartGame();
+			return;
 		}
+
+		SelectedHero = SelectedCharacter;
+		::StartGame();
 	}
-	else if (rInput.IsLBtnDn())
+	else if(rInput.IsLBtnDn())
 	{
-		if (SelectedCharacter >= 0 && SelectedCharacter <= 4)
-			SelectedHero = SelectedCharacter;
-		else
+		if (SelectedCharacter < 0 || SelectedCharacter > 4)
 			SelectedHero = -1;
+		else
+			SelectedHero = SelectedCharacter;
 		rUIMng.m_CharSelMainWin.UpdateDisplay();
 	}
 
@@ -1042,11 +1030,11 @@ void NewMoveCharacterScene()
 
 bool NewRenderCharacterScene(HDC hDC)
 {
-	if (!InitCharacterScene)
+	if(!InitCharacterScene) 
 	{
 		return false;
 	}
-	if (CurrentProtocolState < RECEIVE_CHARACTERS_LIST)
+	if(CurrentProtocolState < RECEIVE_CHARACTERS_LIST) 
 	{
 		return false;
 	}
@@ -1071,39 +1059,38 @@ bool NewRenderCharacterScene(HDC hDC)
 	Height = 480;
 	Width = GetScreenWidth();
     
-	glClearColor(0.f, 0.f, 0.f, 1.f);
-	BeginOpengl(0, 25, 640, 430);
+	glClearColor(0.f,0.f,0.f,1.f);
+	BeginOpengl(0,25,640,430);
+	
+	CreateFrustrum((float)Width/(float)640, pos);
 
-	CreateFrustrum((float)Width / (float)640, pos);
+	OBJECT *o = &CharactersClient[SelectedHero].Object;
 
-	OBJECT* o = &CharactersClient[SelectedHero].Object;
-
-	CreateScreenVector(MouseX, MouseY, MouseTarget);
-
-	for (int i = 0; i < 5; i++)
+	CreateScreenVector(MouseX,MouseY,MouseTarget);
+	for(int i = 0; i < 5; i++)
 	{
 		CharactersClient[i].Object.Position[2] = 163.0f;
-		Vector(0.0f, 0.0f, 0.0f, CharactersClient[i].Object.Light);
+		Vector ( 0.0f, 0.0f, 0.0f, CharactersClient[i].Object.Light );
 	}
 
-	if (SelectedHero != -1 && o->Live)
+	if(SelectedHero!=-1 && o->Live)
 	{
 		EnableAlphaBlend();
 		vec3_t Light;
-		Vector(1.0f, 1.0f, 1.0f, Light);
-		Vector(1.0f, 1.0f, 1.0f, o->Light);
-		AddTerrainLight(o->Position[0], o->Position[1], Light, 1, PrimaryTerrainLight);
+		Vector ( 1.0f, 1.0f, 1.0f, Light );
+		Vector ( 1.0f, 1.0f, 1.0f, o->Light );
+		AddTerrainLight(o->Position[0],o->Position[1],Light,1,PrimaryTerrainLight);
 		DisableAlphaBlend();
 	}
 
-	CHARACTER* pCha = nullptr;
-	OBJECT* pObj = nullptr;
+	CHARACTER* pCha = NULL;
+	OBJECT* pObj = NULL;
 
-	for (int i = 0; i < 5; ++i)
+	for(int i=0; i<5; ++i)
 	{
 		pCha = &CharactersClient[i];
 		pObj = &pCha->Object;
-		if (pCha->Helper.Type == MODEL_HELPER + 3)
+		if(pCha->Helper.Type == MODEL_HELPER+3)
 		{
 #ifdef PJH_NEW_SERVER_SELECT_MAP
 			pObj->Position[2] = 194.5f;
@@ -1137,29 +1124,31 @@ bool NewRenderCharacterScene(HDC hDC)
 	RenderObjects_AfterCharacter();
 	CheckSprites();
 
-	if (SelectedHero != -1 && o->Live)
+	if(SelectedHero!=-1 && o->Live)
 	{
 		vec3_t vLight;
-
-		Vector(1.0f, 1.0f, 1.f, vLight);
-		float fLumi = sinf(WorldTime * 0.0015f) * 0.3f + 0.5f;
-		Vector(fLumi * vLight[0], fLumi * vLight[1], fLumi * vLight[2], vLight);
+		
+		Vector ( 1.0f, 1.0f, 1.f, vLight );
+		float fLumi = sinf ( WorldTime*0.0015f )*0.3f+0.5f;
+		Vector ( fLumi*vLight[0], fLumi*vLight[1], fLumi*vLight[2], vLight );
 #ifdef PJH_NEW_SERVER_SELECT_MAP
 		EnableAlphaBlend();
-		RenderTerrainAlphaBitmap(BITMAP_GM_AURORA, o->Position[0], o->Position[1], 1.8f, 1.8f, vLight, WorldTime * 0.01f);
-		RenderTerrainAlphaBitmap(BITMAP_GM_AURORA, o->Position[0], o->Position[1], 1.2f, 1.2f, vLight, -WorldTime * 0.01f);
+		RenderTerrainAlphaBitmap(BITMAP_GM_AURORA, o->Position[0], o->Position[1], 1.8f, 1.8f, vLight, WorldTime*0.01f);
+		RenderTerrainAlphaBitmap(BITMAP_GM_AURORA, o->Position[0], o->Position[1], 1.2f, 1.2f, vLight, -WorldTime*0.01f);
 		DisableAlphaBlend();
 #else //PJH_NEW_SERVER_SELECT_MAP
-		RenderTerrainAlphaBitmap(BITMAP_GM_AURORA, o->Position[0], o->Position[1], 1.5f, 1.5f, vLight, WorldTime * 0.01f);
-		RenderTerrainAlphaBitmap(BITMAP_GM_AURORA, o->Position[0], o->Position[1], 1.f, 1.f, vLight, -WorldTime * 0.01f);
+		RenderTerrainAlphaBitmap ( BITMAP_GM_AURORA, o->Position[0], o->Position[1], 1.5f, 1.5f, vLight, WorldTime*0.01f );
+		RenderTerrainAlphaBitmap ( BITMAP_GM_AURORA, o->Position[0], o->Position[1], 1.f, 1.f, vLight, -WorldTime*0.01f );
 #endif //PJH_NEW_SERVER_SELECT_MAP
 
-		float Rotation = (int)WorldTime % 3600 / (float)10.f;
-		Vector(0.15f, 0.15f, 0.15f, o->Light);
+		//CreateParticle(BITMAP_FLARE+1,o->Position,o->Angle,Light,0,0.15f);
+
+		float Rotation = (int)WorldTime%3600/(float)10.f;
+		Vector ( 0.15f, 0.15f, 0.15f, o->Light );
 		CreateParticle(BITMAP_EFFECT, o->Position, o->Angle, o->Light, 4);
 		CreateParticle(BITMAP_EFFECT, o->Position, o->Angle, o->Light, 5);
 
-		g_csMapServer.SetHeroID((char*)CharactersClient[SelectedHero].ID);
+		g_csMapServer.SetHeroID ( (char *)CharactersClient[SelectedHero].ID );
 	}
 
 	BeginSprite();
@@ -1196,27 +1185,25 @@ void CreateLogInScene()
 	CUIMng::Instance().CreateLoginScene();
 
 	CurrentProtocolState = REQUEST_JOIN_SERVER;
-	CreateSocket(szServerIpAddress, g_ServerPort);
-	EnableSocket = true;
+    CreateSocket(szServerIpAddress,g_ServerPort);
+    EnableSocket = true;
 
 	GuildInputEnable = false;
-	TabInputEnable = false;
-	GoldInputEnable = false;
-	InputEnable = true;
+	TabInputEnable   = false;
+	GoldInputEnable  = false;
+	InputEnable      = true;
 	ClearInput();
 
 	if (g_iChatInputType == 0)
 	{
-		strcpy(InputText[0], m_ID);
+		strcpy(InputText[0],m_ID);
 		InputLength[0] = strlen(InputText[0]);
 		InputTextMax[0] = MAX_ID_SIZE;
-		if (InputLength[0] == 0)
-			InputIndex = 0;
-		else
-			InputIndex = 1;
+		if(InputLength[0] == 0)	InputIndex = 0;
+		else InputIndex = 1;
 	}
 	InputNumber = 2;
-	InputTextHide[1] = 1;
+    InputTextHide[1] = 1;
 
 	CCameraMove::GetInstancePtr()->PlayCameraWalk(Hero->Object.Position, 1000);
 #ifdef PJH_NEW_SERVER_SELECT_MAP
@@ -1224,31 +1211,30 @@ void CreateLogInScene()
 #else //PJH_NEW_SERVER_SELECT_MAP
 	CCameraMove::GetInstancePtr()->SetTourMode(TRUE, TRUE);
 #endif //PJH_NEW_SERVER_SELECT_MAP
-
+	
 	MoveMainCamera();
 
 	g_fMULogoAlpha = 0;
+	
+	::PlayMp3(g_lpszMp3[MUSIC_LOGIN_THEME]);
 
-	PlayMp3(g_lpszMp3[MUSIC_LOGIN_THEME]);
-
-	g_ErrorReport.Write("> Login Scene init success.\r\n");
+	g_ErrorReport.Write( "> Login Scene init success.\r\n");
 }
 
 void NewMoveLogInScene()
 {
-	if (!InitLogIn)
+	if(!InitLogIn)
 	{
 		InitLogIn = true;
 		CreateLogInScene();
 	}
 
 #ifdef MOVIE_DIRECTSHOW
-	if (CUIMng::Instance().IsMoving() == true)
+	if(CUIMng::Instance().IsMoving() == true)
 	{
 		return;
 	}
 #endif // MOVIE_DIRECTSHOW
-
 	if (!CUIMng::Instance().m_CreditWin.IsShow())
 	{
 		InitTerrainLight();
@@ -1269,7 +1255,8 @@ void NewMoveLogInScene()
 		CUIMng& rUIMng = CUIMng::Instance();
 		if (!(rUIMng.m_MsgWin.IsShow() || rUIMng.m_LoginWin.IsShow()
 			|| rUIMng.m_SysMenuWin.IsShow() || rUIMng.m_OptionWin.IsShow()
-			|| rUIMng.m_CreditWin.IsShow())
+			|| rUIMng.m_CreditWin.IsShow()
+			)
 			&& rUIMng.m_LoginMainWin.IsShow() && rUIMng.m_ServerSelWin.IsShow()
 			&& rUIMng.IsSysMenuWinShow())
 		{
@@ -1277,22 +1264,21 @@ void NewMoveLogInScene()
 			rUIMng.ShowWin(&rUIMng.m_SysMenuWin);
 		}
 	}
-
 	if (RECEIVE_LOG_IN_SUCCESS == CurrentProtocolState)
 	{
-		g_ErrorReport.Write("> Request Character list\r\n");
+		g_ErrorReport.Write( "> Request Character list\r\n");
 
 		CCameraMove::GetInstancePtr()->SetTourMode(FALSE);
 
 		SceneFlag = CHARACTER_SCENE;
 
-#ifdef NEW_PROTOCOL_SYSTEM
-		gProtocolSend.SendRequestCharactersListNew();
-#else
-		SendRequestCharactersList(g_pMultiLanguage->GetLanguage());
-#endif
+		#ifdef NEW_PROTOCOL_SYSTEM
+			gProtocolSend.SendRequestCharactersListNew();
+		#else
+			SendRequestCharactersList(g_pMultiLanguage->GetLanguage());
+		#endif
 
-		ReleaseLogoSceneData();
+        ReleaseLogoSceneData();
 
 		ClearCharacters();
 	}
@@ -1302,37 +1288,13 @@ void NewMoveLogInScene()
 
 bool NewRenderLogInScene(HDC hDC)
 {
-	if (!InitLogIn) return false;
+	if(!InitLogIn) return false;
 
 	FogEnable = false;
-
-	vec3_t pos;
-	if (CCameraMove::GetInstancePtr()->IsCameraMove())
-	{
-		VectorCopy(CameraPosition, pos);
-	}
-
-	MoveMainCamera();
-
-	int Width, Height;
-
-	glColor3f(1.f, 1.f, 1.f);
-
-#ifndef PJH_NEW_SERVER_SELECT_MAP
-	BeginBitmap();
-	Width = 320;
-	Height = 320;
-	RenderBitmap(BITMAP_LOG_IN + 9, (float)0, (float)25, (float)Width, (float)Height, 0.f, 0.f);
-	RenderBitmap(BITMAP_LOG_IN + 10, (float)320, (float)25, (float)Width, (float)Height, 0.f, 0.f);
-	EndBitmap();
-#endif //PJH_NEW_SERVER_SELECT_MAP
-
-	Height = 480;
-	Width = GetScreenWidth();
-	glClearColor(0.f, 0.f, 0.f, 1.f);
-
-	BeginOpengl(0, 25, 640, 430);
-	CreateFrustrum((float)Width / (float)640, pos);
+// 	extern GLfloat FogColor[4];
+// 	FogColor[0] = 178.f/256.f; FogColor[1] = 178.f/256.f; FogColor[2] = 178.f/256.f; FogColor[3] = 0.f;
+// 	glFogf(GL_FOG_START, 3700.0f);
+// 	glFogf(GL_FOG_END, 4000.0f);
 
 #ifdef MOVIE_DIRECTSHOW
 	if(CUIMng::Instance().IsMoving() == true)
@@ -1359,6 +1321,33 @@ bool NewRenderLogInScene(HDC hDC)
 		return true;
 	}
 #endif // MOVIE_DIRECTSHOW
+
+	vec3_t pos;
+	if(CCameraMove::GetInstancePtr()->IsCameraMove()) 
+	{
+		VectorCopy(CameraPosition, pos);
+	}
+
+    MoveMainCamera();
+
+	int Width,Height;
+
+	glColor3f(1.f,1.f,1.f);
+#ifndef PJH_NEW_SERVER_SELECT_MAP
+	BeginBitmap();
+	Width = 320;
+	Height = 320;
+	RenderBitmap(BITMAP_LOG_IN+9,  (float)0,(float)25,(float)Width,(float)Height,0.f,0.f);
+	RenderBitmap(BITMAP_LOG_IN+10,(float)320,(float)25,(float)Width,(float)Height,0.f,0.f);
+	EndBitmap();
+#endif //PJH_NEW_SERVER_SELECT_MAP
+
+	Height = 480;
+    Width = GetScreenWidth();
+	glClearColor(0.f,0.f,0.f,1.f);
+
+	BeginOpengl(0,25,640,430);
+	CreateFrustrum((float)Width/(float)640, pos);
 
 	if (!CUIMng::Instance().m_CreditWin.IsShow())
 	{
@@ -1389,35 +1378,34 @@ bool NewRenderLogInScene(HDC hDC)
 	if (CCameraMove::GetInstancePtr()->IsTourMode())
 	{
 #ifndef PJH_NEW_SERVER_SELECT_MAP
-		// Render Chrome Effect
+		// 화면 흐리기
 		EnableAlphaBlend4();
-		glColor4f(0.7f, 0.7f, 0.7f, 1.0f);
-		float fScale = (sinf(WorldTime * 0.0005f) + 1.f) * 0.00011f;
-		RenderBitmap(BITMAP_CHROME + 3, 0.0f, 0.0f, 640.0f, 480.0f, 800.f * fScale, 600.f * fScale, (800.f) / 1024.f - 800.f * fScale * 2, (600.f) / 1024.f - 600.f * fScale * 2);
+		glColor4f(0.7f,0.7f,0.7f,1.0f);
+		float fScale = (sinf(WorldTime*0.0005f) + 1.f) * 0.00011f;
+		//RenderBitmap(BITMAP_CHROME+3, 0.0f,0.0f, 640.0f,480.0f, 800.f,600.f, (800.f)/1024.f,(600.f)/1024.f);
+		RenderBitmap(BITMAP_CHROME+3, 0.0f,0.0f, 640.0f,480.0f, 800.f*fScale,600.f*fScale, (800.f)/1024.f-800.f*fScale*2,(600.f)/1024.f-600.f*fScale*2);
 		float fAngle = WorldTime * 0.00018f;
-		float fLumi = 1.0f - (sinf(WorldTime * 0.0015f) + 1.f) * 0.25f;
-		glColor4f(fLumi * 0.3f, fLumi * 0.3f, fLumi * 0.7f, fLumi);
-		fScale = (sinf(WorldTime * 0.0015f) + 1.f) * 0.00021f;
-		RenderBitmapLocalRotate(BITMAP_CHROME + 4, 320.0f, 240.0f, 1150.0f, 1150.0f, fAngle, fScale * 512.f, fScale * 512.f, (512.f) / 512.f - fScale * 2 * 512.f, (512.f) / 512.f - fScale * 2 * 512.f);
+		float fLumi = 1.0f - (sinf(WorldTime*0.0015f) + 1.f) * 0.25f;
+		glColor4f(fLumi*0.3f,fLumi*0.3f,fLumi*0.7f,fLumi);
+		fScale = (sinf(WorldTime*0.0015f) + 1.f) * 0.00021f;
+		RenderBitmapLocalRotate(BITMAP_CHROME+4,320.0f,240.0f, 1150.0f, 1150.0f, fAngle, fScale*512.f,fScale*512.f, (512.f)/512.f-fScale*2*512.f,(512.f)/512.f-fScale*2*512.f);
 
-		// Render Top and Bottom Black Bars
+		// 위아래 자르기
 		EnableAlphaTest();
-		glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
+		glColor4f(0.0f,0.0f,0.0f,1.0f);
 		RenderColor(0, 0, 640, 25);
-		RenderColor(0, 480 - 25, 640, 25);
+		RenderColor(0, 480-25, 640, 25);
 
-		// Render Side Black Bars
-		glColor4f(0.0f, 0.0f, 0.0f, 0.2f);
+		// 화면칠
+		glColor4f(0.0f,0.0f,0.0f,0.2f);
 		RenderColor(0, 25, 640, 430);
-#endif // PJH_NEW_SERVER_SELECT_MAP
-		// Increase the alpha value of the MULogo
+#endif //PJH_NEW_SERVER_SELECT_MAP
+		// 뮤로고
 		g_fMULogoAlpha += 0.02f;
-		if (g_fMULogoAlpha > 10.0f)
-			g_fMULogoAlpha = 10.0f;
-
+		if (g_fMULogoAlpha > 10.0f) g_fMULogoAlpha = 10.0f;
+		
 		EnableAlphaBlend();
-		float alpha = g_fMULogoAlpha - 0.3f;
-		glColor4f(alpha, alpha, alpha, alpha);
+		glColor4f(g_fMULogoAlpha-0.3f,g_fMULogoAlpha-0.3f,g_fMULogoAlpha-0.3f,g_fMULogoAlpha-0.3f);
 #ifdef PBG_ADD_MUBLUE_LOGO
 		BITMAP_t *pImage =NULL;
 		pImage = &Bitmaps[BITMAP_LOG_IN+17];
@@ -1437,29 +1425,30 @@ bool NewRenderLogInScene(HDC hDC)
 
 	SIZE Size;
 	char Text[100];
-
+	
 	g_pRenderText->SetFont(g_hFont);
 
 	InputTextWidth = 256;
-	glColor3f(0.8f, 0.7f, 0.6f);
+	glColor3f(0.8f,0.7f,0.6f);
 	g_pRenderText->SetTextColor(255, 255, 255, 255);
 	g_pRenderText->SetBgColor(0, 0, 0, 128);
+	
+	strcpy(Text,GlobalText[454]);
+	g_pMultiLanguage->_GetTextExtentPoint32(g_pRenderText->GetFontDC(), Text,lstrlen(Text),&Size);
+	g_pRenderText->RenderText(335-Size.cx*640/WindowWidth,480-Size.cy*640/WindowWidth-1,Text);
 
-	strcpy(Text, GlobalText[454]);
-	g_pMultiLanguage->_GetTextExtentPoint32(g_pRenderText->GetFontDC(), Text, lstrlen(Text), &Size);
-	g_pRenderText->RenderText(335 - Size.cx * 640 / WindowWidth, 480 - Size.cy * 640 / WindowWidth - 1, Text);
+	strcpy(Text,GlobalText[455]);
+	
+	g_pMultiLanguage->_GetTextExtentPoint32(g_pRenderText->GetFontDC(), Text,lstrlen(Text),&Size);
+	g_pRenderText->RenderText(335,480-Size.cy*640/WindowWidth-1,Text);
 
-	strcpy(Text, GlobalText[455]);
-	g_pMultiLanguage->_GetTextExtentPoint32(g_pRenderText->GetFontDC(), Text, lstrlen(Text), &Size);
-	g_pRenderText->RenderText(335, 480 - Size.cy * 640 / WindowWidth - 1, Text);
+	sprintf(Text,GlobalText[456],m_ExeVersion);
+	
+	g_pMultiLanguage->_GetTextExtentPoint32(g_pRenderText->GetFontDC(), Text,lstrlen(Text),&Size);
+	g_pRenderText->RenderText(0, 480-Size.cy*640/WindowWidth-1,Text);
 
-	sprintf(Text, GlobalText[456], m_ExeVersion);
-
-	g_pMultiLanguage->_GetTextExtentPoint32(g_pRenderText->GetFontDC(), Text, lstrlen(Text), &Size);
-	g_pRenderText->RenderText(0, 480 - Size.cy * 640 / WindowWidth - 1, Text);
-
-	RenderInfomation();
-
+    RenderInfomation();
+	
 #ifdef ENABLE_EDIT
 	RenderDebugWindow();
 #endif //ENABLE_EDIT
@@ -1473,43 +1462,25 @@ bool NewRenderLogInScene(HDC hDC)
 
 void RenderInterfaceEdge()
 {
-	// Interface edge positions and sizes
-	struct EdgeInfo
-	{
-		int width;
-		int height;
-		int windowX;
-		int windowY;
-	};
-
-	const std::vector<EdgeInfo> edgeInfos = {
-		{ 192, 37, 448, 0 },
-		{ 192, 37, 0, 0 },
-		{ 106, 256, 534, 3 },
-		{ 106, 256, 0, 3 },
-		{ 106, 222, 534, 259 },
-		{ 106, 222, 0, 259 },
-		{ 256, 70, 192, 0 }
-	};
-
-	EnableAlphaTest();
-	glColor3f(1.f, 1.f, 1.f);
-
-	for (const auto& edge : edgeInfos)
-	{
-		float widthRatio = static_cast<float>(edge.width) / 256.f;
-		float heightRatio = static_cast<float>(edge.height) / 64.f;
-
-		if (edge.windowX == 0)
-			widthRatio = -widthRatio;
-
-		float x = static_cast<float>(edge.windowX);
-		float y = static_cast<float>(edge.windowY);
-		float width = static_cast<float>(edge.width);
-		float height = static_cast<float>(edge.height);
-
-		RenderBitmap(BITMAP_LOG_IN, x, y, width, height, widthRatio, 0.f, widthRatio, heightRatio);
-	}
+	int Width,Height;
+	int WindowX,WindowY;
+   	EnableAlphaTest();
+	glColor3f(1.f,1.f,1.f);
+	//interface edge
+	Width = 192;Height = 37;WindowX = 448;WindowY = 0;
+	RenderBitmap(BITMAP_LOG_IN,(float)WindowX,(float)WindowY,(float)Width,(float)Height,0.f,0.f,Width/256.f,Height/64.f);
+	Width = 192;Height = 37;WindowX = 0;WindowY = 0;
+	RenderBitmap(BITMAP_LOG_IN,(float)WindowX,(float)WindowY,(float)Width,(float)Height,Width/256.f,0.f,-Width/256.f,Height/64.f);
+	Width = 106;Height = 256;WindowX = 534;WindowY = 3;
+	RenderBitmap(BITMAP_LOG_IN+1,(float)WindowX,(float)WindowY,(float)Width,(float)Height,0.f,0.f,Width/128.f,Height/256.f);
+	Width = 106;Height = 256;WindowX = 0;WindowY = 3;
+	RenderBitmap(BITMAP_LOG_IN+1,(float)WindowX,(float)WindowY,(float)Width,(float)Height,Width/128.f,0.f,-Width/128.f,Height/256.f);
+	Width = 106;Height = 222;WindowX = 534;WindowY = 259;
+	RenderBitmap(BITMAP_LOG_IN+2,(float)WindowX,(float)WindowY,(float)Width,(float)Height,0.f,0.f,Width/128.f,Height/256.f);
+	Width = 106;Height = 222;WindowX = 0;WindowY = 259;
+	RenderBitmap(BITMAP_LOG_IN+2,(float)WindowX,(float)WindowY,(float)Width,(float)Height,Width/128.f,0.f,-Width/128.f,Height/256.f);
+	Width = 256;Height = 70;WindowX = 192;WindowY = 0;
+	RenderBitmap(BITMAP_LOG_IN+3,(float)WindowX,(float)WindowY,(float)Width,(float)Height,0.f,0.f,Width/256.f,Height/128.f);
 }
 
 void LoadingScene(HDC hDC)
@@ -1522,11 +1493,11 @@ void LoadingScene(HDC hDC)
 		LoadingWorld = 9999999;
 
 		InitLoading = true;
-
+		
 		LoadBitmap("Interface\\LSBg01.JPG", BITMAP_TITLE, GL_LINEAR);
-		LoadBitmap("Interface\\LSBg02.JPG", BITMAP_TITLE + 1, GL_LINEAR);
-		LoadBitmap("Interface\\LSBg03.JPG", BITMAP_TITLE + 2, GL_LINEAR);
-		LoadBitmap("Interface\\LSBg04.JPG", BITMAP_TITLE + 3, GL_LINEAR);
+		LoadBitmap("Interface\\LSBg02.JPG", BITMAP_TITLE+1, GL_LINEAR);
+		LoadBitmap("Interface\\LSBg03.JPG", BITMAP_TITLE+2, GL_LINEAR);
+		LoadBitmap("Interface\\LSBg04.JPG", BITMAP_TITLE+3, GL_LINEAR);
 
 		::StopMp3(g_lpszMp3[MUSIC_LOGIN_THEME]);
 
@@ -1534,7 +1505,7 @@ void LoadingScene(HDC hDC)
 		rUIMng.m_pLoadingScene->Create();
 	}
 
-	FogEnable = false;
+    FogEnable = false;
 	::BeginOpengl();
 	::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	::BeginBitmap();
@@ -1550,7 +1521,7 @@ void LoadingScene(HDC hDC)
 
 	SceneFlag = MAIN_SCENE;
 	for (int i = 0; i < 4; ++i)
-		::DeleteBitmap(BITMAP_TITLE + i);
+		::DeleteBitmap(BITMAP_TITLE+i);
 
 	::ClearInput();
 
@@ -1559,15 +1530,15 @@ void LoadingScene(HDC hDC)
 
 float CameraDistanceTarget = 1000.f;
 float CameraDistance = CameraDistanceTarget;
-bool Camera3D = true;
-float Camera3DFov = 0.f;
-vec3_t Camera3DAngle = { 0, 0, 0 };
-bool Camera3DRoll = false;
-POINT Camera3DMouse = { 0, 0 };
+bool	Camera3D = true;
+float	Camera3DFov = 0.f;
+vec3_t  Camera3DAngle = { 0, 0, 0 };
+bool	Camera3DRoll = false;
+POINT	Camera3DMouse = { 0, 0 };
 
 bool MoveMainCamera()
 {
-	bool bLockCamera = false;
+    bool bLockCamera = false;
 
 	if (
 #ifdef PJH_NEW_SERVER_SELECT_MAP
@@ -1576,48 +1547,44 @@ bool MoveMainCamera()
 		gMapManager.WorldActive == WD_77NEW_LOGIN_SCENE
 #endif //PJH_NEW_SERVER_SELECT_MAP
 		&& CCameraMove::GetInstancePtr()->IsTourMode())
-	{
 #ifdef PJH_NEW_SERVER_SELECT_MAP
 		CameraFOV = 65.0f;
 #else //PJH_NEW_SERVER_SELECT_MAP
 		CameraFOV = 61.0f;
 #endif //PJH_NEW_SERVER_SELECT_MAP
-	}
 	else
-	{
 		CameraFOV = 35.f;
-	}
 
 #ifdef ENABLE_EDIT2
 	{
 		bool EditMove = false;
-		if (!g_pUIManager->IsInputEnable())
+		if( !g_pUIManager->IsInputEnable() )
 		{
-			if (HIBYTE(GetAsyncKeyState(VK_INSERT)) == 128)
+			if(HIBYTE(GetAsyncKeyState(VK_INSERT))==128)
 				CameraAngle[2] += 15;
-			if (HIBYTE(GetAsyncKeyState(VK_DELETE)) == 128)
+			if(HIBYTE(GetAsyncKeyState(VK_DELETE))==128)
 				CameraAngle[2] -= 15;
 
-			vec3_t p1, p2;
-			Vector(0.f, 0.f, 0.f, p1);
-			FLOAT Velocity = sqrtf(TERRAIN_SCALE * TERRAIN_SCALE) * 1.25f;
+			vec3_t p1,p2;
+			Vector(0.f,0.f,0.f,p1);
+			FLOAT Velocity = sqrtf(TERRAIN_SCALE*TERRAIN_SCALE)*1.25f;
 
-			if (HIBYTE(GetAsyncKeyState(VK_LEFT)) == 128)// || (MouseX<=0 && MouseY>=100))
+			if(HIBYTE(GetAsyncKeyState(VK_LEFT ))==128)// || (MouseX<=0 && MouseY>=100))
 			{
 				Vector(-Velocity, -Velocity, 0.f, p1);
 				EditMove = true;
 			}
-			if (HIBYTE(GetAsyncKeyState(VK_RIGHT)) == 128)// || (MouseX>=639 && MouseY>=100))
+			if(HIBYTE(GetAsyncKeyState(VK_RIGHT))==128)// || (MouseX>=639 && MouseY>=100))
 			{
 				Vector(Velocity, Velocity, 0.f, p1);
 				EditMove = true;
 			}
-			if (HIBYTE(GetAsyncKeyState(VK_UP)) == 128)// || (MouseY<=0 && MouseX>=100 && MouseX<540))
+			if(HIBYTE(GetAsyncKeyState(VK_UP   ))==128)// || (MouseY<=0 && MouseX>=100 && MouseX<540))
 			{
 				Vector(-Velocity, Velocity, 0.f, p1);
 				EditMove = true;
 			}
-			if (HIBYTE(GetAsyncKeyState(VK_DOWN)) == 128)// || (MouseY>=479))
+			if(HIBYTE(GetAsyncKeyState(VK_DOWN ))==128)// || (MouseY>=479))
 			{
 				Vector(Velocity, -Velocity, 0.f, p1);
 				EditMove = true;
@@ -1625,46 +1592,46 @@ bool MoveMainCamera()
 
 			glPushMatrix();
 			glLoadIdentity();
-			glRotatef(-CameraAngle[2], 0.f, 0.f, 1.f);
+			glRotatef(-CameraAngle[2],0.f,0.f,1.f);
 			float Matrix[3][4];
 			GetOpenGLMatrix(Matrix);
 			glPopMatrix();
-			VectorRotate(p1, Matrix, p2);
+			VectorRotate(p1,Matrix,p2);
 			VectorAdd(Hero->Object.Position, p2, Hero->Object.Position);
 		}
 
-		if (gMapManager.InChaosCastle() == false || !Hero->Object.m_bActionStart)
-		{
-			if (gMapManager.WorldActive == WD_39KANTURU_3RD && Hero->Object.m_bActionStart)
-			{
-			}
-			else if (gMapManager.WorldActive == -1 || Hero->Helper.Type != MODEL_HELPER + 3 || Hero->SafeZone)
-			{
-				Hero->Object.Position[2] = RequestTerrainHeight(Hero->Object.Position[0], Hero->Object.Position[1]);
-			}
+        if ( gMapManager.InChaosCastle()==false || !Hero->Object.m_bActionStart	)
+        {
+			if(gMapManager.WorldActive == WD_39KANTURU_3RD && Hero->Object.m_bActionStart)
+			{}
 			else
-			{
-				if (gMapManager.WorldActive == WD_8TARKAN || gMapManager.WorldActive == WD_10HEAVEN)
-					Hero->Object.Position[2] = RequestTerrainHeight(Hero->Object.Position[0],Hero->Object.Position[1])+90.f;
+            if ( gMapManager.WorldActive==-1 || Hero->Helper.Type != MODEL_HELPER+3 || Hero->SafeZone )
+            {
+				Hero->Object.Position[2] = RequestTerrainHeight(Hero->Object.Position[0],Hero->Object.Position[1]);
+            }
+            else
+            {
+                if ( gMapManager.WorldActive==WD_8TARKAN || gMapManager.WorldActive==WD_10HEAVEN )
+                    Hero->Object.Position[2] = RequestTerrainHeight(Hero->Object.Position[0],Hero->Object.Position[1])+90.f;
                 else
                     Hero->Object.Position[2] = RequestTerrainHeight(Hero->Object.Position[0],Hero->Object.Position[1])+30.f;
             }
         }
 
-		if (EditMove)
+		if(EditMove)
 		{
 			BYTE PathX[1];
 			BYTE PathY[1];
-			PathX[0] = static_cast<BYTE>(Hero->Object.Position[0] / TERRAIN_SCALE);
-			PathY[0] = static_cast<BYTE>(Hero->Object.Position[1] / TERRAIN_SCALE);
+			PathX[0] = (BYTE)(Hero->Object.Position[0]/TERRAIN_SCALE);
+			PathY[0] = (BYTE)(Hero->Object.Position[1]/TERRAIN_SCALE);
 
-#ifdef NEW_PROTOCOL_SYSTEM
-			gProtocolSend.SendCharacterMoveNew(Hero->Key, Hero->Object.Angle[2], 1, PathX, PathY, PathX[0], PathY[0]);
-#else
-			SendCharacterMove(Hero->Key, Hero->Object.Angle[2], 1, PathX, PathY, PathX[0], PathY[0]);
-#endif
+			#ifdef NEW_PROTOCOL_SYSTEM
+				gProtocolSend.SendCharacterMoveNew(Hero->Key,Hero->Object.Angle[2],1,PathX,PathY,PathX[0],PathY[0]);
+			#else
+				SendCharacterMove(Hero->Key,Hero->Object.Angle[2],1,PathX,PathY,PathX[0],PathY[0]);
+			#endif
 
-			Hero->Path.PathNum = 0;
+            Hero->Path.PathNum = 0;
 		}
 	}
 #endif //ENABLE_EDIT2
@@ -1675,6 +1642,7 @@ bool MoveMainCamera()
 	if(CameraTopViewEnable)
 	{
 		CameraViewFar = 3200.f;
+		//CameraViewFar = 60000.f;
 		CameraPosition[0] = Hero->Object.Position[0];
 		CameraPosition[1] = Hero->Object.Position[1];
 		CameraPosition[2] = CameraViewFar;
@@ -1726,19 +1694,11 @@ bool MoveMainCamera()
 					CameraViewFar = 2000.f; 
 				}
 				break;
-			case 1:
-				CameraViewFar = 2500.f;
-				break;
-			case 2:
-				CameraViewFar = 2600.f;
-				break;
-			case 3:
-				CameraViewFar = 2950.f;
-				break;
+            case 1: CameraViewFar = 2500.f; break;
+            case 2: CameraViewFar = 2600.f; break;
+            case 3: CameraViewFar = 2950.f; break;
 			case 5:
-			case 4:
-				CameraViewFar = 3200.f;
-				break;
+            case 4: CameraViewFar = 3200.f; break;
             }
         }
 
@@ -1866,54 +1826,36 @@ bool MoveMainCamera()
 		    VectorAdd ( CameraPosition, TransformPosition, CameraPosition );
         }
 	}
-	if (gMapManager.WorldActive == 5)
+	if(gMapManager.WorldActive==5)
 	{
-		CameraAngle[0] += sinf(WorldTime * 0.0005f) * 2.f;
-		CameraAngle[1] += sinf(WorldTime * 0.0008f) * 2.5f;
+		CameraAngle[0] += sinf(WorldTime*0.0005f)*2.f;
+		CameraAngle[1] += sinf(WorldTime*0.0008f)*2.5f;
 	}
-	else if (CCameraMove::GetInstancePtr()->IsTourMode())
+    else if (CCameraMove::GetInstancePtr()->IsTourMode())
 	{
 		CameraDistanceTarget = 1100.f * CCameraMove::GetInstancePtr()->GetCurrentCameraDistanceLevel() * 0.1f;
 		CameraDistance = CameraDistanceTarget;
 	}
 	else
-	{
-		if (gMapManager.InBattleCastle())
-		{
-			CameraDistanceTarget = 1100.f;
-			CameraDistance = CameraDistanceTarget;
-		}
-		else
-		{
-			switch (g_shCameraLevel)
-			{
-			case 0:
-				CameraDistanceTarget = 1000.f;
-				CameraDistance += (CameraDistanceTarget - CameraDistance) / 3;
-				break;
-			case 1:
-				CameraDistanceTarget = 1100.f;
-				CameraDistance += (CameraDistanceTarget - CameraDistance) / 3;
-				break;
-			case 2:
-				CameraDistanceTarget = 1200.f;
-				CameraDistance += (CameraDistanceTarget - CameraDistance) / 3;
-				break;
-			case 3:
-				CameraDistanceTarget = 1300.f;
-				CameraDistance += (CameraDistanceTarget - CameraDistance) / 3;
-				break;
-			case 4:
-				CameraDistanceTarget = 1400.f;
-				CameraDistance += (CameraDistanceTarget - CameraDistance) / 3;
-				break;
-			case 5:
-				CameraDistanceTarget = g_Direction.m_fCameraViewFar;
-				CameraDistance += (CameraDistanceTarget - CameraDistance) / 3;
-				break;
-			}
-		}
-	}
+    {
+        if ( gMapManager.InBattleCastle() )
+        {
+            CameraDistanceTarget = 1100.f;
+            CameraDistance = CameraDistanceTarget;
+        }
+        else
+        {
+            switch ( g_shCameraLevel )
+            {
+            case 0: CameraDistanceTarget = 1000.f; CameraDistance += (CameraDistanceTarget-CameraDistance)/3; break;
+            case 1: CameraDistanceTarget = 1100.f; CameraDistance += (CameraDistanceTarget-CameraDistance)/3; break;
+            case 2: CameraDistanceTarget = 1200.f; CameraDistance += (CameraDistanceTarget-CameraDistance)/3; break;
+            case 3: CameraDistanceTarget = 1300.f; CameraDistance += (CameraDistanceTarget-CameraDistance)/3; break;
+            case 4: CameraDistanceTarget = 1400.f; CameraDistance += (CameraDistanceTarget-CameraDistance)/3; break;
+			case 5: CameraDistanceTarget = g_Direction.m_fCameraViewFar; CameraDistance += (CameraDistanceTarget-CameraDistance)/3; break;
+            }
+        }
+    }
 
 	if (SceneFlag == MAIN_SCENE)
 	{
@@ -1927,6 +1869,7 @@ bool MoveMainCamera()
 		if (Camera3DRoll)
 		{
 			if (SEASON3B::IsNone(VK_RBUTTON))
+			if (SEASON3B::IsNone(VK_RBUTTON))
 			{
 				Camera3DRoll = false;
 			}
@@ -1939,50 +1882,50 @@ bool MoveMainCamera()
 		}
 	}
 
+
     return bLockCamera;
 }
 
 void MoveMainScene()
 {
-	if (!InitMainScene)
+	if(!InitMainScene)
 	{
 		g_pMainFrame->ResetSkillHotKey();
+		
+		g_ConsoleDebug->Write( MCD_NORMAL, "Join the game with the following character: %s", CharactersClient[SelectedHero].ID);
 
-		g_ConsoleDebug->Write(MCD_NORMAL, "Join the game with the following character: %s", CharactersClient[SelectedHero].ID);
+		g_ErrorReport.Write( "> Character selected <%d> \"%s\"\r\n", SelectedHero+1, CharactersClient[SelectedHero].ID);
 
-		g_ErrorReport.Write("> Character selected <%d> \"%s\"\r\n", SelectedHero + 1, CharactersClient[SelectedHero].ID);
+        InitMainScene = true;
+		
+		g_ConsoleDebug->Write( MCD_SEND, "SendRequestJoinMapServer");
 
-		InitMainScene = true;
-
-		g_ConsoleDebug->Write(MCD_SEND, "SendRequestJoinMapServer");
-
-		SendRequestJoinMapServer(CharactersClient[SelectedHero].ID);
+	    SendRequestJoinMapServer(CharactersClient[SelectedHero].ID);
 
 		CUIMng::Instance().CreateMainScene();
 
 		CameraAngle[2] = -45.f;
 
 		ClearInput();
-		InputEnable = false;
-		TabInputEnable = false;
-		InputTextWidth = 256;
+		InputEnable     = false;
+		TabInputEnable  = false;
+		InputTextWidth  = 256;
 		InputTextMax[0] = 42;
 		InputTextMax[1] = 10;
-		InputNumber = 2;
-
-		for (int i = 0; i < MAX_WHISPER; i++)
+		InputNumber     = 2;
+		for(int i=0;i<MAX_WHISPER;i++)
 		{
 			g_pChatListBox->AddText("", "", SEASON3B::TYPE_WHISPER_MESSAGE);
 		}
 
 		g_GuildNotice[0][0] = '\0';
 		g_GuildNotice[1][0] = '\0';
-
+	
 		g_pPartyManager->Create();
 
 		g_pChatListBox->ClearAll();
 
-		g_pSlideHelpMgr->Init();
+		g_pSlideHelpMgr->Init();		
 		g_pUIMapName->Init();
 
 		g_GuildCache.Reset();
@@ -1990,121 +1933,109 @@ void MoveMainScene()
 		g_PortalMgr.Reset();
 
 		ClearAllObjectBlurs();
-
+		
 		SetFocus(g_hWnd);
 
-		g_ErrorReport.Write("> Main Scene init success. ");
+		g_ErrorReport.Write( "> Main Scene init success. ");
 		g_ErrorReport.WriteCurrentTime();
 
 		g_ConsoleDebug->Write(MCD_NORMAL, "MainScene Init Success");
 	}
-
-	if (CurrentProtocolState == RECEIVE_JOIN_MAP_SERVER)
+	
+	if(CurrentProtocolState == RECEIVE_JOIN_MAP_SERVER)
 	{
 		EnableMainRender = true;
 	}
-
-	if (!EnableMainRender)
+	if(EnableMainRender == false)
 	{
 		return;
 	}
-
-	// Initialization
+	//init
 	EarthQuake *= 0.2f;
 
 	InitTerrainLight();
 
-	CheckInventory = nullptr;
+	CheckInventory = NULL;
 	CheckSkill = -1;
 	MouseOnWindow = false;
 
-	if (!CameraTopViewEnable && LoadingWorld < 30)
+
+	if(!CameraTopViewEnable	&& LoadingWorld < 30 )
 	{
-		if (MouseY >= (int)(480 - 48))
-		{
+		if(MouseY>=(int)(480-48))
 			MouseOnWindow = true;
-		}
 
 		g_pPartyManager->Update();
 		g_pNewUISystem->Update();
-
-		if (MouseLButton && !g_pNewUISystem->CheckMouseUse() && g_dwMouseUseUIID == 0 && !g_pNewUISystem->IsVisible(SEASON3B::INTERFACE_CHATINPUTBOX))
+		
+		if (MouseLButton == true && false == g_pNewUISystem->CheckMouseUse() && g_dwMouseUseUIID == 0 && g_pNewUISystem->IsVisible(SEASON3B::INTERFACE_CHATINPUTBOX) == false )
 		{
 			g_pWindowMgr->SetWindowsEnable(FALSE);
 			g_pFriendMenu->HideMenu();
 			g_dwKeyFocusUIID = 0;
-			if (GetFocus() != g_hWnd)
+			if(GetFocus() != g_hWnd)
 			{
 				SaveIMEStatus();
 				SetFocus(g_hWnd);
 			}
 		}
-
 		MoveInterface();
 		MoveTournamentInterface();
-
-		if (ErrorMessage != MESSAGE_LOG_OUT)
-		{
+		if( ErrorMessage != MESSAGE_LOG_OUT )
 			g_pUIManager->UpdateInput();
-		}
 	}
 
-	if (ErrorMessage != NULL)
-	{
+	if(ErrorMessage != NULL)
 		MouseOnWindow = true;
-	}
 
-	MoveObjects();
-
-	if (!CameraTopViewEnable)
+    MoveObjects();
+    if(!CameraTopViewEnable)
+    	MoveItems();
+	if ( ( gMapManager.WorldActive==WD_0LORENCIA && HeroTile!=4 ) || 
+         ( gMapManager.WorldActive==WD_2DEVIAS && HeroTile!=3 && HeroTile<10 ) 
+		 || gMapManager.WorldActive==WD_3NORIA 
+		 || gMapManager.WorldActive==WD_7ATLANSE 
+		 || gMapManager.InDevilSquare() == true
+		 || gMapManager.WorldActive==WD_10HEAVEN 
+         || gMapManager.InChaosCastle()==true 
+         || gMapManager.InBattleCastle()==true
+		 || M31HuntingGround::IsInHuntingGround()==true
+		 || M33Aida::IsInAida()==true
+		 || M34CryWolf1st::IsCyrWolf1st()==true
+		|| gMapManager.WorldActive == WD_42CHANGEUP3RD_2ND
+		|| IsIceCity()
+		|| IsSantaTown()
+		|| gMapManager.IsPKField()
+		|| IsDoppelGanger2()
+		|| gMapManager.IsEmpireGuardian1() 
+		|| gMapManager.IsEmpireGuardian2()
+		|| gMapManager.IsEmpireGuardian3()
+		|| gMapManager.IsEmpireGuardian4()
+		|| IsUnitedMarketPlace()
+	 )
 	{
-		MoveItems();
+        MoveLeaves();
 	}
-
-	if ((gMapManager.WorldActive == WD_0LORENCIA && HeroTile != 4) ||
-		(gMapManager.WorldActive == WD_2DEVIAS && HeroTile != 3 && HeroTile < 10) ||
-		gMapManager.WorldActive == WD_3NORIA ||
-		gMapManager.WorldActive == WD_7ATLANSE ||
-		gMapManager.InDevilSquare() ||
-		gMapManager.WorldActive == WD_10HEAVEN ||
-		gMapManager.InChaosCastle() ||
-		gMapManager.InBattleCastle() ||
-		M31HuntingGround::IsInHuntingGround() ||
-		M33Aida::IsInAida() ||
-		M34CryWolf1st::IsCyrWolf1st() ||
-		gMapManager.WorldActive == WD_42CHANGEUP3RD_2ND ||
-		IsIceCity() ||
-		IsSantaTown() ||
-		gMapManager.IsPKField() ||
-		IsDoppelGanger2() ||
-		gMapManager.IsEmpireGuardian1() ||
-		gMapManager.IsEmpireGuardian2() ||
-		gMapManager.IsEmpireGuardian3() ||
-		gMapManager.IsEmpireGuardian4() ||
-		IsUnitedMarketPlace())
-	{
-		MoveLeaves();
-	}
-
+	
 	MoveBoids();
-	MoveFishs();
+   	MoveFishs();
 	MoveBugs();
 	MoveChat();
 	UpdatePersonalShopTitleImp();
 	MoveHero();
-	MoveCharactersClient();
+    MoveCharactersClient();
 	ThePetProcess().UpdatePets();
-	MovePoints();
+    MovePoints();
 	MovePlanes();
 	MoveEffects();
-	MoveJoints();
-	MoveParticles();
-	MovePointers();
+    MoveJoints();
+    MoveParticles();
+    MovePointers();
 
 	g_Direction.CheckDirection();
-
+    
 #ifdef ENABLE_EDIT
-	EditObjects();
+    EditObjects();
 #endif //ENABLE_EDIT
 
 	g_GameCensorship->Update();
@@ -2114,134 +2045,133 @@ void MoveMainScene()
 
 bool RenderMainScene()
 {
-	if (!EnableMainRender)
+	if(EnableMainRender == false)  
 	{
 		return false;
 	}
 
-	if (LoadingWorld > 30)
+    if(( LoadingWorld) > 30)
 	{
 		return false;
 	}
 
-	FogEnable = false;
+    FogEnable = false;
 
-	vec3_t pos;
+    vec3_t pos;
 
-	if (MoveMainCamera())
-	{
-		VectorCopy(Hero->Object.StartPosition, pos);
-	}
-	else
-	{
+    if(MoveMainCamera() == true)
+    {
+        VectorCopy ( Hero->Object.StartPosition, pos );
+    }
+    else
+    {
 		g_pCatapultWindow->GetCameraPos(pos);
-
-		if (g_Direction.IsDirection() && !g_Direction.m_bDownHero)
+		
+		if(g_Direction.IsDirection() && g_Direction.m_bDownHero == false)
 		{
 			g_Direction.GetCameraPosition(pos);
 		}
-	}
+    }
 
-	int Width, Height;
+	int Width,Height;
 
-	BYTE byWaterMap = 0;
+    BYTE byWaterMap = 0;
 
-	if (!CameraTopViewEnable)
+	if(CameraTopViewEnable == false)
 	{
-		Height = 480 - 48;
+		Height = 480-48;
 	}
 	else
 	{
 		Height = 480;
 	}
 
-	Width = GetScreenWidth();
-
-	switch (gMapManager.WorldActive)
+    Width = GetScreenWidth();
+    if(gMapManager.WorldActive == WD_0LORENCIA)      
 	{
-	case WD_0LORENCIA:
-		glClearColor(10 / 256.f, 20 / 256.f, 14 / 256.f, 1.f);
-		break;
-	case WD_2DEVIAS:
-		glClearColor(0.f / 256.f, 0.f / 256.f, 10.f / 256.f, 1.f);
-		break;
-	case WD_10HEAVEN:
-		glClearColor(3.f / 256.f, 25.f / 256.f, 44.f / 256.f, 1.f);
-		break;
-	default:
-		if (gMapManager.InChaosCastle())
-		{
-			glClearColor(0 / 256.f, 0 / 256.f, 0 / 256.f, 1.f);
-		}
-		else if (gMapManager.WorldActive >= WD_45CURSEDTEMPLE_LV1 && gMapManager.WorldActive <= WD_45CURSEDTEMPLE_LV6)
-		{
-			glClearColor(9.f / 256.f, 8.f / 256.f, 33.f / 256.f, 1.f);
-		}
-		else if (gMapManager.InHellas())
-		{
-			byWaterMap = 1;
-			glClearColor(0.f / 256.f, 0.f / 256.f, 0.f / 256.f, 1.f);
-		}
-		else
-		{
-			glClearColor(0 / 256.f, 0 / 256.f, 0 / 256.f, 1.f);
-		}
-		break;
+		glClearColor(10/256.f,20/256.f,14/256.f,1.f);
+	}
+    else if(gMapManager.WorldActive == WD_2DEVIAS)
+	{
+		glClearColor(0.f/256.f,0.f/256.f,10.f/256.f,1.f);
+	}
+    else if(gMapManager.WorldActive == WD_10HEAVEN)
+	{
+		glClearColor(3.f/256.f,25.f/256.f,44.f/256.f,1.f);
+	}
+    else if(gMapManager.InChaosCastle() == true)
+	{
+		glClearColor(0/256.f,0/256.f,0/256.f,1.f);
+	}
+	else if(gMapManager.WorldActive >= WD_45CURSEDTEMPLE_LV1 && gMapManager.WorldActive <= WD_45CURSEDTEMPLE_LV6) 
+	{
+		glClearColor(9.f/256.f,8.f/256.f,33.f/256.f,1.f);
+	}
+    else if(gMapManager.InHellas() == true)
+    {
+        byWaterMap = 1;
+        glClearColor(0.f/256.f,0.f/256.f,0.f/256.f,1.f);
+    }
+    else    
+	{
+		glClearColor(0/256.f,0/256.f,0/256.f,1.f);
 	}
 
-	BeginOpengl(0, 0, Width, Height);
+	BeginOpengl(0,0,Width,Height);
 
-	CreateFrustrum(static_cast<float>(Width) / 640.f, pos);
+	CreateFrustrum((float)Width/(float)640, pos);
 
-	if (gMapManager.InBattleCastle())
-	{
-		if (battleCastle::InBattleCastle2(Hero->Object.Position))
+    if ( gMapManager.InBattleCastle() )
+    {
+        if ( battleCastle::InBattleCastle2( Hero->Object.Position ) )
+        {
+            vec3_t Color = { 0.f, 0.f, 0.f };
+            battleCastle::StartFog ( Color );
+        }
+        else
+        {
+            glDisable ( GL_FOG );
+        }
+    }
+
+	CreateScreenVector(MouseX,MouseY,MouseTarget);
+
+    if ( IsWaterTerrain()==false )
+    {
+		if(gMapManager.WorldActive==WD_39KANTURU_3RD)
 		{
-			vec3_t Color = { 0.f, 0.f, 0.f };
-			battleCastle::StartFog(Color);
-		}
-		else
-		{
-			glDisable(GL_FOG);
-		}
-	}
-
-	CreateScreenVector(MouseX, MouseY, MouseTarget);
-
-	if (!IsWaterTerrain())
-	{
-		if (gMapManager.WorldActive == WD_39KANTURU_3RD)
-		{
-			if (!g_Direction.m_CKanturu.IsMayaScene())
+			if(!g_Direction.m_CKanturu.IsMayaScene())
 				RenderTerrain(false);
 		}
-		else if (gMapManager.WorldActive != WD_10HEAVEN && gMapManager.WorldActive != -1)
-		{
-			if (gMapManager.IsPKField() || IsDoppelGanger2())
+		else
+        if(gMapManager.WorldActive!=WD_10HEAVEN && gMapManager.WorldActive != -1)
+        {
+			if(gMapManager.IsPKField() || IsDoppelGanger2())
 			{
 				RenderObjects();
 			}
-			RenderTerrain(false);
-		}
-	}
+            RenderTerrain(false);
+        }
+    }
 
-	if (!gMapManager.IsPKField() && !IsDoppelGanger2())
+	if(!gMapManager.IsPKField()	&& !IsDoppelGanger2())
 		RenderObjects();
 
 	RenderEffectShadows();
-	RenderBoids();
+   	RenderBoids(); 
+
 	RenderCharactersClient();
 
-	if (EditFlag != EDIT_NONE)
+	if(EditFlag!=EDIT_NONE)
 	{
 		RenderTerrain(true);
-	}
-	if (!CameraTopViewEnable)
-		RenderItems();
+    }
+    if(!CameraTopViewEnable)
+     	RenderItems();
 
-	RenderFishs();
-	RenderBugs();
-	RenderLeaves();
+   	RenderFishs();
+   	RenderBugs();
+    RenderLeaves();
 
 	if (!gMapManager.InChaosCastle())
 		ThePetProcess().RenderPets();
@@ -2249,17 +2179,23 @@ bool RenderMainScene()
 	RenderBoids(true);
 	RenderObjects_AfterCharacter();
 
-	RenderJoints(byWaterMap);
+    RenderJoints(byWaterMap);
 	RenderEffects();
-	RenderBlurs();
-	CheckSprites();
-	BeginSprite();
+    RenderBlurs();
+    CheckSprites();
+    BeginSprite();
 
-	if ((gMapManager.WorldActive == WD_2DEVIAS && HeroTile != 3 && HeroTile < 10) ||
-		IsIceCity() || IsSantaTown() || gMapManager.IsPKField() || IsDoppelGanger2() ||
-		gMapManager.IsEmpireGuardian1() || gMapManager.IsEmpireGuardian2() ||
-		gMapManager.IsEmpireGuardian3() || gMapManager.IsEmpireGuardian4() ||
-		IsUnitedMarketPlace())
+	if ((gMapManager.WorldActive == WD_2DEVIAS && HeroTile != 3 && HeroTile < 10)
+		|| IsIceCity()
+		|| IsSantaTown()
+		|| gMapManager.IsPKField()
+		|| IsDoppelGanger2()
+		|| gMapManager.IsEmpireGuardian1()
+		|| gMapManager.IsEmpireGuardian2()
+		|| gMapManager.IsEmpireGuardian3()
+		|| gMapManager.IsEmpireGuardian4()
+		|| IsUnitedMarketPlace()
+		)
 	{
 		RenderLeaves();
 	}
@@ -2267,54 +2203,63 @@ bool RenderMainScene()
 	RenderSprites();
 	RenderParticles();
 
-	if (IsWaterTerrain())
-	{
-		byWaterMap = 2;
+    if ( IsWaterTerrain()==false )
+    {
+        RenderPoints ( byWaterMap );
+    }
+
+    EndSprite();
+
+	RenderAfterEffects();
+
+    if(IsWaterTerrain() == true)
+    {
+        byWaterMap = 2;
 
 		EndOpengl();
-		BeginOpengl(0, 0, Width, Height);
-		RenderWaterTerrain();
-		RenderJoints(byWaterMap);
-		RenderEffects(true);
-		RenderBlurs();
-		CheckSprites();
-		BeginSprite();
+	    BeginOpengl(0, 0, Width, Height );
+        RenderWaterTerrain();
+        RenderJoints(byWaterMap );
+        RenderEffects( true );
+        RenderBlurs();
+        CheckSprites();
+        BeginSprite();
 
-		if (gMapManager.WorldActive == WD_2DEVIAS && HeroTile != 3 && HeroTile < 10)
-			RenderLeaves();
+        if(gMapManager.WorldActive==WD_2DEVIAS && HeroTile!=3 && HeroTile<10)
+            RenderLeaves();
 
 		RenderSprites(byWaterMap);
 		RenderParticles(byWaterMap);
-		RenderPoints(byWaterMap);
+        RenderPoints ( byWaterMap );
 
-		EndSprite();
+        EndSprite();
 		EndOpengl();
 
-		BeginOpengl(0, 0, Width, Height);
-	}
+		BeginOpengl( 0, 0, Width, Height );
+    }
 
-	if (gMapManager.InBattleCastle())
+    if(gMapManager.InBattleCastle())
+    {
+        if(battleCastle::InBattleCastle2(Hero->Object.Position))
+        {
+            battleCastle::EndFog();
+        }
+    }
+
+    SelectObjects();
+	BeginBitmap();	
+    RenderObjectDescription();
+	
+	if(CameraTopViewEnable == false)
 	{
-		if (battleCastle::InBattleCastle2(Hero->Object.Position))
-		{
-			battleCastle::EndFog();
-		}
-	}
-
-	SelectObjects();
-	BeginBitmap();
-	RenderObjectDescription();
-
-	if (!CameraTopViewEnable)
-	{
-		RenderInterface(true);
+        RenderInterface(true);
 	}
 	RenderTournamentInterface();
-	EndBitmap();
-
+	EndBitmap();						
+	
 	g_pPartyManager->Render();
 	g_pNewUISystem->Render();
-
+	
 	BeginBitmap();
 
 	RenderInfomation();
@@ -2326,11 +2271,11 @@ bool RenderMainScene()
 	EndBitmap();
 	BeginBitmap();
 
-	RenderCursor();
+    RenderCursor();
 
 	EndBitmap();
-	EndOpengl();
-
+    EndOpengl();
+	
 	return true;
 }
 
@@ -2382,32 +2327,28 @@ void MainScene(HDC hDC)
 			break;
 		}
 		
-		for (int iCount = 0; iCount < 5; ++iCount)
+		for ( int iCount = 0; iCount < 5; ++iCount)
 		{
 			g_PhysicsManager.Move(0.005f);
 		}
 
-		MoveNotices();
+        MoveNotices();
 
-		if (PressKey(VK_SNAPSHOT))
+		if(PressKey(VK_SNAPSHOT))
 		{
-			GrabEnable = !GrabEnable;
+			if(GrabEnable)
+				GrabEnable = false;
+			else
+				GrabEnable = true;
 		}
-		if (ChatTime > 0)
-		{
-			ChatTime--;
-		}
-		if (MacroTime > 0)
-		{
-			MacroTime--;
-		}
+        if(ChatTime > 0) ChatTime--;
+		if(MacroTime > 0) MacroTime--;
 		WaterTextureNumber++;
-		WaterTextureNumber %= 32;
+		WaterTextureNumber%=32;
 		MoveSceneFrame++;
-	}
+	} 
 
-	if (Destroy)
-	{
+	if (Destroy) {
 		return;
 	}
 
@@ -2416,28 +2357,28 @@ void MainScene(HDC hDC)
 	Set3DSoundPosition();
 
 	SYSTEMTIME st;
-	GetLocalTime(&st);
-	sprintf(GrabFileName, "Screen(%02d_%02d-%02d_%02d)-%04d.jpg", st.wMonth, st.wDay, st.wHour, st.wMinute, GrabScreen);
+	GetLocalTime( &st);
+	sprintf( GrabFileName, "Screen(%02d_%02d-%02d_%02d)-%04d.jpg", st.wMonth, st.wDay, st.wHour, st.wMinute, GrabScreen);
 	char Text[256];
-	sprintf(Text, GlobalText[459], GrabFileName);
+	sprintf(Text,GlobalText[459],GrabFileName);
 	char lpszTemp[64];
-	wsprintf(lpszTemp, " [%s / %s]", g_ServerListManager->GetSelectServerName(), Hero->ID);
-	strcat(Text, lpszTemp);
+	wsprintf( lpszTemp, " [%s / %s]", g_ServerListManager->GetSelectServerName(), Hero->ID);
+	strcat( Text, lpszTemp);
 	int iCaptureMode = 1;
 
-	if (HIBYTE(GetAsyncKeyState(VK_SHIFT)))
+	if ( HIBYTE( GetAsyncKeyState( VK_SHIFT)))
 	{
 		iCaptureMode = 1 - iCaptureMode;
 	}
-	if (GrabEnable && iCaptureMode == 1)
+	if(GrabEnable && iCaptureMode == 1)
 	{
 		g_pChatListBox->AddText("", Text, SEASON3B::TYPE_SYSTEM_MESSAGE);
 	}
 
-	if (gMapManager.WorldActive == WD_10HEAVEN)
-	{
-		glClearColor(3.f / 256.f, 25.f / 256.f, 44.f / 256.f, 1.f);
-	}
+    if( gMapManager.WorldActive==WD_10HEAVEN )
+    {
+        glClearColor(3.f/256.f,25.f/256.f,44.f/256.f,1.f);
+    }
 #ifdef PJH_NEW_SERVER_SELECT_MAP
 	else if (gMapManager.WorldActive == WD_73NEW_LOGIN_SCENE|| gMapManager.WorldActive == WD_74NEW_CHARACTER_SCENE)
     {
@@ -2519,19 +2460,19 @@ void MainScene(HDC hDC)
 
 #if defined(_DEBUG) || defined(LDS_FOR_DEVELOPMENT_TESTMODE) || defined(LDS_UNFIXED_FIXEDFRAME_FORDEBUG)
 	BeginBitmap();
-
-	std::string debugText = "FPS : " + std::to_string(FPS) + " Connected: " + std::to_string(g_bGameServerConnected);
-	std::string mousePos = "MousePos : " + std::to_string(MouseX) + " " + std::to_string(MouseY) + " " + std::to_string(MouseLButtonPush);
-	std::string camera3D = "Camera3D : " + std::to_string(CameraFOV) + " " + std::to_string(CameraAngle[0]) + ":" + std::to_string(CameraAngle[1]) + ":" + std::to_string(CameraAngle[2]);
-
+	unicode::t_char szDebugText[128];
+	unicode::_sprintf(szDebugText, "FPS : %.1f Connected: %d", FPS,g_bGameServerConnected);
+	unicode::t_char szMousePos[128];
+	unicode::_sprintf(szMousePos, "MousePos : %d %d %d", MouseX, MouseY, MouseLButtonPush);
+	unicode::t_char szCamera3D[128];
+	unicode::_sprintf(szCamera3D, "Camera3D : %.1f %.1f:%.1f:%.1f", CameraFOV, CameraAngle[0], CameraAngle[1], CameraAngle[2]);
 	g_pRenderText->SetFont(g_hFontBold);
 	g_pRenderText->SetBgColor(0, 0, 0, 100);
 	g_pRenderText->SetTextColor(255, 255, 255, 200);
-	g_pRenderText->RenderText(10, 26, debugText.c_str());
-	g_pRenderText->RenderText(10, 36, mousePos.c_str());
-	g_pRenderText->RenderText(10, 46, camera3D.c_str());
+	g_pRenderText->RenderText(10, 26, szDebugText);
+	g_pRenderText->RenderText(10, 36, szMousePos);
+	g_pRenderText->RenderText(10, 46, szCamera3D);
 	g_pRenderText->SetFont(g_hFont);
-
 	EndBitmap();
 #endif // defined(_DEBUG) || defined(LDS_FOR_DEVELOPMENT_TESTMODE) || defined(LDS_UNFIXED_FIXEDFRAME_FORDEBUG)
 
@@ -2546,6 +2487,7 @@ void MainScene(HDC hDC)
 	if (DifTimer < 40)
 	{
 		int32_t dwMilliseconds = 40 - DifTimer;
+		//std::this_thread::sleep_for(std::chrono::milliseconds(dwMilliseconds)); 
 		Sleep(dwMilliseconds);
 		TimePrior += dwMilliseconds;
 		DifTimer = 40;
@@ -2852,11 +2794,11 @@ float g_Luminosity;
 extern int g_iNoMouseTime;
 extern GLvoid KillGLWindow(GLvoid);
 
+
 void Scene(HDC hDC)
 {
-	g_Luminosity = sin(WorldTime * 0.004f) * 0.15f + 0.6f;
-
-	switch (SceneFlag)
+	g_Luminosity = sinf(WorldTime*0.004f)*0.15f+0.6f;
+	switch(SceneFlag)
 	{
 #ifdef MOVIE_DIRECTSHOW
 	case MOVIE_SCENE:
@@ -2864,19 +2806,19 @@ void Scene(HDC hDC)
 		break;
 #endif // MOVIE_DIRECTSHOW
 	case WEBZEN_SCENE:
-		WebzenScene(hDC);
+        WebzenScene(hDC);
 		break;
 	case LOADING_SCENE:
-		LoadingScene(hDC);
+      	LoadingScene(hDC);
 		break;
 	case LOG_IN_SCENE:
 	case CHARACTER_SCENE:
 	case MAIN_SCENE:
 		MainScene(hDC);
 		break;
-    }
+	}
 
-	if (g_iNoMouseTime > 31)
+	if ( g_iNoMouseTime > 31)
 	{
 		KillGLWindow();
 	}
