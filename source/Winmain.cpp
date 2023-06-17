@@ -265,18 +265,19 @@ BOOL GetFileNameOfFilePath( char *lpszFile, char *lpszPath)
 
 HANDLE g_hMainExe = INVALID_HANDLE_VALUE;
 
-BOOL OpenMainExe( void)
+BOOL OpenMainExe()
 {
 #ifdef _DEBUG
-	return ( TRUE);
+	return TRUE;
 #endif
-	char lpszFile[MAX_PATH];
-	char *lpszCommandLine = GetCommandLine();
-	GetFileNameOfFilePath( lpszFile, lpszCommandLine);
 
-	g_hMainExe = CreateFile( ( char*)lpszFile, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL, 0);
-	
-	return ( INVALID_HANDLE_VALUE != g_hMainExe);
+	char lpszFile[MAX_PATH];
+	char* lpszCommandLine = GetCommandLine();
+	GetFileNameOfFilePath(lpszFile, lpszCommandLine);
+
+	g_hMainExe = CreateFileA(lpszFile, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+
+	return (INVALID_HANDLE_VALUE != g_hMainExe);
 }
 
 void CloseMainExe( void)
@@ -386,7 +387,7 @@ extern PATH     *path;
 
 void DestroyWindow()
 {
-	//. save volume level
+	// Save volume level
 	leaf::CRegKey regkey;
 	regkey.SetKey(leaf::CRegKey::_HKEY_CURRENT_USER, "SOFTWARE\\Webzen\\Mu\\Config");
 	regkey.WriteDword("VolumeLevel", g_pOption->GetVolumeLevel());
@@ -394,63 +395,55 @@ void DestroyWindow()
 	CUIMng::Instance().Release();
 
 #ifdef MOVIE_DIRECTSHOW
-	if(g_pMovieScene)
+	if (g_pMovieScene)
 	{
 		g_pMovieScene->Destroy();
 	}
 #endif // MOVIE_DIRECTSHOW
 
-	//. release font handle
-	if(g_hFont)
-		DeleteObject((HGDIOBJ)g_hFont);
+	// Release font handles
+	if (g_hFont)
+		DeleteObject(g_hFont);
 
-	if(g_hFontBold)
-		DeleteObject((HGDIOBJ)g_hFontBold);
+	if (g_hFontBold)
+		DeleteObject(g_hFontBold);
 
-	if(g_hFontBig)
-		DeleteObject((HGDIOBJ)g_hFontBig);
+	if (g_hFontBig)
+		DeleteObject(g_hFontBig);
 
-	if(g_hFixFont)
-		::DeleteObject((HGDIOBJ)g_hFixFont);
-	
+	if (g_hFixFont)
+		DeleteObject(g_hFixFont);
+
 	ReleaseCharacters();
 
-    if ( path!=NULL )
-    {
-	    delete path;
-    }
+	delete path;
 	SAFE_DELETE(GateAttribute);
-
-	for ( int i = 0; i < MAX_SKILLS; ++i)
-	{
-	}
 	SAFE_DELETE(SkillAttribute);
-
 	SAFE_DELETE(CharacterMachine);
 
-    DeleteWaterTerrain ();
+	DeleteWaterTerrain();
 
 #ifdef MOVIE_DIRECTSHOW
-	if(SceneFlag != MOVIE_SCENE)
+	if (SceneFlag != MOVIE_SCENE)
 #endif // MOVIE_DIRECTSHOW
 	{
 		gMapManager.DeleteObjects();
 
-		// Object.
-		for(int i=MODEL_LOGO;i<MAX_MODELS;i++)
+		// Release object resources
+		for (int i = MODEL_LOGO; i < MAX_MODELS; ++i)
 		{
 			Models[i].Release();
-		}
-
-		// Bitmap
-		Bitmaps.UnloadAllImages();
 	}
 
-	SAFE_DELETE_ARRAY( CharacterMemoryDump );
-	SAFE_DELETE_ARRAY( ItemAttRibuteMemoryDump );
-	SAFE_DELETE_ARRAY( RendomMemoryDump );
-	SAFE_DELETE_ARRAY( ModelsDump );
-	
+		// Unload bitmaps
+		Bitmaps.UnloadAllImages();
+}
+
+	SAFE_DELETE_ARRAY(CharacterMemoryDump);
+	SAFE_DELETE_ARRAY(ItemAttRibuteMemoryDump);
+	SAFE_DELETE_ARRAY(RendomMemoryDump);
+	SAFE_DELETE_ARRAY(ModelsDump);
+
 #ifdef DYNAMIC_FRUSTRUM
 	DeleteAllFrustrum();
 #endif //DYNAMIC_FRUSTRUM
@@ -460,23 +453,24 @@ void DestroyWindow()
 	SAFE_DELETE(g_pSinglePasswdInputBox);
 
 	SAFE_DELETE(g_pChatRoomSocketList);
-	SAFE_DELETE(g_pUIMapName);	// rozy
-	SAFE_DELETE( g_pTimer );
+	SAFE_DELETE(g_pUIMapName);
+	SAFE_DELETE(g_pTimer);
 	SAFE_DELETE(g_pUIManager);
-	 
+
 #ifdef MOVIE_DIRECTSHOW
 	SAFE_DELETE(g_pMovieScene);
 #endif // MOVIE_DIRECTSHOW
 
 	SAFE_DELETE(pMultiLanguage);
-	BoostRest( g_BuffSystem );
-	BoostRest( g_MapProcess );
-	BoostRest( g_petProcess );
 
-	g_ErrorReport.Write( "Destroy" );
-	 
+	BoostRest(g_BuffSystem);
+	BoostRest(g_MapProcess);
+	BoostRest(g_petProcess);
+
+	g_ErrorReport.Write("Destroy");
+
 	HWND shWnd = FindWindow(NULL, "MuPlayer");
-	if(shWnd)
+	if (shWnd)
 		SendMessage(shWnd, WM_DESTROY, 0, 0);
 }
 
@@ -842,65 +836,68 @@ LONG FAR PASCAL WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam)
     return DefWindowProc(hwnd,msg,wParam,lParam);
 }
 
-bool CreateOpenglWindow()
+bool CreateOpenGLWindow()
 {
-    PIXELFORMATDESCRIPTOR pfd;
+	PIXELFORMATDESCRIPTOR pfd;
+	memset(&pfd, 0, sizeof(pfd));
+	pfd.nSize = sizeof(pfd);
+	pfd.nVersion = 1;
+	pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
+	pfd.iPixelType = PFD_TYPE_RGBA;
+	pfd.cColorBits = 16;
+	pfd.cDepthBits = 16;
 
-    memset(&pfd, 0, sizeof(pfd));
-    pfd.nSize        = sizeof(pfd);
-    pfd.nVersion     = 1;
-    pfd.dwFlags      = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-    pfd.iPixelType   = PFD_TYPE_RGBA;
-    pfd.cColorBits   = 16;
-	pfd.cDepthBits   = 16;
-
-	if (!(g_hDC=GetDC(g_hWnd)))
+	g_hDC = GetDC(g_hWnd);
+	if (!g_hDC)
 	{
-		g_ErrorReport.Write( "OpenGL Get DC Error - ErrorCode : %d\r\n", GetLastError());
+		g_ErrorReport.Write("OpenGL Get DC Error - ErrorCode: %d\r\n", GetLastError());
 		KillGLWindow();
-		MessageBox(NULL,GlobalText[4],"OpenGL Get DC Error.",MB_OK|MB_ICONEXCLAMATION);
-		return FALSE;
+		MessageBox(NULL, GlobalText[4], "OpenGL Get DC Error.", MB_OK | MB_ICONEXCLAMATION);
+		return false;
 	}
 
-	GLuint PixelFormat;
-
-	if (!(PixelFormat=ChoosePixelFormat(g_hDC,&pfd)))
+	GLuint pixelFormat;
+	if (!(pixelFormat = ChoosePixelFormat(g_hDC, &pfd)))
 	{
-		g_ErrorReport.Write( "OpenGL Choose Pixel Format Error - ErrorCode : %d\r\n", GetLastError());
+		g_ErrorReport.Write("OpenGL Choose Pixel Format Error - ErrorCode: %d\r\n", GetLastError());
 		KillGLWindow();
-		MessageBox(NULL,GlobalText[4],"OpenGL Choose Pixel Format Error.",MB_OK|MB_ICONEXCLAMATION);
-		return FALSE;
+		MessageBox(NULL, GlobalText[4], "OpenGL Choose Pixel Format Error.", MB_OK | MB_ICONEXCLAMATION);
+		return false;
 	}
 
-	if(!SetPixelFormat(g_hDC,PixelFormat,&pfd))
+	if (!SetPixelFormat(g_hDC, pixelFormat, &pfd))
 	{
-		g_ErrorReport.Write( "OpenGL Set Pixel Format Error - ErrorCode : %d\r\n", GetLastError());
+		g_ErrorReport.Write("OpenGL Set Pixel Format Error - ErrorCode: %d\r\n", GetLastError());
 		KillGLWindow();
-		MessageBox(NULL,GlobalText[4],"OpenGL Set Pixel Format Error.",MB_OK|MB_ICONEXCLAMATION);
-		return FALSE;
+		MessageBox(NULL, GlobalText[4], "OpenGL Set Pixel Format Error.", MB_OK | MB_ICONEXCLAMATION);
+		return false;
 	}
 
-	if (!(g_hRC=wglCreateContext(g_hDC)))
+	g_hRC = wglCreateContext(g_hDC);
+	if (!g_hRC)
 	{
-		g_ErrorReport.Write( "OpenGL Create Context Error - ErrorCode : %d\r\n", GetLastError());
+		g_ErrorReport.Write("OpenGL Create Context Error - ErrorCode: %d\r\n", GetLastError());
 		KillGLWindow();
-		MessageBox(NULL,GlobalText[4],"OpenGL Create Context Error.",MB_OK|MB_ICONEXCLAMATION);
-		return FALSE;
+		MessageBox(NULL, GlobalText[4], "OpenGL Create Context Error.", MB_OK | MB_ICONEXCLAMATION);
+		return false;
 	}
 
-	if(!wglMakeCurrent(g_hDC,g_hRC))
+	if (!wglMakeCurrent(g_hDC, g_hRC))
 	{
-		g_ErrorReport.Write( "OpenGL Make Current Error - ErrorCode : %d\r\n", GetLastError());
+		g_ErrorReport.Write("OpenGL Make Current Error - ErrorCode: %d\r\n", GetLastError());
 		KillGLWindow();
-		MessageBox(NULL,GlobalText[4],"OpenGL Make Current Error.",MB_OK|MB_ICONEXCLAMATION);
-		return FALSE;
+		MessageBox(NULL, GlobalText[4], "OpenGL Make Current Error.", MB_OK | MB_ICONEXCLAMATION);
+		return false;
 	}
 
-	ShowWindow(g_hWnd,SW_SHOW);
+	ShowWindow(g_hWnd, SW_SHOW);
 	SetForegroundWindow(g_hWnd);
 	SetFocus(g_hWnd);
 	return true;
 }
+
+#include <string>
+#include <iostream>
 
 HWND StartWindow(HINSTANCE hInstance, int nCmdShow)
 {
@@ -908,16 +905,14 @@ HWND StartWindow(HINSTANCE hInstance, int nCmdShow)
 	int minorVersion = 0;
 	int patchNumber = 0;
 
-	std::string buildDate = "25/05/23";
+	std::string buildDate = "16/06/23";
 	std::string updateVersion = std::to_string(majorVersion) + "." + std::to_string(minorVersion) + "." + std::to_string(patchNumber) + "-" + buildDate.substr(6, 2) + buildDate.substr(3, 2) + buildDate.substr(0, 2);
 
 	std::cout << "Update Version: " << updateVersion << std::endl;
 
-	char windowTitle[256];
+	std::string windowTitle = "MU (" + updateVersion + ")";
 
-	sprintf(windowTitle, "MU (%s)", updateVersion.c_str());
-
-	WNDCLASS wndClass;
+	WNDCLASS wndClass = {};
 	HWND hWnd;
 
 	wndClass.style = CS_HREDRAW | CS_VREDRAW;
@@ -925,42 +920,35 @@ HWND StartWindow(HINSTANCE hInstance, int nCmdShow)
 	wndClass.cbClsExtra = 0;
 	wndClass.cbWndExtra = 0;
 	wndClass.hInstance = hInstance;
-	wndClass.hIcon = LoadIcon(hInstance, (LPCTSTR)IDI_ICON1);
+	wndClass.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
 	wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wndClass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
 	wndClass.lpszMenuName = NULL;
-	wndClass.lpszClassName = windowTitle;
+	wndClass.lpszClassName = windowTitle.c_str();
 
 	if (!RegisterClass(&wndClass))
 	{
-		MessageBox(NULL, "Windows aplication error!", "Aplication Error", MB_ICONERROR);
+		MessageBox(NULL, "Windows application error!", "Application Error", MB_ICONERROR);
 		return 0;
 	}
 
-	if (g_bUseWindowMode == TRUE)
-	{
-		RECT rc = { 0, 0, WindowWidth, WindowHeight };
-		AdjustWindowRect(&rc, WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_BORDER | WS_CLIPCHILDREN, NULL);
-		hWnd = CreateWindow(
-			windowTitle, windowTitle,
-			WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_BORDER | WS_CLIPCHILDREN,
-			(GetSystemMetrics(SM_CXSCREEN) - rc.right) / 2,
-			(GetSystemMetrics(SM_CYSCREEN) - rc.bottom) / 2,
-			rc.right - rc.left,
-			rc.bottom - rc.top,
-			NULL, NULL, hInstance, NULL);
-	}
-	else
-	{
-		hWnd = CreateWindowEx(
-			WS_EX_TOPMOST | WS_EX_APPWINDOW,
-			windowTitle, windowTitle,
-			WS_POPUP,
-			0, 0,
-			WindowWidth,
-			WindowHeight,
-			NULL, NULL, hInstance, NULL);
-	}
+	RECT rc = { 0, 0, WindowWidth, WindowHeight };
+	DWORD windowStyle = g_bUseWindowMode ? WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_BORDER | WS_CLIPCHILDREN : WS_POPUP;
+	AdjustWindowRect(&rc, windowStyle, NULL);
+
+	int windowX = (GetSystemMetrics(SM_CXSCREEN) - rc.right) / 2;
+	int windowY = (GetSystemMetrics(SM_CYSCREEN) - rc.bottom) / 2;
+	int windowWidth = rc.right - rc.left;
+	int windowHeight = rc.bottom - rc.top;
+
+	hWnd = CreateWindowEx(
+		g_bUseWindowMode ? 0 : WS_EX_TOPMOST | WS_EX_APPWINDOW,
+		windowTitle.c_str(), windowTitle.c_str(),
+		windowStyle,
+		windowX, windowY,
+		windowWidth, windowHeight,
+		NULL, NULL, hInstance, NULL);
+
 	return hWnd;
 }
 
@@ -978,18 +966,18 @@ std::string g_strSelectedML = "";
 
 BOOL OpenInitFile()
 {
-	//char szTemp[50];
-	char szIniFilePath[256+20]="";
+	char szIniFilePath[256 + 20] = "";
 	char szCurrentDir[256];
 
 	GetCurrentDirectory(256, szCurrentDir);
 #ifdef ADD_START_CONFIG_FILE
 	strcpy(szIniFilePath, szCurrentDir);
-	if( szCurrentDir[strlen(szCurrentDir)-1] == '\\' ) 
+	if (szCurrentDir[strlen(szCurrentDir) - 1] == '\\')
 		strcat(szIniFilePath, "config.ini");
-	else strcat(szIniFilePath, "\\config.ini");
+	else
+		strcat(szIniFilePath, "\\config.ini");
 
-	GetPrivateProfileString ("LOGIN", "Version", "", m_Version, 11, szIniFilePath);
+	GetPrivateProfileString("LOGIN", "Version", "", m_Version, 11, szIniFilePath);
 #endif //ADD_START_CONFIG_FILE
 
 	char* lpszCommandLine = GetCommandLine();
@@ -1000,7 +988,7 @@ BOOL OpenInitFile()
 		if (GetFileVersion(lpszFile, wVersion))
 		{
 			char lpszMinorVersion[3] = "a";
-			sprintf(m_ExeVersion, "%d.%02d", wVersion[0], wVersion[1]);
+			snprintf(m_ExeVersion, sizeof(m_ExeVersion), "%d.%02d", wVersion[0], wVersion[1]);
 			if (wVersion[2] > 0)
 			{
 				if (wVersion[2] > 26)
@@ -1035,55 +1023,56 @@ BOOL OpenInitFile()
 	HKEY hKey;
 	DWORD dwDisp;
 	DWORD dwSize;
-	if ( ERROR_SUCCESS == RegCreateKeyEx(HKEY_CURRENT_USER, "SOFTWARE\\Webzen\\Mu\\Config", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, & hKey, &dwDisp))
+	if (ERROR_SUCCESS == RegCreateKeyEx(HKEY_CURRENT_USER, "SOFTWARE\\Webzen\\Mu\\Config", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey, &dwDisp))
 	{
-		dwSize = 11;
-		if ( RegQueryValueEx (hKey, "ID", 0, NULL, (LPBYTE)m_ID, & dwSize) != ERROR_SUCCESS)
+		dwSize = sizeof(m_ID);
+		if (RegQueryValueEx(hKey, "ID", 0, NULL, reinterpret_cast<LPBYTE>(m_ID), &dwSize) != ERROR_SUCCESS)
 		{
 		}
-		dwSize = sizeof ( int);
-		if ( RegQueryValueEx (hKey, "SoundOnOff", 0, NULL, (LPBYTE) & m_SoundOnOff, &dwSize) != ERROR_SUCCESS)
+		dwSize = sizeof(int);
+		if (RegQueryValueEx(hKey, "SoundOnOff", 0, NULL, reinterpret_cast<LPBYTE>(&m_SoundOnOff), &dwSize) != ERROR_SUCCESS)
 		{
 			m_SoundOnOff = true;
 		}
-		dwSize = sizeof ( int);
-		if ( RegQueryValueEx (hKey, "MusicOnOff", 0, NULL, (LPBYTE) & m_MusicOnOff, &dwSize) != ERROR_SUCCESS)
+		dwSize = sizeof(int);
+		if (RegQueryValueEx(hKey, "MusicOnOff", 0, NULL, reinterpret_cast<LPBYTE>(&m_MusicOnOff), &dwSize) != ERROR_SUCCESS)
 		{
 			m_MusicOnOff = false;
 		}
-		dwSize = sizeof ( int);
-		if ( RegQueryValueEx (hKey, "Resolution", 0, NULL, (LPBYTE) & m_Resolution, &dwSize) != ERROR_SUCCESS)
+		dwSize = sizeof(int);
+		if (RegQueryValueEx(hKey, "Resolution", 0, NULL, reinterpret_cast<LPBYTE>(&m_Resolution), &dwSize) != ERROR_SUCCESS)
 			m_Resolution = 1;
 
-		if (0 == m_Resolution)
+		if (m_Resolution == 0)
 			m_Resolution = 1;
 
-	    if ( RegQueryValueEx (hKey, "ColorDepth", 0, NULL, (LPBYTE) & m_nColorDepth, &dwSize) != ERROR_SUCCESS)
-	    {
-		    m_nColorDepth = 0;
-	    }
-		dwSize = sizeof ( int);
-		if ( RegQueryValueEx (hKey, "TextOut", 0, NULL, (LPBYTE) & g_iRenderTextType, &dwSize) != ERROR_SUCCESS)
+		dwSize = sizeof(int);
+		if (RegQueryValueEx(hKey, "ColorDepth", 0, NULL, reinterpret_cast<LPBYTE>(&m_nColorDepth), &dwSize) != ERROR_SUCCESS)
+		{
+			m_nColorDepth = 0;
+		}
+		dwSize = sizeof(int);
+		if (RegQueryValueEx(hKey, "TextOut", 0, NULL, reinterpret_cast<LPBYTE>(&g_iRenderTextType), &dwSize) != ERROR_SUCCESS)
 		{
 			g_iRenderTextType = 0;
 		}
 
 		g_iChatInputType = 1;
 
-		dwSize = sizeof ( int);
-		if ( RegQueryValueEx (hKey, "WindowMode", 0, NULL, (LPBYTE) & g_bUseWindowMode, &dwSize) != ERROR_SUCCESS)
+		dwSize = sizeof(int);
+		if (RegQueryValueEx(hKey, "WindowMode", 0, NULL, reinterpret_cast<LPBYTE>(&g_bUseWindowMode), &dwSize) != ERROR_SUCCESS)
 		{
 			g_bUseWindowMode = FALSE;
 		}
 
 		dwSize = MAX_LANGUAGE_NAME_LENGTH;
-		if ( RegQueryValueEx (hKey, "LangSelection", 0, NULL, (LPBYTE)g_aszMLSelection, &dwSize) != ERROR_SUCCESS)
+		if (RegQueryValueEx(hKey, "LangSelection", 0, NULL, reinterpret_cast<LPBYTE>(g_aszMLSelection), &dwSize) != ERROR_SUCCESS)
 		{
 			strcpy_s(g_aszMLSelection, "Portugês");
 		}
 		g_strSelectedML = g_aszMLSelection;
 	}
-	RegCloseKey( hKey);
+	RegCloseKey(hKey);
 
 	switch (m_Resolution)
 	{
@@ -1133,150 +1122,155 @@ BOOL OpenInitFile()
 		break;
 	}
 
-	g_fScreenRate_x = (float)WindowWidth / 640;
-	g_fScreenRate_y = (float)WindowHeight / 480;
+	g_fScreenRate_x = static_cast<float>(WindowWidth) / 640;
+	g_fScreenRate_y = static_cast<float>(WindowHeight) / 480;
 
 	return TRUE;
 }
 
-BOOL Util_CheckOption( char *lpszCommandLine, unsigned char cOption, char *lpszString)
+BOOL Util_CheckOption(char* lpszCommandLine, unsigned char cOption, char* lpszString)
 {
 	unsigned char cComp[2];
-	cComp[0] = cOption; cComp[1] = cOption;
-	if ( islower( ( int)cOption))
+	cComp[0] = cOption;
+	cComp[1] = cOption;
+	if (islower(static_cast<int>(cOption)))
 	{
-		cComp[1] = toupper( ( int)cOption);
+		cComp[1] = toupper(static_cast<int>(cOption));
 	}
-	else if ( isupper( ( int)cOption))
+	else if (isupper(static_cast<int>(cOption)))
 	{
-		cComp[1] = tolower( ( int)cOption);
+		cComp[1] = tolower(static_cast<int>(cOption));
 	}
 
-	int nFind = ( int)'/';
-	unsigned char *lpFound = ( unsigned char*)lpszCommandLine;
-	while ( lpFound)
+	int nFind = static_cast<int>('/');
+	unsigned char* lpFound = reinterpret_cast<unsigned char*>(lpszCommandLine);
+	while (lpFound)
 	{
-		lpFound = ( unsigned char*)strchr( ( char*)( lpFound + 1), nFind);
-		if ( lpFound && ( *( lpFound + 1) == cComp[0] || *( lpFound + 1) == cComp[1]))
-		{	// ¹ß°ß
-			if ( lpszString)
+		lpFound = reinterpret_cast<unsigned char*>(strchr(reinterpret_cast<char*>(lpFound + 1), nFind));
+		if (lpFound && (*(lpFound + 1) == cComp[0] || *(lpFound + 1) == cComp[1]))
+		{
+			if (lpszString)
 			{
 				int nCount = 0;
-				for ( unsigned char *lpSeek = lpFound + 2; *lpSeek != ' ' && *lpSeek != '\0'; lpSeek++)
+				for (unsigned char* lpSeek = lpFound + 2; *lpSeek != ' ' && *lpSeek != '\0'; lpSeek++)
 				{
 					nCount++;
 				}
 
-				memcpy( lpszString, lpFound + 2, nCount);
+				memcpy(lpszString, lpFound + 2, nCount);
 				lpszString[nCount] = '\0';
 			}
-			return ( TRUE);
+			return TRUE;
 		}
 	}
 
-	return ( FALSE);
+	return FALSE;
 }
 
-BOOL UpdateFile( char *lpszOld, char *lpszNew)
+BOOL UpdateFile(char* lpszOld, char* lpszNew)
 {
 	SetFileAttributes(lpszOld, FILE_ATTRIBUTE_NORMAL);
 	SetFileAttributes(lpszNew, FILE_ATTRIBUTE_NORMAL);
 
 	DWORD dwStartTickCount = ::GetTickCount();
-	while(::GetTickCount() - dwStartTickCount < 5000) {
-		if ( CopyFile( lpszOld, lpszNew, FALSE))
-		{	// ¼º°ø
-			DeleteFile( lpszOld);
-			return ( TRUE);
+	while (::GetTickCount() - dwStartTickCount < 5000) {
+		if (CopyFile(lpszOld, lpszNew, FALSE))
+		{
+			if (DeleteFile(lpszOld))
+			{
+				return TRUE;
+			}
+			else
+			{
+				g_ErrorReport.Write("%s Deletion Error: %d\r\n", lpszOld, GetLastError());
+				return FALSE;
+			}
 		}
 	}
-	g_ErrorReport.Write("%s to %s CopyFile Error : %d\r\n", lpszNew, lpszOld, GetLastError());
-	return ( FALSE);
+	g_ErrorReport.Write("CopyFile Error: %d\r\n", GetLastError());
+	return FALSE;
 }
 
 #include <tlhelp32.h>
 
-BOOL KillExeProcess( char *lpszExe)
+BOOL KillExeProcess(char* lpszExe)
 {
-	HANDLE hProcessSnap = NULL; 
-    BOOL bRet = FALSE; 
-    PROCESSENTRY32 pe32 = { 0 }; 
- 
-    //  Take a snapshot of all processes in the system. 
+	HANDLE hProcessSnap = NULL;
+	BOOL bRet = FALSE;
+	PROCESSENTRY32 pe32 = { 0 };
 
-    hProcessSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0); 
+	hProcessSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 
-    if (hProcessSnap == INVALID_HANDLE_VALUE) 
-        return (FALSE); 
- 
-    //  Fill in the size of the structure before using it. 
+	if (hProcessSnap == INVALID_HANDLE_VALUE)
+		return FALSE;
 
-    pe32.dwSize = sizeof(PROCESSENTRY32); 
- 
-    //  Walk the snapshot of the processes, and for each process, 
-    //  display information. 
+	pe32.dwSize = sizeof(PROCESSENTRY32);
 
-    if (Process32First(hProcessSnap, &pe32)) 
-    {
-        do 
-        { 
-			if(stricmp(pe32.szExeFile, lpszExe) == 0)
+	if (Process32First(hProcessSnap, &pe32))
+	{
+		do
+		{
+			if (_stricmp(pe32.szExeFile, lpszExe) == 0)
 			{
-				HANDLE process = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pe32.th32ProcessID);
+				HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, pe32.th32ProcessID);
 
-				if(process)
+				if (hProcess)
 				{
-					TerminateProcess(process, 0);
+					TerminateProcess(hProcess, 0);
+					CloseHandle(hProcess);
 				}
 			}
-        } while (Process32Next(hProcessSnap, &pe32)); 
-        bRet = TRUE; 
-    } 
-    else 
-        bRet = FALSE;    // could not walk the list of processes 
- 
-    // Do not forget to clean up the snapshot object. 
+		} while (Process32Next(hProcessSnap, &pe32));
+		bRet = TRUE;
+	}
+	else
+	{
+		bRet = FALSE;
+	}
 
-    CloseHandle (hProcessSnap);
+	CloseHandle(hProcessSnap);
 
 	return bRet;
 }
 
 char g_lpszCmdURL[50];
-BOOL GetConnectServerInfo( PSTR szCmdLine, char *lpszURL, WORD *pwPort)
-{
-	char lpszTemp[256] = {0, };
-	if( Util_CheckOption( szCmdLine, 'y', lpszTemp))
-	{
-		BYTE bySuffle[] = { 0x0C, 0x07, 0x03, 0x13 };
 
-		for(int i=0; i<(int)strlen(lpszTemp); i++)
-			lpszTemp[i] -= bySuffle[i%4];
+BOOL GetConnectServerInfo(PSTR szCmdLine, char* lpszURL, WORD* pwPort)
+{
+	char lpszTemp[256] = { 0 };
+
+	if (Util_CheckOption(szCmdLine, 'y', lpszTemp))
+	{
+		BYTE byShuffle[] = { 0x0C, 0x07, 0x03, 0x13 };
+
+		for (int i = 0; i < (int)strlen(lpszTemp); i++)
+			lpszTemp[i] -= byShuffle[i % 4];
 		strcpy(lpszURL, lpszTemp);
 
-		if( Util_CheckOption( szCmdLine, 'z', lpszTemp)) 
+		if (Util_CheckOption(szCmdLine, 'z', lpszTemp))
 		{
-			for(int j=0; j<(int)strlen(lpszTemp); j++)
-				lpszTemp[j] -= bySuffle[j%4];
-			*pwPort = atoi( lpszTemp);
+			for (int j = 0; j < (int)strlen(lpszTemp); j++)
+				lpszTemp[j] -= byShuffle[j % 4];
+			*pwPort = atoi(lpszTemp);
 		}
-		g_ErrorReport.Write("[Virtual Connection] Connect IP : %s, Port : %d\r\n", lpszURL, *pwPort);
-		return (TRUE);
+		g_ErrorReport.Write("[Virtual Connection] Connect IP: %s, Port: %d\r\n", lpszURL, *pwPort);
+		return TRUE;
 	}
-	if ( !Util_CheckOption( szCmdLine, 'u', lpszTemp))
-	{
-		return ( FALSE);
-	}
-	strcpy( lpszURL, lpszTemp);
-	if ( !Util_CheckOption( szCmdLine, 'p', lpszTemp))
-	{
-		return ( FALSE);
-	}
-	*pwPort = atoi( lpszTemp);
 
-	return ( TRUE);
+	if (!Util_CheckOption(szCmdLine, 'u', lpszTemp))
+	{
+		return FALSE;
+	}
+	strcpy(lpszURL, lpszTemp);
+
+	if (!Util_CheckOption(szCmdLine, 'p', lpszTemp))
+	{
+		return FALSE;
+	}
+	*pwPort = atoi(lpszTemp);
+
+	return TRUE;
 }
-
 
 extern int TimeRemain;
 BOOL g_bInactiveTimeChecked = FALSE;
@@ -1295,16 +1289,17 @@ bool ExceptionCallback(_EXCEPTION_POINTERS* pExceptionInfo )
 	return true;
 }
 
-//Nvidia Update
+// Nvidia Update
 extern "C"
 {
-	_declspec(dllexport) DWORD AmdPowerXpressRequestHighPerformance = 0x00000001;
+	__declspec(dllexport) DWORD AmdPowerXpressRequestHighPerformance = 0x00000001;
 }
 
-// Force NVidia Optimus to use NVidia GPU on drivers 302 and later.
-// http://developer.download.nvidia.com/devzone/devcenter/gamegraphics/files/OptimusRenderingPolicies.pdf
-extern "C" {
-	_declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
+// Force Nvidia Optimus to use Nvidia GPU on drivers 302 and later.
+// Reference: http://developer.download.nvidia.com/devzone/devcenter/gamegraphics/files/OptimusRenderingPolicies.pdf
+extern "C"
+{
+	__declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
 }
 
 int APIENTRY WinMain(_In_ HINSTANCE hInstance, 
@@ -1334,40 +1329,40 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
 		}
 	}
 
-	g_ErrorReport.Write( "\r\n");
+	g_ErrorReport.Write("\r\n");
 	g_ErrorReport.WriteLogBegin();
 	g_ErrorReport.AddSeparator();
-	g_ErrorReport.Write( "Mu Online %s (%s) executed. (%d.%d.%d.%d)\r\n", lpszExeVersion, "PT-BR", wVersion[0], wVersion[1], wVersion[2], wVersion[3]);
+	g_ErrorReport.Write("Mu Online %s (%s) executed. (%d.%d.%d.%d)\r\n", lpszExeVersion, "PT-BR", wVersion[0], wVersion[1], wVersion[2], wVersion[3]);
 
 	g_ConsoleDebug->Write(MCD_NORMAL, "Mu Online (Version: %d.%d.%d.%d)", wVersion[0], wVersion[1], wVersion[2], wVersion[3]);
 
 	g_ErrorReport.WriteCurrentTime();
 	ER_SystemInfo si;
-	ZeroMemory( &si, sizeof ( ER_SystemInfo));
-	GetSystemInfo( &si);
+	ZeroMemory(&si, sizeof(ER_SystemInfo));
+	GetSystemInfo(&si);
 	g_ErrorReport.AddSeparator();
-	g_ErrorReport.WriteSystemInfo( &si);
+	g_ErrorReport.WriteSystemInfo(&si);
 	g_ErrorReport.AddSeparator();
 
 	// PKD_ADD_BINARY_PROTECTION
 	VM_START
-	WORD wPortNumber;	
-	if ( GetConnectServerInfo( lpCmdLine, g_lpszCmdURL, &wPortNumber))
+		WORD wPortNumber;
+	if (GetConnectServerInfo(lpCmdLine, g_lpszCmdURL, &wPortNumber))
 	{
 		szServerIpAddress = g_lpszCmdURL;
 		g_ServerPort = wPortNumber;
 	}
 	VM_END
 
-	if ( !OpenMainExe())
-	{
-		return false;
-	}
+		if (!OpenMainExe())
+		{
+			return false;
+		}
 
 	// PKD_ADD_BINARY_PROTECTION
 	VM_START
-	g_SimpleModulusCS.LoadEncryptionKey( "Data\\Enc1.dat");
-	g_SimpleModulusSC.LoadDecryptionKey( "Data\\Dec2.dat");
+	g_SimpleModulusCS.LoadEncryptionKey("Data\\Enc1.dat");
+	g_SimpleModulusSC.LoadDecryptionKey("Data\\Dec2.dat");
 	VM_END
 
 	g_ErrorReport.Write( "> To read config.ini.\r\n");
@@ -1382,30 +1377,37 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
 	if (g_iChatInputType == 1)
 		ShowCursor(FALSE);
 
-	g_ErrorReport.Write( "> Enum display settings.\r\n");
+	g_ErrorReport.Write("> Enum display settings.\r\n");
 	DEVMODE DevMode;
 	DEVMODE* pDevmodes;
 	int nModes = 0;
-	while (EnumDisplaySettings(NULL, nModes, &DevMode)) nModes++;
-	pDevmodes = new DEVMODE[nModes+1];
+	while (EnumDisplaySettings(NULL, nModes, &DevMode))
+		nModes++;
+	pDevmodes = new DEVMODE[nModes + 1];
 	nModes = 0;
-	while (EnumDisplaySettings(NULL, nModes, &pDevmodes[nModes])) nModes++;
+	while (EnumDisplaySettings(NULL, nModes, &pDevmodes[nModes]))
+		nModes++;
 
 	DWORD dwBitsPerPel = 16;
-	for(int n1=0; n1<nModes; n1++)
+	for (int n1 = 0; n1 < nModes; n1++)
 	{
-		if(pDevmodes[n1].dmBitsPerPel == 16 && m_nColorDepth == 0) {
-			dwBitsPerPel = 16; break;
+		if (pDevmodes[n1].dmBitsPerPel == 16 && m_nColorDepth == 0)
+		{
+			dwBitsPerPel = 16;
+			break;
 		}
-		if(pDevmodes[n1].dmBitsPerPel == 24 && m_nColorDepth == 1) {
-			dwBitsPerPel = 24; break;
+		if (pDevmodes[n1].dmBitsPerPel == 24 && m_nColorDepth == 1)
+		{
+			dwBitsPerPel = 24;
+			break;
 		}
-		if(pDevmodes[n1].dmBitsPerPel == 32 && m_nColorDepth == 1) {
-			dwBitsPerPel = 32; break;
+		if (pDevmodes[n1].dmBitsPerPel == 32 && m_nColorDepth == 1)
+		{
+			dwBitsPerPel = 32;
+			break;
 		}
 	}
 
-#ifdef ENABLE_FULLSCREEN
 #if defined USER_WINDOW_MODE || (defined WINDOWMODE)
 	if (g_bUseWindowMode == FALSE)
 #endif	// USER_WINDOW_MODE
@@ -1420,7 +1422,6 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
 			}
 		}
 	}
-#endif //ENABLE_FULLSCREEN
 
 	delete [] pDevmodes;
 
@@ -1430,34 +1431,33 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
     g_hWnd = StartWindow(hInstance,nCmdShow);
 	g_ErrorReport.Write( "> Start window success.\r\n");
 
-    if ( !CreateOpenglWindow())
+    if ( !CreateOpenGLWindow())
 	{
 		return FALSE;
 	}
 
 	g_ErrorReport.Write( "> OpenGL init success.\r\n");
 	g_ErrorReport.AddSeparator();
-	//g_ErrorReport.WriteOpenGLInfo();
 	g_ErrorReport.AddSeparator();
 	g_ErrorReport.WriteSoundCardInfo(); 
 
     ShowWindow(g_hWnd, nCmdShow);
     UpdateWindow(g_hWnd);
 
-	//g_ErrorReport.WriteImeInfo( g_hWnd);
 	g_ErrorReport.AddSeparator();
 	
 	switch (WindowWidth)
 	{
-	case 640:FontHeight = 10; break;
-	case 800:FontHeight = 12; break;
-	case 1024:FontHeight = 13; break;
-	case 1280:FontHeight = 13; break;
-	case 1366:FontHeight = 14; break;	
-	case 1440:FontHeight = 16; break;
-	case 1600:FontHeight = 16; break;
-	case 1680:FontHeight = 16; break;
-	case 1920:FontHeight = 18; break;
+	case 640:  FontHeight = 10; break;
+	case 800:  FontHeight = 12; break;
+	case 1024: FontHeight = 13; break;
+	case 1280: FontHeight = 13; break;
+	case 1366: FontHeight = 14; break;
+	case 1440: FontHeight = 16; break;
+	case 1600: FontHeight = 16; break;
+	case 1680: FontHeight = 16; break;
+	case 1920: FontHeight = 18; break;
+	default:   FontHeight = 10; break; // Default value for unknown window widths
 	}
 
 	int nFixFontHeight = 13;
@@ -1467,73 +1467,63 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
 	iFontSize = FontHeight - 1;
 	nFixFontSize = nFixFontHeight - 1;
 
-
 	g_hFont = CreateFont(iFontSize, 0, 0, 0, FW_NORMAL, 0, 0, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Tahoma");
 	g_hFontBold = CreateFont(iFontSize, 0, 0, 0, FW_BOLD, 0, 0, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Tahoma");
 	g_hFontBig = CreateFont(iFontSize * 2, 0, 0, 0, FW_BOLD, 0, 0, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Tahoma");
 	g_hFixFont = CreateFont(nFixFontSize, 0, 0, 0, FW_NORMAL, 0, 0, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Tahoma");
 
-	//g_hFont		= CreateFont(iFontSize,0,0,0,FW_NORMAL,0,0,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,NONANTIALIASED_QUALITY,DEFAULT_PITCH|FF_DONTCARE,GlobalText[0][0] ? GlobalText[0] : NULL); //Gulim
-	//g_hFontBold = CreateFont(iFontSize,0,0,0,FW_BOLD,0,0,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,NONANTIALIASED_QUALITY,DEFAULT_PITCH|FF_DONTCARE,GlobalText[0][0] ? GlobalText[0] : NULL);
-	//g_hFontBig	= CreateFont(iFontSize*2,0,0,0,FW_BOLD,0,0,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,NONANTIALIASED_QUALITY,DEFAULT_PITCH|FF_DONTCARE,GlobalText[0][0] ? GlobalText[0] : NULL);
-	//g_hFixFont	= CreateFont(nFixFontSize,0,0,0,FW_NORMAL,0,0,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,NONANTIALIASED_QUALITY,DEFAULT_PITCH | FF_DONTCARE,GlobalText[18][0] ? GlobalText[18] : NULL);
-
-	setlocale( LC_ALL, "english");
+	setlocale(LC_ALL, "english");
 
 	CInput::Instance().Create(g_hWnd, WindowWidth, WindowHeight);
 
 	g_pNewUISystem->Create();
 
-	if(m_MusicOnOff)
+	if (m_MusicOnOff)
 	{
 		wzAudioCreate(g_hWnd);
 		wzAudioOption(WZAOPT_STOPBEFOREPLAY, 1);
 	}
 
-	if(m_SoundOnOff)
+	if (m_SoundOnOff)
 	{
 		InitDirectSound(g_hWnd);
 		leaf::CRegKey regkey;
 		regkey.SetKey(leaf::CRegKey::_HKEY_CURRENT_USER, "SOFTWARE\\Webzen\\Mu\\Config");
 		DWORD value;
-		if(!regkey.ReadDword("VolumeLevel", value))
+		if (!regkey.ReadDword("VolumeLevel", value))
 		{
-			value = 5;	//. default setting
+			value = 5; // Default setting
 			regkey.WriteDword("VolumeLevel", value);
 		}
-		if(value<0 || value>=10)
+		if (value < 0 || value >= 10)
 			value = 5;
-		
-		g_pOption->SetVolumeLevel(int(value));
+
+		g_pOption->SetVolumeLevel(static_cast<int>(value));
 		SetEffectVolumeLevel(g_pOption->GetVolumeLevel());
 	}
 
-	SetTimer(g_hWnd, HACK_TIMER, 20*1000, NULL);
+	SetTimer(g_hWnd, HACK_TIMER, 20 * 1000, NULL);
 
-	srand((unsigned)time(NULL));
-	for(int i=0;i<100;i++)
-		RandomTable[i] = rand()%360;
+	std::srand(static_cast<unsigned>(std::time(nullptr)));
+	for (int i = 0; i < 100; i++)
+		RandomTable[i] = std::rand() % 360;
 
-	//memorydump[0]
-	RendomMemoryDump = new BYTE [rand()%100+1];
+	RendomMemoryDump = new BYTE[rand() % 100 + 1];
 
+	GateAttribute = new GATE_ATTRIBUTE[MAX_GATES];
+	SkillAttribute = new SKILL_ATTRIBUTE[MAX_SKILLS];
 
-	GateAttribute				= new GATE_ATTRIBUTE [MAX_GATES];
-	SkillAttribute				= new SKILL_ATTRIBUTE[MAX_SKILLS];
+	ItemAttRibuteMemoryDump = new ITEM_ATTRIBUTE[MAX_ITEM + 1024];
+	ItemAttribute = reinterpret_cast<ITEM_ATTRIBUTE*>(ItemAttRibuteMemoryDump) + rand() % 1024;
 
-	//memorydump[1]
-	ItemAttRibuteMemoryDump		= new ITEM_ATTRIBUTE [MAX_ITEM+1024];
-	ItemAttribute				= ((ITEM_ATTRIBUTE*)ItemAttRibuteMemoryDump)+rand()%1024;
+	CharacterMemoryDump = new CHARACTER[MAX_CHARACTERS_CLIENT + 1 + 128];
+	CharactersClient = reinterpret_cast<CHARACTER*>(CharacterMemoryDump) + rand() % 128;
+	CharacterMachine = new CHARACTER_MACHINE;
 
-	//memorydump[2]
-	CharacterMemoryDump			= new CHARACTER      [MAX_CHARACTERS_CLIENT+1+128];
-	CharactersClient			= ((CHARACTER*)CharacterMemoryDump)+rand()%128;
-	CharacterMachine			= new CHARACTER_MACHINE;
-
-	memset(GateAttribute       ,0,sizeof(GATE_ATTRIBUTE   )*(MAX_GATES              ));
-	memset(ItemAttribute       ,0,sizeof(ITEM_ATTRIBUTE   )*(MAX_ITEM               ));
-	memset(SkillAttribute      ,0,sizeof(SKILL_ATTRIBUTE  )*(MAX_SKILLS             ));
-	memset(CharacterMachine    ,0,sizeof(CHARACTER_MACHINE));
+	std::memset(GateAttribute, 0, sizeof(GATE_ATTRIBUTE) * (MAX_GATES));
+	std::memset(ItemAttribute, 0, sizeof(ITEM_ATTRIBUTE) * (MAX_ITEM));
+	std::memset(SkillAttribute, 0, sizeof(SKILL_ATTRIBUTE) * (MAX_SKILLS));
+	std::memset(CharacterMachine, 0, sizeof(CHARACTER_MACHINE));
 
     CharacterAttribute   = &CharacterMachine->Character;
     CharacterMachine->Init();
@@ -1590,23 +1580,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
 		SystemParametersInfo(SPI_GETSCREENSAVETIMEOUT, 0, &g_iScreenSaverOldValue, 0);
 		SystemParametersInfo(SPI_SETSCREENSAVETIMEOUT, 300*60, NULL, 0);
 	}
-#else
-#ifdef NDEBUG
-#ifndef FOR_WORK
-#ifdef ACTIVE_FOCUS_OUT
-	if (g_bUseWindowMode == FALSE)
-	{
-#endif	// ACTIVE_FOCUS_OUT
-		int nOldVal; // °ªÀÌ µé¾î°¥ ÇÊ¿ä°¡ ¾øÀ½
-		SystemParametersInfo(SPI_SCREENSAVERRUNNING, 1, &nOldVal, 0);  // ´ÜÃàÅ°¸¦ ¸ø¾²°Ô ÇÔ
-		SystemParametersInfo(SPI_GETSCREENSAVETIMEOUT, 0, &g_iScreenSaverOldValue, 0);  // ½ºÅ©¸°¼¼ÀÌ¹ö Â÷´Ü
-		SystemParametersInfo(SPI_SETSCREENSAVETIMEOUT, 300*60, NULL, 0);  // ½ºÅ©¸°¼¼ÀÌ¹ö Â÷´Ü
-#ifdef ACTIVE_FOCUS_OUT
-	}
-#endif	// ACTIVE_FOCUS_OUT
-#endif
-#endif
-#endif	//WINDOWMODE(#else)
+#endif //WINDOWMODE
 
 #ifdef SAVE_PACKET
 	DeleteFile( PACKET_SAVE_FILE);
@@ -1634,7 +1608,6 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
         }
      	else 
 		{
-			//Scene
 #if (defined WINDOWMODE)
 			if (g_bUseWindowMode == TRUE)
 			{
@@ -1644,32 +1617,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
 			{
 		       	Scene(g_hDC);
 			}
-#ifndef FOR_WORK
-			else if (g_bUseWindowMode == FALSE)
-			{
-				SetForegroundWindow( g_hWnd);
-				SetFocus(g_hWnd);
-
-				if ( g_iInactiveWarning > 1)
-				{
-					SetTimer( g_hWnd, WINDOWMINIMIZED_TIMER, 1*1000, NULL);
-					PostMessage(g_hWnd, WM_CLOSE, 0, 0);
-				}
-				else
-				{
-					g_iInactiveWarning++;
-					g_bMinimizedEnabled = TRUE;
-					ShowWindow( g_hWnd, SW_MINIMIZE);
-					g_bMinimizedEnabled = FALSE;
-					ShowWindow( g_hWnd, SW_MAXIMIZE);
-				}
-			}
-#endif//FOR_WORK
-#else//WINDOWMODE
-			if(g_bWndActive)
-		       	Scene(g_hDC);
-
-#endif	//WINDOWMODE(#else)
+#endif	//WINDOWMODE
 		}
 
 	#ifdef NEW_PROTOCOL_SYSTEM
@@ -1682,9 +1630,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
 		ProtocolCompiler();
 		g_pChatRoomSocketList->ProtocolCompile();
 	#endif
-
-		
-    } // while( 1 )
+    }
 
 	DestroyWindow();
 
