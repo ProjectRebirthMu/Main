@@ -715,6 +715,7 @@ void CreateEffect(int Type, vec3_t Position, vec3_t Angle, vec3_t Light, int Sub
 				o->Velocity = 0.3f;
 				o->LightEnable = false;
 				o->Kind = rand() % 2;
+
 				Vector(0.f, -5.f * o->Owner->Scale, 0.f, o->Direction);
 
 				if (o->SubType == 3)
@@ -3402,14 +3403,12 @@ void CreateEffect(int Type, vec3_t Position, vec3_t Angle, vec3_t Light, int Sub
 				if (o->SubType == 0)
 				{
 					o->LifeTime = 15;
-					o->BlendMesh = -2;
 					o->BlendMeshLight = 1.0f;
 					o->Scale = 0.6f;
 				}
 				else if (o->SubType == 1)
 				{
 					o->LifeTime = 20;
-					o->BlendMesh = -2;
 					o->BlendMeshLight = 1.0f;
 					o->Scale = 1.2f;
 				}
@@ -7411,6 +7410,7 @@ void MoveEffect(OBJECT* o, int iIndex)
 			o->Angle[2] += rand() % 10;
 		else
 			o->Angle[2] -= rand() % 10;
+
 		if (rand() % 32 == 0)
 		{
 			o->Direction[2] = (float)(rand() % 15 - 7) * 1.f;
@@ -7429,7 +7429,7 @@ void MoveEffect(OBJECT* o, int iIndex)
 		}
 		o->Position[2] += (float)(rand() % 15 - 7) * 0.3f;
 
-		float Luminosity = (float)(rand() % 32 + 64) * 0.01f;
+		float  Luminosity = (float)(rand() % 32 + 64) * 0.01f;
 		if (o->SubType == 0) {
 			Vector(Luminosity * 0.4f, Luminosity * 0.8f, Luminosity * 0.6f, Light);
 		}

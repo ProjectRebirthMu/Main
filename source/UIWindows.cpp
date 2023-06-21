@@ -1778,7 +1778,6 @@ void CUIPhotoViewer::RenderPhotoCharacter()
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
-
 	GetOpenGLMatrix(CameraMatrix);
 	EnableDepthTest();
 	EnableDepthMask();
@@ -1839,8 +1838,7 @@ void CUIPhotoViewer::RenderPhotoCharacter()
 int CUIPhotoViewer::SetPhotoPose(int iCurrentAni, int iMoveDir)
 {
 	if (m_PhotoHelper.Live == true && 
-	(m_PhotoHelper.Type == MODEL_UNICON || m_PhotoHelper.Type == MODEL_PEGASUS || m_PhotoHelper.Type == MODEL_DARK_HORSE || (m_PhotoHelper.Type >= MODEL_FENRIR_BLACK && m_PhotoHelper.Type <= MODEL_FENRIR_GOLD
-		))) 
+	(m_PhotoHelper.Type == MODEL_UNICON || m_PhotoHelper.Type == MODEL_PEGASUS || m_PhotoHelper.Type == MODEL_DARK_HORSE || (m_PhotoHelper.Type >= MODEL_FENRIR_BLACK && m_PhotoHelper.Type <= MODEL_FENRIR_GOLD))) 
 	{
 		static const int MAX_POSE_NUM = 3;
 		static int siPose[MAX_POSE_NUM] = {AT_STAND1, AT_MOVE1, AT_ATTACK1};

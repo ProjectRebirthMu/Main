@@ -3132,6 +3132,7 @@ void ReceiveAction(BYTE *ReceiveBuffer,int Size)
 	iTargetIndex = FindCharacterIndex(iTargetKey);
 	
     if ( c->Helper.Type==MODEL_HELPER+4 ) return;
+	//if(c->Helper.Type == MODEL_HELPER+37) return;
 	
 	c->Object.Angle[2] = ((float)(Data->Angle)-1.f)*45.f;
 	c->Movement = false;

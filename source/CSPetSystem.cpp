@@ -657,7 +657,7 @@ void    CSPetDarkSpirit::Eff_LevelDown ( void )
     }
 }
 
-void CSPetDarkSpirit::RenderCmdType ( void )
+void    CSPetDarkSpirit::RenderCmdType ( void )
 {
     float   x, y, Width, Height;
     float   PartyWidth = 0.f;

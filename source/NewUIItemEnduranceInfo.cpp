@@ -86,8 +86,7 @@ bool SEASON3B::CNewUIItemEnduranceInfo::UpdateMouseEvent()
 		|| Hero->Helper.Type == MODEL_HELPER+80
 		|| Hero->Helper.Type == MODEL_HELPER+106
 		|| Hero->Helper.Type == MODEL_HELPER+123
-		|| Hero->Helper.Type == MODEL_HELPER+37	
-		)
+		|| Hero->Helper.Type == MODEL_HELPER+37	)
 	{
 		if( CheckMouseIn( m_UIStartPos.x, iNextPosY, PETHP_FRAME_WIDTH, PETHP_FRAME_HEIGHT ) )
 			return false;
@@ -417,10 +416,6 @@ void SEASON3B::CNewUIItemEnduranceInfo::RenderTooltip( int iX, int iY, const ITE
 bool SEASON3B::CNewUIItemEnduranceInfo::RenderEquipedHelperLife( int iX, int iY )
 {
  	if ( Hero->Helper.Type>=MODEL_HELPER && Hero->Helper.Type<=MODEL_HELPER+4
-#ifndef ADD_NEW_ITEM
-		|| Hero->Helper.Type <= MODEL_HELPER + 200
-		|| Hero->Helper.Type <= MODEL_HELPER + 201
-#endif
 		|| Hero->Helper.Type == MODEL_HELPER+64
 		|| Hero->Helper.Type == MODEL_HELPER+65
 		|| Hero->Helper.Type == MODEL_HELPER+67

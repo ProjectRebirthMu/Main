@@ -7685,8 +7685,8 @@ void InsertInventory(ITEM *Inv,int Width,int Height,int Index,BYTE *Item,bool Fi
                     case ITEM_HELPER+4:CreateBug(MODEL_DARK_HORSE ,o->Position,o);
                         if(!Hero->SafeZone)
                             CreateEffect(BITMAP_MAGIC+1,o->Position,o->Angle,o->Light,1,o);
-						break;
-     				case ITEM_HELPER+37:
+                        break;
+					case ITEM_HELPER+37:
 						Hero->Helper.Option1 = ip->Option1;
 						if(ip->Option1 == 0x01)
 						{

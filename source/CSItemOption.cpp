@@ -1,7 +1,6 @@
 /*+++++++++++++++++++++++++++++++++++++
     INCLUDE.
 +++++++++++++++++++++++++++++++++++++*/
-
 #include "stdafx.h"
 #include "ZzzOpenglUtil.h"
 #include "zzzInfomation.h"
@@ -924,85 +923,90 @@ void CSItemOption::getAllAddOptionStatesbyCompare ( WORD* Strength, WORD* Dexter
 
 }
 
-
-void CSItemOption::CheckItemSetOptions ( void )
+void CSItemOption::CheckItemSetOptions()
 {
-	BYTE byOptionList[50] = { 0, };
+	BYTE byOptionList[30] = { 0, };
 	ITEM* itemTmp = NULL;
 
-    memset ( m_bySetOptionList, 0, sizeof( BYTE ) * 16 );
+	ZeroMemory(m_bySetOptionList, sizeof(BYTE) * 16);
 
-	for ( int i=0; i<MAX_EQUIPMENT_INDEX; ++i )
-	{	
-		if ( i==EQUIPMENT_WING || i==EQUIPMENT_HELPER ) continue;
-
-		ITEM *ip = &CharacterMachine->Equipment[i];
-
-		if( ip->Durability <= 0 ) {
+	for (int i = 0; i < MAX_EQUIPMENT_INDEX; ++i)
+	{
+		if (i == EQUIPMENT_WING || i == EQUIPMENT_HELPER)
+		{
 			continue;
 		}
 
-        if (itemTmp ==nullptr || ((i == EQUIPMENT_WEAPON_LEFT || i == EQUIPMENT_RING_LEFT) && itemTmp->Type == ip->Type && itemTmp->ExtOption == (ip->ExtOption % 0x04)))
-        {
-            continue;
-        }
+		ITEM* ip = &CharacterMachine->Equipment[i];
 
-		if ( ip->Type>-1 )
+		if (ip->Durability <= 0)
 		{
-			checkItemType( byOptionList, ip->Type, ip->ExtOption );
+			continue;
 		}
 
-        if ( i==EQUIPMENT_WEAPON_RIGHT || i==EQUIPMENT_RING_RIGHT )
-        {
-            itemTmp->Type = ip->Type;
-            itemTmp->ExtOption = (ip->ExtOption%0x04);
-        }
+		if ((i == EQUIPMENT_WEAPON_LEFT || i == EQUIPMENT_RING_LEFT) && itemTmp->Type == ip->Type && itemTmp->ExtOption == (ip->ExtOption % 0x04))
+		{
+			continue;
+		}
+
+		if (ip->Type > -1)
+		{
+			checkItemType(byOptionList, ip->Type, ip->ExtOption);
+		}
+
+		if (i == EQUIPMENT_WEAPON_RIGHT || i == EQUIPMENT_RING_RIGHT)
+		{
+			itemTmp = ip;
+			itemTmp->Type = ip->Type;
+			itemTmp->ExtOption = (ip->ExtOption % 0x04);
+		}
 	}
 
-	calcSetOptionList( byOptionList );
+	calcSetOptionList(byOptionList);
+	getAllAddStateOnlyAddValue(&CharacterAttribute->AddStrength, &CharacterAttribute->AddDexterity, &CharacterAttribute -> AddEnergy, &CharacterAttribute->AddVitality, &CharacterAttribute->AddCharisma);
 
-	getAllAddStateOnlyAddValue ( &CharacterAttribute->AddStrength,	&CharacterAttribute->AddDexterity, &CharacterAttribute->AddEnergy, &CharacterAttribute->AddVitality, &CharacterAttribute->AddCharisma);
+	WORD AllStrength = CharacterAttribute->Strength + CharacterAttribute->AddStrength;
+	WORD AllDexterity = CharacterAttribute->Dexterity + CharacterAttribute->AddDexterity;
+	WORD AllEnergy = CharacterAttribute->Energy + CharacterAttribute->AddEnergy;
+	WORD AllVitality = CharacterAttribute->Vitality + CharacterAttribute->AddVitality;
+	WORD AllCharisma = CharacterAttribute->Charisma + CharacterAttribute->AddCharisma;
+	WORD AllLevel = CharacterAttribute->Level;    
 
-    WORD AllStrength  = CharacterAttribute->Strength + CharacterAttribute->AddStrength;
-    WORD AllDexterity = CharacterAttribute->Dexterity + CharacterAttribute->AddDexterity;
-    WORD AllEnergy    = CharacterAttribute->Energy + CharacterAttribute->AddEnergy;
-    WORD AllVitality  = CharacterAttribute->Vitality + CharacterAttribute->AddVitality;
-	WORD AllCharisma  = CharacterAttribute->Charisma + CharacterAttribute->AddCharisma;
-	WORD AllLevel     = CharacterAttribute->Level;
+	ZeroMemory(byOptionList, sizeof(BYTE) * 30);
+	memset(m_bySetOptionList, 255, sizeof(BYTE) * 16);
 
-    memset ( byOptionList, 0, sizeof( BYTE ) * 30 );
-    memset ( m_bySetOptionList, 255, sizeof( BYTE ) * 16 );
-
-	for (int i=0; i<MAX_EQUIPMENT_INDEX; ++i )
+	for (int i = 0; i < MAX_EQUIPMENT_INDEX; ++i)
 	{
-		if ( i==EQUIPMENT_WING || i==EQUIPMENT_HELPER ) continue;
-
-		ITEM *ip = &CharacterMachine->Equipment[i];
-
-        if ( ip->RequireDexterity>AllDexterity || ip->RequireEnergy>AllEnergy || ip->RequireStrength>AllStrength || ip->RequireLevel > AllLevel || ip->RequireCharisma > AllCharisma || ip->Durability <= 0 || ( IsRequireEquipItem( ip ) == false ))
-        {
-            continue;
-        }
-
-        if (!itemTmp || (( i==EQUIPMENT_WEAPON_LEFT || i==EQUIPMENT_RING_LEFT ) && itemTmp->Type==ip->Type && itemTmp->ExtOption==(ip->ExtOption%0x04) ))
-        {
-            continue;
-        }
-
-		if ( ip->Type>-1 )
+		if (i == EQUIPMENT_WING || i == EQUIPMENT_HELPER)
 		{
-			checkItemType( byOptionList, ip->Type, ip->ExtOption );
+			continue;
 		}
 
-        if ( i==EQUIPMENT_WEAPON_RIGHT || i==EQUIPMENT_RING_RIGHT )
-        {
-            itemTmp->Type		= ip->Type;
-            itemTmp->ExtOption	= (ip->ExtOption%0x04);
-        }
+		ITEM* ip = &CharacterMachine->Equipment[i];
+
+		if (ip->RequireDexterity > AllDexterity || ip->RequireEnergy > AllEnergy || ip->RequireStrength > AllStrength || ip->RequireLevel > AllLevel || ip->RequireCharisma > AllCharisma || ip->Durability <= 0 || (IsRequireEquipItem(ip) == false)) {
+			continue;
+		}
+
+		if (((i == EQUIPMENT_WEAPON_LEFT || i == EQUIPMENT_RING_LEFT) && itemTmp->Type == ip->Type && itemTmp->ExtOption == (ip->ExtOption % 0x04)))
+		{
+			continue;
+		}
+
+		if (ip->Type > -1)
+		{
+			checkItemType(byOptionList, ip->Type, ip->ExtOption);
+		}
+
+		if (i == EQUIPMENT_WEAPON_RIGHT || i == EQUIPMENT_RING_RIGHT)
+		{
+			itemTmp = ip;
+			itemTmp->Type = ip->Type;
+			itemTmp->ExtOption = (ip->ExtOption % 0x04);
+		}
 	}
 
-	UpdateCount_SetOptionPerEquippedSetItem( byOptionList, m_arLimitSetItemOptionCount, CharacterMachine->Equipment );
-	calcSetOptionList( byOptionList );
+	UpdateCount_SetOptionPerEquippedSetItem(byOptionList, m_arLimitSetItemOptionCount, CharacterMachine->Equipment);           calcSetOptionList(byOptionList);
 }
 
 void CSItemOption::MoveSetOptionList ( const int StartX, const int StartY )

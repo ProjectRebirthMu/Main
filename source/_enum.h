@@ -427,7 +427,7 @@ enum
 	//animal
 	MODEL_BIRD01			 = MODEL_FACE   	         + MAX_CLASS,
 
-	MODEL_BUTTERFLY01,
+	MODEL_BUTTERFLY01		 ,
 	MODEL_BAT01			     ,
 	MODEL_RAT01		       	 ,
 	MODEL_BUG01		         ,
@@ -473,7 +473,7 @@ enum
 	MODEL_MOVE_TARGETPOSITION_EFFECT,
 
 	//skill
-	MODEL_SKILL_BEGIN  		 ,
+	MODEL_SKILL_BEGIN  		 ,	
 	MODEL_DARK_HORSE         ,
 	MODEL_DARK_SPIRIT        ,
 	MODEL_ICE		         ,
@@ -883,6 +883,7 @@ enum
 	MODEL_WINDSPIN02,
 	MODEL_WINDSPIN03,
 #endif //PBG_ADD_NEWCHAR_MONK_ITEM
+
 	MODEL_SKILL_END
 };
 

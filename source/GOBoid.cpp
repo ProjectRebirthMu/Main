@@ -598,9 +598,9 @@ bool MoveBug ( OBJECT* o, bool bForceRender )
 			break;
 		case MODEL_BUTTERFLY01:
 			FlyRange = 100.f;
-			Vector(0.4f, 0.6f, 1.f, Light);
-			if (rand() % 2 == 0)
-				CreateParticle(BITMAP_SMOKE, o->Position, o->Angle, Light, 1);
+			Vector ( 0.4f, 0.6f, 1.f, Light );
+			if ( rand()%2==0 )
+				CreateParticle ( BITMAP_SMOKE, o->Position, o->Angle, Light, 1 );
 			break;
 		case MODEL_HELPER:
 			if( o->Owner && !g_isCharacterBuff(o->Owner, eBuff_Cloaking) )			
@@ -1117,93 +1117,81 @@ void MoveTornado ( OBJECT* o )
 	if (o->BlendMeshLight < 1.0f) o->BlendMeshLight += 0.1f;
 }
 
-void MoveBoidGroup(OBJECT* o, int index)
+void MoveBoidGroup ( OBJECT* o, int index )
 {
-	if (o->AI != BOID_GROUND)
-	{
-		if (o->Type != MODEL_BUTTERFLY01 || rand() % 4 == 0)
-			MoveBoid(o, index, Boids, MAX_BOIDS);
-		AngleMatrix(o->Angle, o->Matrix);
-
-		vec3_t p, Direction;
-		if (gMapManager.WorldActive == WD_7ATLANSE || gMapManager.WorldActive == WD_67DOPPLEGANGER3)
-		{
-			if (o->Timer < 5.f)
-			{
-				if (index < 35)
-				{
-					Vector(o->Velocity * (float)(rand() % 16 + 8), 0.f, o->Direction[2], Direction);
-				}
-				else
-				{
-					Vector(o->Velocity * (float)(rand() % 16 + 16), 0.f, o->Direction[2], Direction);
-				}
-				o->Gravity = 15;
-			}
-			else
-			{
-				Vector(o->Velocity * (float)(rand() % 32 + 32), 0.f, o->Direction[2], Direction);
-				o->Gravity = 5;
-			}
-			o->Timer += 0.1f;
-			if (o->Timer >= 10)
-			{
-				o->Timer = 0.f;
-			}
-		}
-		else
-		{
-			Vector(o->Velocity * 25.f, 0.f, o->Direction[2], Direction);
-		}
-
-		VectorRotate(Direction, o->Matrix, p);
-		VectorAdd(o->Position, p, o->Position);
-
-		o->Direction[0] = o->Position[0] + 3.f * p[0];
-		o->Direction[1] = o->Position[1] + 3.f * p[1];
-
-		float dx = o->Position[0] - Hero->Object.Position[0];
-		float dy = o->Position[1] - Hero->Object.Position[1];
-		float Range = sqrtf(dx * dx + dy * dy);
-		float FlyDistance = 1500.f;
-
-		if (o->Type == MODEL_MONSTER01 + 31)
-		{
-			FlyDistance = 4000.f;
-		}
-		else if (o->Type == MODEL_MONSTER01 + 33)
-		{
-			FlyDistance = 3000.f;
-		}
-		else if (gMapManager.WorldActive == WD_51HOME_6TH_CHAR
+    if ( o->AI!=BOID_GROUND )
+    {
+        if ( o->Type!=MODEL_BUTTERFLY01 || rand()%4==0 )
+            MoveBoid ( o, index, Boids, MAX_BOIDS );
+        AngleMatrix ( o->Angle, o->Matrix );
+        vec3_t p,Direction;
+        if ( gMapManager.WorldActive==WD_7ATLANSE || gMapManager.WorldActive==WD_67DOPPLEGANGER3)
+        {
+            if(o->Timer < 5.f)
+            {
+                if ( index<35 )
+                {
+                    Vector(o->Velocity*(float)(rand()%16+8),0.f,o->Direction[2],Direction);
+                }
+                else
+                {
+                    Vector(o->Velocity*(float)(rand()%16+16),0.f,o->Direction[2],Direction);
+                }
+                o->Gravity  = 15;
+            }
+            else
+            {
+                Vector(o->Velocity*(float)(rand()%32+32),0.f,o->Direction[2],Direction);
+                o->Gravity  = 5;
+            }
+            o->Timer += 0.1f;
+            if(o->Timer >= 10)
+            {
+                o->Timer = 0.f;
+            }
+        }
+        else
+        {
+            Vector(o->Velocity*25.f,0.f,o->Direction[2],Direction);
+        }
+        VectorRotate(Direction,o->Matrix,p);
+        VectorAdd(o->Position,p,o->Position);
+        o->Direction[0] = o->Position[0] + 3.f*p[0];
+        o->Direction[1] = o->Position[1] + 3.f*p[1];
+    
+        float dx = o->Position[0]-Hero->Object.Position[0];
+        float dy = o->Position[1]-Hero->Object.Position[1];
+        float Range = sqrtf(dx*dx + dy*dy);
+        float FlyDistance = 1500.f;
+        if ( o->Type==MODEL_MONSTER01+31 )
+        {
+            FlyDistance = 4000.f;
+        }
+        else if ( o->Type==MODEL_MONSTER01+33 )
+        {
+            FlyDistance = 3000.f;
+        }
+		else if (gMapManager.WorldActive == WD_51HOME_6TH_CHAR 
 #ifndef PJH_NEW_SERVER_SELECT_MAP
-			|| gMapManager.WorldActive == WD_77NEW_LOGIN_SCENE
-			|| gMapManager.WorldActive == WD_78NEW_CHARACTER_SCENE
+			|| World == WD_77NEW_LOGIN_SCENE 
+			|| World == WD_78NEW_CHARACTER_SCENE
 #endif //PJH_NEW_SERVER_SELECT_MAP
-			)
-		{
-			// Do nothing
-		}
-		else
-		{
-			if (rand() % 512 == 0)
-				o->Live = false;
-		}
-
+			);
+        else
+        {
+            if(rand()%512==0)
+                o->Live = false;
+        }
 #ifndef PJH_NEW_SERVER_SELECT_MAP
-		if (gMapManager.WorldActive == WD_77NEW_LOGIN_SCENE ||
-			gMapManager.WorldActive == WD_78NEW_CHARACTER_SCENE
-			)
-		{
-			// Do nothing
-		}
+		if (World == WD_77NEW_LOGIN_SCENE || 
+			World == WD_78NEW_CHARACTER_SCENE
+			);
 		else
 #endif //PJH_NEW_SERVER_SELECT_MAP
-		{
-			if (Range >= FlyDistance)
-				o->Live = false;
-		}
-	}
+        if(Range >= FlyDistance)
+            o->Live = false;
+    }
+
 }
 
 void MoveBoids ()
@@ -1343,12 +1331,12 @@ void MoveBoids ()
 					o->Type = MODEL_BIRD01;
 				else if ( gMapManager.WorldActive==WD_1DUNGEON || gMapManager.WorldActive==WD_4LOSTTOWER )
 					o->Type = MODEL_BAT01;
-				else if (gMapManager.WorldActive == WD_3NORIA)
+				else if ( gMapManager.WorldActive==WD_3NORIA )
 				{
-					o->Type = MODEL_BUTTERFLY01;
-					o->Velocity = 0.3f;
+					o->Type        = MODEL_BUTTERFLY01;
+					o->Velocity    = 0.3f;
 					o->LightEnable = false;
-					Vector(1.f, 1.f, 1.f, o->Light);
+					Vector(1.f,1.f,1.f,o->Light);
 				}
                 else if ( gMapManager.InBloodCastle() == true )
                 {
@@ -1444,9 +1432,9 @@ void MoveBoids ()
                     MoveBat( o );
                     break;
 
-				case MODEL_BUTTERFLY01:
-					MoveButterFly(o);
-					break;
+                case MODEL_BUTTERFLY01:
+                    MoveButterFly( o );
+                    break;
 
                 case MODEL_BIRD01:
                 case MODEL_CROW:
@@ -1564,13 +1552,14 @@ void RenderBoids ( bool bAfterCharacter )
                     }
                     break;
 
-				case MODEL_BUTTERFLY01:
-				{
-					float Luminosity = (float)(rand() % 32 + 64) * 0.01f;
-					Vector(Luminosity * 0.2f, Luminosity * 0.4f, Luminosity * 0.4f, Light);
-					CreateSprite(BITMAP_LIGHT, o->Position, 1.f, Light, o);
-				}
-				break;
+                case MODEL_BUTTERFLY01:
+                    {
+                        float  Luminosity = (float)(rand()%32+64)*0.01f;
+
+                        Vector ( Luminosity*0.2f, Luminosity*0.4f, Luminosity*0.4f, Light );
+					    CreateSprite(BITMAP_LIGHT,o->Position,1.f,Light,o);
+                    }
+                    break;
 
 				case MODEL_MAP_TORNADO:
 					{

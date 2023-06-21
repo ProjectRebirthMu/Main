@@ -1,5 +1,4 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Updated
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -15,13 +14,14 @@
 #include "DSPlaySound.h"
 #include "WSClient.h"
 
-#define MAX_BLURS 100
+#define MAX_BLURS      100
 #define MAX_BLUR_TAILS 30
 #define MAX_BLUR_LIFETIME 30
 
-#define MAX_OBJECTBLURS	1000
+#define MAX_OBJECTBLURS		1000
 #define MAX_OBJECTBLUR_TAILS 600
 #define MAX_OBJECTBLUR_LIFETIME 30
+//#define MAX_OBJECTBLUR_LIFETIME 11		// FIX
 
 typedef struct
 {
@@ -40,20 +40,25 @@ BLUR Blur[MAX_BLURS];
 
 void AddBlur(BLUR* b, vec3_t p1, vec3_t p2, vec3_t Light, int Type)
 {
+	if (!b) {
+		return; // ponteiro nulo, sai da função
+	}
+
 	b->Type = Type;
 	VectorCopy(Light, b->Light);
-	for (int i = b->Number - 1; i >= 0; i--)
+	if (b->Number >= MAX_BLUR_TAILS)
 	{
-		VectorCopy(b->p1[i], b->p1[i + 1]);
-		VectorCopy(b->p2[i], b->p2[i + 1]);
-	}
-	VectorCopy(p1, b->p1[0]);
-	VectorCopy(p2, b->p2[0]);
-	b->Number++;
-	if (b->Number >= MAX_BLUR_TAILS - 1)
-	{
+		for (int i = 0; i < MAX_BLUR_TAILS - 1; i++) {
+			VectorCopy(b->p1[i + 1], b->p1[i]);
+			VectorCopy(b->p2[i + 1], b->p2[i]);
+		}
 		b->Number = MAX_BLUR_TAILS - 1;
 	}
+	else {
+		b->Number++;
+	}
+	VectorCopy(p1, b->p1[b->Number - 1]);
+	VectorCopy(p2, b->p2[b->Number - 1]);
 }
 
 void CreateBlur(CHARACTER* Owner, vec3_t p1, vec3_t p2, vec3_t Light, int Type, bool Short, int SubType)

@@ -765,9 +765,6 @@ void OpenItems()
     gLoadData.AccessModel( MODEL_HELPER+31,"Data\\Item\\", "DarkHorseSoul" );
     gLoadData.AccessModel( MODEL_HELPER+5, "Data\\Item\\", "SpiritBill" );
 
-#ifndef LDK_ITEM_SEASON18
-	gLoadData.AccessModel( MODEL_HELPER+200, "Data\\Skill\\", "Ur"); // 
-#endif  // !LDK_ITEM_SEASON18
     gLoadData.AccessModel( MODEL_HELPER+21, "Data\\Item\\", "FireRing" );	
     gLoadData.AccessModel( MODEL_HELPER+22, "Data\\Item\\", "GroundRing" );
     gLoadData.AccessModel( MODEL_HELPER+23, "Data\\Item\\", "WindRing" );
@@ -1353,44 +1350,52 @@ void OpenItemTextures()
 
 	LoadBitmap("Item\\rollofpaper_R.jpg", BITMAP_ROOLOFPAPER_EFFECT_R, GL_LINEAR);
 
-    gLoadData.OpenTexture(MODEL_HELPER+4,    "Skill\\");
-	gLoadData.OpenTexture(MODEL_HELPER+4,    "Item\\");
-    gLoadData.OpenTexture(MODEL_HELPER+31,   "Item\\");
-    gLoadData.OpenTexture(MODEL_HELPER+5,    "Skill\\");
-	gLoadData.OpenTexture(MODEL_HELPER+5,    "Item\\");
-    gLoadData.OpenTexture(MODEL_POTION+22,   "Item\\");
-    gLoadData.OpenTexture(MODEL_POTION+31,   "Item\\");
-	gLoadData.OpenTexture(MODEL_POTION+7,    "Item\\");
-	gLoadData.OpenTexture(MODEL_HELPER+7,    "Item\\");
-	gLoadData.OpenTexture(MODEL_HELPER+11,   "Item\\");
-    gLoadData.OpenTexture(MODEL_EVENT+18,    "Monster\\");
+    gLoadData.OpenTexture( MODEL_HELPER+4, "Skill\\" );
+	gLoadData.OpenTexture( MODEL_HELPER+4, "Item\\" );
+    gLoadData.OpenTexture( MODEL_HELPER+31, "Item\\" );
+    gLoadData.OpenTexture( MODEL_HELPER+5, "Skill\\" );
+	gLoadData.OpenTexture( MODEL_HELPER+5, "Item\\" );
 
-#ifndef ADD_NEW_ITENS
-	gLoadData.OpenTexture(MODEL_HELPER + 200, "Skill\\");
-#endif
+    gLoadData.OpenTexture(MODEL_POTION+22, "Item\\");
+
+    gLoadData.OpenTexture(MODEL_POTION+31, "Item\\");
+
+	gLoadData.OpenTexture( MODEL_POTION+7,  "Item\\" );
+	gLoadData.OpenTexture( MODEL_HELPER+7,  "Item\\" );
+	gLoadData.OpenTexture( MODEL_HELPER+11, "Item\\" );
+    gLoadData.OpenTexture( MODEL_EVENT+18,  "Monster\\" );
 
     for(int i=0;i<2;i++)
-    gLoadData.OpenTexture(MODEL_HELPER+14+i, "Item\\");
-    gLoadData.OpenTexture(MODEL_SWORD+17,    "Item\\" );
-    gLoadData.OpenTexture(MODEL_SWORD+18,    "Item\\" );
-    gLoadData.OpenTexture(MODEL_STAFF+9,     "Item\\" );
-    gLoadData.OpenTexture(MODEL_BOW+17,      "Item\\" );
-    gLoadData.OpenTexture(MODEL_HELPER+3,    "Skill\\" );
+        gLoadData.OpenTexture(MODEL_HELPER+14+i, "Item\\");
+
+    gLoadData.OpenTexture( MODEL_SWORD+17, "Item\\" );
+    gLoadData.OpenTexture( MODEL_SWORD+18, "Item\\" );
+
+    gLoadData.OpenTexture( MODEL_STAFF+9, "Item\\" );
+    gLoadData.OpenTexture( MODEL_BOW+17,  "Item\\" );
+
+    gLoadData.OpenTexture( MODEL_HELPER+3, "Skill\\" );
+
     for(int i=0;i<4;i++)
-    gLoadData.OpenTexture(MODEL_POTION+23+i, "Item\\");
-    gLoadData.OpenTexture(MODEL_POTION+27,   "Item\\");
+        gLoadData.OpenTexture(MODEL_POTION+23+i, "Item\\");
+
+    gLoadData.OpenTexture(MODEL_POTION+27, "Item\\");
+
 	for(int i=0;i<2;i++)
-	gLoadData.OpenTexture(MODEL_POTION+28+i, "Item\\");
-    gLoadData.OpenTexture(MODEL_HELPER+29,   "Npc\\");
-    gLoadData.OpenTexture(MODEL_SWORD+19,    "Item\\" );
-    gLoadData.OpenTexture(MODEL_STAFF+10,    "Item\\" );
-    gLoadData.OpenTexture(MODEL_BOW+18,      "Item\\" );
-    gLoadData.OpenTexture(MODEL_BOW+19,      "Item\\" );
-    gLoadData.OpenTexture(MODEL_SWORD+31,    "Item\\" );
-	gLoadData.OpenTexture(MODEL_SHIELD+15,   "Item\\" );
-	gLoadData.OpenTexture(MODEL_SHIELD+16,   "Item\\" );
-	gLoadData.OpenTexture(MODEL_SPEAR+10,    "Item\\" );
-	gLoadData.OpenTexture(MODEL_MACE+7,	     "Item\\" );
+		gLoadData.OpenTexture(MODEL_POTION+28+i, "Item\\");
+
+    gLoadData.OpenTexture(MODEL_HELPER+29, "Npc\\");
+    gLoadData.OpenTexture( MODEL_SWORD+19, "Item\\" );
+    gLoadData.OpenTexture( MODEL_STAFF+10, "Item\\" );
+    gLoadData.OpenTexture( MODEL_BOW+18,   "Item\\" );
+    gLoadData.OpenTexture( MODEL_BOW+19,   "Item\\" );
+
+    gLoadData.OpenTexture( MODEL_SWORD+31,  "Item\\" );
+	gLoadData.OpenTexture( MODEL_SHIELD+15, "Item\\" );
+	gLoadData.OpenTexture( MODEL_SHIELD+16, "Item\\" );
+	gLoadData.OpenTexture( MODEL_SPEAR+10,  "Item\\" );
+	gLoadData.OpenTexture( MODEL_MACE+7,	  "Item\\" );
+
 	for(int i=0;i<17;i++)
 	{
 		gLoadData.OpenTexture(MODEL_SWORD+i ,"Item\\");
@@ -4035,6 +4040,7 @@ void OpenSkills()
 
 	gLoadData.AccessModel(MODEL_SKELETON_CHANGED,			"Data\\Item\\", "trans_skeleton");
 	gLoadData.OpenTexture(MODEL_SKELETON_CHANGED,			"Item\\" );
+
 
     gLoadData.AccessModel ( MODEL_DARK_SPIRIT, "Data\\Skill\\", "DarkSpirit" );
 	LoadBitmap( "Skill\\dkthreebody_r.jpg" , BITMAP_MONSTER_SKIN+2, GL_LINEAR, GL_REPEAT );

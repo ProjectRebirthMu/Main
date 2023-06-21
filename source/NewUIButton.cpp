@@ -399,7 +399,7 @@ void SEASON3B::CNewUIButton::UnLock()
 
 bool SEASON3B::CNewUIButton::Render( bool RendOption )
 {
-	if (!m_ButtonInfo.empty())
+	if( m_ButtonInfo.size() != 0 )
 	{
 #ifdef KJH_ADD_INGAMESHOP_UI_SYSTEM
 		if(RendOption == true)

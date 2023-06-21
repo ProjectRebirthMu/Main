@@ -32,8 +32,8 @@ int QuaternionCompare(const vec4_t v1, const vec4_t v2)
 	return 1;
 }
 
-void VectorInterpolation( vec3_t& v_out, const vec3_t& v_1, const vec3_t& v_2, const float fWeight )
-{	
+void VectorInterpolation(vec3_t& v_out, const vec3_t& v_1, const vec3_t& v_2, const float fWeight)
+{
 	LInterpolationF(v_out[0], v_1[0], v_2[0], fWeight);
 	LInterpolationF(v_out[1], v_1[1], v_2[1], fWeight);
 	LInterpolationF(v_out[2], v_1[2], v_2[2], fWeight);
@@ -123,7 +123,7 @@ void VectorDistNormalize(const vec3_t vInFrom, const vec3_t vInTo, vec3_t vOut)
 	VectorNormalize(vOut);
 }
 
-void VectorMA (vec3_t va, float scale, vec3_t vb, vec3_t vc)
+void VectorMA(vec3_t va, float scale, vec3_t vb, vec3_t vc)
 {
 	vc[0] = va[0] + scale * vb[0];
 	vc[1] = va[1] + scale * vb[1];
@@ -267,7 +267,7 @@ void R_ConcatTransforms(const float in1[3][4], const float in2[3][4], float out[
 		in1[2][2] * in2[2][3] + in1[2][3];
 }
 
-void VectorRotate (const vec3_t in1, const float in2[3][4], vec3_t out)
+void VectorRotate(const vec3_t in1, const float in2[3][4], vec3_t out)
 {
 	assert(in1 != out && "VectorRotate!");
 	out[0] = DotProduct(in1, in2[0]);
@@ -276,25 +276,25 @@ void VectorRotate (const vec3_t in1, const float in2[3][4], vec3_t out)
 }
 
 // rotate by the inverse of the matrix
-void VectorIRotate (const vec3_t in1, const float in2[3][4], vec3_t out)
+void VectorIRotate(const vec3_t in1, const float in2[3][4], vec3_t out)
 {
-	out[0] = in1[0]*in2[0][0] + in1[1]*in2[1][0] + in1[2]*in2[2][0];
-	out[1] = in1[0]*in2[0][1] + in1[1]*in2[1][1] + in1[2]*in2[2][1];
-	out[2] = in1[0]*in2[0][2] + in1[1]*in2[1][2] + in1[2]*in2[2][2];
+	out[0] = in1[0] * in2[0][0] + in1[1] * in2[1][0] + in1[2] * in2[2][0];
+	out[1] = in1[0] * in2[0][1] + in1[1] * in2[1][1] + in1[2] * in2[2][1];
+	out[2] = in1[0] * in2[0][2] + in1[1] * in2[1][2] + in1[2] * in2[2][2];
 }
 
-void VectorTranslate (const vec3_t in1, const float in2[3][4], vec3_t out)
+void VectorTranslate(const vec3_t in1, const float in2[3][4], vec3_t out)
 {
 	out[0] = in1[0] + in2[0][3];
 	out[1] = in1[1] + in2[1][3];
 	out[2] = in1[2] + in2[2][3];
 }
 
-void VectorTransform (const vec3_t in1, const float in2[3][4], vec3_t out)
+void VectorTransform(const vec3_t in1, const float in2[3][4], vec3_t out)
 {
-	out[0] = DotProduct(in1, in2[0]) +	in2[0][3];
-	out[1] = DotProduct(in1, in2[1]) +	in2[1][3];
-	out[2] = DotProduct(in1, in2[2]) +	in2[2][3];
+	out[0] = DotProduct(in1, in2[0]) + in2[0][3];
+	out[1] = DotProduct(in1, in2[1]) + in2[1][3];
+	out[2] = DotProduct(in1, in2[2]) + in2[2][3];
 }
 
 void AngleQuaternion(const vec3_t angles, vec4_t quaternion)

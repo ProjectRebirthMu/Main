@@ -1,4 +1,8 @@
-// AI System
+///////////////////////////////////////////////////////////////////////////////
+// AI관련 함수
+// 타켓방향으로 방향 틀기, 길찾기, fps구하기 등등
+//
+// *** 함수 레벨: 2
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -19,135 +23,108 @@
 #include "CharacterManager.h"
 #include "SkillManager.h"
 
-float CreateAngle(float x1, float y1, float x2, float y2)
+
+float CreateAngle(float x1,float y1,float x2,float y2)
 {
-	float nx2 = x2 - x1;
-	float ny2 = y2 - y1;
-	float r, angle;
-
-	if (fabsf(nx2) < 0.0001f)
+    float nx2=x2-x1,ny2=y2-y1;
+    float r,angle;
+    if(absf(nx2)<0.0001f)
 	{
-		if (ny2 < 0.f) return 0.f;   // s
-		else return 180.f; // n
+        if(ny2<0.f) return 0.f;   //s
+        else        return 180.f; //n
 	}
-	else if (fabsf(ny2) < 0.0001f)
+    else if(absf(ny2)<0.0001f)
 	{
-		if (nx2 < 0.f) return 270.f; // e
-		else return 90.f;  // w
+        if(nx2<0.f) return 270.f; //e
+        else        return 90.f;  //w
 	}
-	else
+    else
 	{
-		angle = atanf(ny2 / nx2) / 3.1415926536f * 180.f + 90.f;
-		if (nx2 < 0.f && ny2 >= 0.f) r = angle + 180.f;
-		else if (nx2 < 0.f && ny2 < 0.f) r = angle + 180.f;
-		else if (nx2 >= 0.f && ny2 < 0.f) r = angle;
-		else r = angle;
+        angle=(float)atan(ny2/nx2)/3.1415926536f*180.f+90.f;
+        if     (nx2<0.f  && ny2>=0.f) r=angle+180.f;
+        else if(nx2<0.f  && ny2<0.f ) r=angle+180.f;
+        else if(nx2>=0.f && ny2<0.f ) r=angle;
+        else                          r=angle;
 	}
-
-	return r;
+	//if(r<0.f) r+=360.f;else if(r>=360.f) r-=360.f;
+    return r;
 }
 
 int TurnAngle(int iTheta, int iHeading, int maxTURN)
 {
 	int iChange = 0;
 
-	int Delta = abs(iTheta - iHeading);
-	if (iTheta > iHeading)
+	int Delta = abs(iTheta-iHeading);
+	if (iTheta > iHeading) 
 	{
-		if (Delta < abs((iHeading + 360) - iTheta)) iChange = -min(maxTURN, Delta);
-		else iChange = min(maxTURN, Delta);
+		if (Delta < abs((iHeading+360)-iTheta)) iChange= -min(maxTURN, Delta);
+		else iChange= min(maxTURN, Delta);
+		//else iTheta = iHeading;
 	}
-	if (iTheta < iHeading)
+	if (iTheta < iHeading) 
 	{
-		if (Delta < abs((iTheta + 360) - iHeading)) iChange = min(maxTURN, Delta);
+		if (Delta < abs((iTheta+360)-iHeading)) iChange = min(maxTURN, Delta);
 		else iChange = -min(maxTURN, Delta);
+		//else iTheta = iHeading;
 	}
-	iTheta = (iTheta + iChange + 360) % 360;
+	iTheta += iChange + 360;
+	iTheta %= 360;
 	return iTheta;
 }
 
-float TurnAngle2(float angle, float a, float d)
+float TurnAngle2(float angle,float a,float d)
 {
-	if (angle < 0.f)
-		angle += 360.f;
-	if (a < 0.f)
-		a += 360.f;
-
-	float aa;
-	if (angle < 180.f)
+	if(angle < 0.f) angle += 360.f;
+	if(a < 0.f) a += 360.f;
+    float aa;
+    if(angle<180.f)
 	{
-		aa = angle - d;
-		if (a >= angle + d && (a < angle + 180.f))
-			angle += d;
-		else if (aa >= 0 && (a >= angle + 180.f || a < aa))
-			angle -= d;
-		else if (aa < 0 && (a >= angle + 180.f && a < aa + 360.f))
-			angle = angle - d + 360.f;
-		else
-			angle = a;
+        aa=angle-d;
+        if     (a>=angle+d && (a< angle+180.f              )) angle+=d;
+        else if(aa>=0      && (a>=angle+180.f || a<aa      )) angle-=d;
+        else if(aa<0       && (a>=angle+180.f && a<aa+360.f)) {angle=angle-d+360.f;}
+        else                                                  angle =a;
 	}
-	else
+    else
 	{
-		aa = angle + d;
-		if (a < angle - d && (a >= angle - 180.f))
-			angle -= d;
-		else if (aa < 360.f && (a < angle - 180.f || a >= aa))
-			angle += d;
-		else if (aa >= 360.f && (a < angle - 180.f && a >= aa - 360.f))
-			angle = angle + d - 360.f;
-		else
-			angle = a;
+        aa=angle+d;
+        if     (a<angle-d && (a>=angle-180.f               )) angle-=d;
+        else if(aa<360.f  && (a< angle-180.f || a>=aa      )) angle+=d;
+        else if(aa>=360.f && (a< angle-180.f && a>=aa-360.f)) {angle=angle+d-360.f;}
+        else                                                  angle =a;
 	}
-	return angle;
+    return angle;
 }
 
-float FarAngle(float angle1, float angle2, bool abs)
+float FarAngle(float angle1,float angle2,bool abs)
 {
-	if (angle1 < 0.f)
-		angle1 += 360.f;
-	if (angle2 < 0.f)
-		angle2 += 360.f;
-
-	float d = angle2 - angle1;
-	if (angle1 < 180.f)
+	if(angle1 < 0.f) angle1 += 360.f;
+	if(angle2 < 0.f) angle2 += 360.f;
+    float d=angle2-angle1;
+    if(angle1<180.f)
 	{
-		if (angle2 >= angle1 + 180.f)
-			d = 360.f - angle2 + angle1;
+        if(angle2>=angle1+180.f) d=(360.f-angle2+angle1);
 	}
-	else
+    else
 	{
-		if (angle2 < angle1 - 180.f)
-			d = 360.f - angle1 + angle2;
+        if(angle2<angle1-180.f) d=(360.f-angle1+angle2);
 	}
-
-	if (abs)
-	{
-		if (d < 0.f)
-			d = -d;
-	}
-
-	return d;
+	if(abs==true) if(d<0.f) d=-d;
+    return d;
 }
 
-int CalcAngle(float PositionX, float PositionY, float TargetX, float TargetY)
+int CalcAngle(float PositionX,float PositionY,float TargetX,float TargetY)
 {
 	float Grad;
-	if (fabs(TargetX - PositionX) < 0.0001f)
-		Grad = 0.f;
+	if(TargetX-PositionX == 0.f)
+	    Grad = 0.f;
 	else
-		Grad = (PositionY - TargetY) / (TargetX - PositionX);
-
-	int TargetTheta = static_cast<int>(atanf(Grad) * (180.f / Q_PI));
-
-	if (TargetX < PositionX)
-		TargetTheta += 180;
-
-	if (TargetTheta < 0)
-		TargetTheta += 360;
-
+	    Grad = (PositionY-TargetY)/(TargetX-PositionX);
+	int TargetTheta = (int)(atanf(Grad)*(180.f/Q_PI));
+	if(TargetX < PositionX) TargetTheta += 180;
+	if(TargetTheta < 0) TargetTheta += 360;
 	TargetTheta = 360 - TargetTheta;
 	TargetTheta %= 360;
-
 	return TargetTheta;
 }
 
@@ -264,6 +241,7 @@ void PushObject(vec3_t PushPosition,vec3_t Position,float Power,vec3_t Angle)
 	vec3_t p1,p2;
 	Vector(0.f,-Power,0.f,p1);
 	VectorRotate(p1,Matrix,p2);
+	//VectorSubtract(Position,p2,Position);
 	Position[2] = RequestTerrainHeight(Position[0],Position[1]);
 }
 
@@ -466,7 +444,7 @@ bool IsAliceRideAction_Fenrir(BYTE byAction)
 void SetAction(OBJECT *o,int Action, bool bBlending)
 {
 	BMD *b = &Models[o->Type];
-	if(Action >= b->NumActions) return;
+	if(Action >= b->NumActions /*&& Action!=PLAYER_FLY_RIDE_WEAPON && Action!=PLAYER_FLY_RIDE*/) return;
 	if(o->CurrentAction != Action)
 	{
 		o->PriorAction = o->CurrentAction;
@@ -486,6 +464,8 @@ bool TestDistance(CHARACTER *c,vec3_t TargetPosition,float Range)
 	VectorSubtract(c->Object.Position,TargetPosition,Range2);
 	float Distance = Range2[0]*Range2[0]+Range2[1]*Range2[1];
 	float ZoneRange = Range;
+	//float ZoneRange = Range+(float)c->CollisionTime*10.f;
+	//if(AttackEnable==true) ZoneRange *= 10.f;
 	if(Distance <= ZoneRange*ZoneRange) return true;
 	return false;
 }
@@ -541,19 +521,26 @@ void Damage(vec3_t soPosition,CHARACTER *tc,float AttackRange,int AttackPoint,bo
 {
 	return;
 	if(tc == NULL) return;
+	//if(tc->Attribute.Life <= 0) return;
 
 	OBJECT *to = &tc->Object;
+	//tc->TargetPosition[0] = HeroObject->Position[0]+(float)(rand()%512-256);
+	//tc->TargetPosition[1] = HeroObject->Position[1]+(float)(rand()%512-256);
 
 	//attack
 	if     (AttackPoint <= 0 ) Hit = false;
 	else if(AttackPoint >= 20) Hit = true;
 	if(Hit)
 	{
+		//Push = 20.f;
+		//tc->Movement = false;
 		switch(to->Type)
 		{
 		case MODEL_MONSTER01:
+			//SetAction(to,MONSTER01_SHOCK);
 			break;
 		case MODEL_PLAYER:
+			//SetAction(to,PLAYER_SHOCK);
 			break;
 		}
 	}
@@ -572,6 +559,13 @@ void Damage(vec3_t soPosition,CHARACTER *tc,float AttackRange,int AttackPoint,bo
 	{
 		vec3_t Range;
 		VectorSubtract(soPosition,to->Position,Range);
+		/*if(to->Type==MODEL_KNIGHT)
+		{
+			float Distance = sqrtf(Range[0]*Range[0]+Range[1]*Range[1]);
+			vec3_t Angle;
+			PushObject(soPosition,to->Position,AttackRange-Distance+Push,Angle);
+			//to->Angle[2] = Angle[2];
+		}*/
 		VectorMA(to->Position,0.3f,Range,Position);
 		Position[2] += 80.f;
 		vec3_t Light;
@@ -585,6 +579,7 @@ void Damage(vec3_t soPosition,CHARACTER *tc,float AttackRange,int AttackPoint,bo
 		}
 		CreateParticle(BITMAP_SPARK+1,Position,to->Angle,Light);
 	}
+	//ClientSendMonsterHit(tc,AttackPoint);
 
 	//point
 	VectorCopy(to->Position,Position);
@@ -592,6 +587,23 @@ void Damage(vec3_t soPosition,CHARACTER *tc,float AttackRange,int AttackPoint,bo
 	vec3_t Color;
 	Vector(1.f,0.1f,0.1f,Color);
 	CreatePoint(Position,AttackPoint,Color);
+
+	/*//dead
+	if(tc->Life <= 0)
+	{
+		tc->Movement = false;
+		tc->Angry = false;
+		switch(to->Type)
+		{
+		case MODEL_MONSTER01:
+			sc->Experience += 8;
+			SetAction(to,MONSTER01_DIE);
+			break;
+		case MODEL_KNIGHT:
+			SetAction(to,PLAYER_DIE);
+			break;
+		}
+	}*/
 }
 
 bool MovePath(CHARACTER *c,bool Turn)
@@ -762,51 +774,47 @@ bool PathFinding2(int sx,int sy,int tx,int ty,PATH_t *a, float fDistance, int iD
 	return false;
 }
 
-float DeltaT = 0.1f;
-float FPS = 0.0f;
-float WorldTime = 0.0f;
+float   DeltaT = 0.1f;
+float   FPS;
+float   WorldTime = 0.f;
 
 void CalcFPS()
 {
-	static int timeinit = 0;
-	static int start = 0, start2 = 0, current = 0, last = 0;
-	static int frame = 0, frame2 = 0;
-
-	if (!timeinit)
+	static int timeinit=0;
+	static int start,start2,current,last;
+	static int frame=0, frame2=0;
+	if(!timeinit)
 	{
-		frame = 0;
-		start = timeGetTime();
-		timeinit = 1;
+		frame=0;
+		start=timeGetTime();
+		timeinit=1;
 	}
-
 	frame++;
 	frame2++;
-	WorldTime = static_cast<float>(timeGetTime());
-	current = timeGetTime();
-	int difTime = current - last;
-	double dif = static_cast<double>(current - start) / CLOCKS_PER_SEC;
-	double rv = (dif) ? static_cast<double>(frame) / dif : -1.0;
-
-	if (dif > 2.0 && frame > 10)
+    WorldTime = (float)(timeGetTime());
+	current=timeGetTime(); // found in winmm.
+    int    difTime = current-last;
+	double dif=(double)(current-start)/CLOCKS_PER_SEC;
+	double rv = (dif)? (double)frame/(double)dif:-1.0;
+	if(dif>2.0 && frame >10) 
 	{
-		start = start2;
-		frame = frame2;
+		start  = start2;
+		frame  = frame2;
 		start2 = timeGetTime();
 		frame2 = 0;
+	}		   
+	DeltaT = (float)(current-last)/CLOCKS_PER_SEC;
+	if(current==last) 
+	{ 
+		DeltaT = 0.1f / CLOCKS_PER_SEC;  // it just cant be 0
 	}
-
-	DeltaT = static_cast<float>(current - last) / CLOCKS_PER_SEC;
-	if (current == last)
-	{
-		DeltaT = 0.1f / CLOCKS_PER_SEC;
-	}
-
-	FPS = static_cast<float>(rv);
+	// if(DeltaT>1.0) DeltaT=1.0;
+	FPS = (float)rv;
 	last = current;
 
-	if (SceneFlag == MAIN_SCENE)
-	{
-		gSkillManager.CalcSkillDelay(difTime);
-	}
+    if ( SceneFlag==MAIN_SCENE )
+    {
+        gSkillManager.CalcSkillDelay ( difTime );
+    }
 }
 

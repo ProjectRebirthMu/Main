@@ -3,47 +3,42 @@
 
 #include "TextureScript.h"
 
-constexpr int MAX_BONES = 200;
-constexpr int MAX_MESH = 50;
-constexpr int MAX_VERTICES = 15000;
+#define MAX_BONES    200
+#define MAX_MESH     50
+#define MAX_VERTICES 15000
 
-enum RenderFlags : unsigned long long {
-	RENDER_COLOR = 0x00000001ULL,
-	RENDER_TEXTURE = 0x00000002ULL,
-	RENDER_CHROME = 0x00000004ULL,
-	RENDER_METAL = 0x00000008ULL,
-	RENDER_LIGHTMAP = 0x00000010ULL,
-	RENDER_SHADOWMAP = 0x00000020ULL,
-	RENDER_BRIGHT = 0x00000040ULL,
-	RENDER_DARK = 0x00000080ULL,
-	RENDER_EXTRA = 0x00000100ULL,
-	RENDER_CHROME2 = 0x00000200ULL,
-	RENDER_WAVE = 0x00000400ULL,
-	RENDER_CHROME3 = 0x00000800ULL,
-	RENDER_CHROME4 = 0x00001000ULL,
-	RENDER_NODEPTH = 0x00002000ULL,
-	RENDER_CHROME5 = 0x00004000ULL,
-	RENDER_OIL = 0x00008000ULL,
-	RENDER_CHROME6 = 0x00010000ULL,
-	RENDER_CHROME7 = 0x00020000ULL,
-	RENDER_DOPPELGANGER = 0x00040000ULL,
-	RENDER_WAVE_EXT = 0x10000000ULL,
-	RENDER_BYSCRIPT = 0x80000000ULL
-};
+#define RENDER_COLOR        0x00000001
+#define RENDER_TEXTURE      0x00000002
+#define RENDER_CHROME       0x00000004
+#define RENDER_METAL        0x00000008
+#define RENDER_LIGHTMAP     0x00000010
+#define RENDER_SHADOWMAP    0x00000020
+#define RENDER_BRIGHT       0x00000040
+#define RENDER_DARK         0x00000080
+#define RENDER_EXTRA        0x00000100
+#define RENDER_CHROME2      0x00000200
+#define RENDER_WAVE			0x00000400
+#define RENDER_CHROME3      0x00000800 
+#define RENDER_CHROME4      0x00001000
+#define RENDER_NODEPTH      0x00002000
+#define RENDER_CHROME5      0x00004000
+#define RENDER_OIL          0x00008000
+#define RENDER_CHROME6      0x00010000
+#define RENDER_CHROME7      0x00020000
+#define RENDER_DOPPELGANGER 0x00040000
+#define RENDER_WAVE_EXT		0x10000000
+#define RENDER_BYSCRIPT		0x80000000
+#define RNDEXT_WAVE			1
+#define RNDEXT_OIL          2
+#define RNDEXT_RISE			4
 
-enum RenderExtensionFlags {
-	RNDEXT_WAVE = 1,
-	RNDEXT_OIL = 2,
-	RNDEXT_RISE = 4
-};
-
-const int MAX_MONSTER_SOUND = 10;
+#define MAX_MONSTER_SOUND   10
 
 typedef struct
 {
 	vec3_t Position;
 	vec3_t Color;
-	float Range;
+	float  Range;
 } Light_t;
 
 typedef struct
@@ -55,12 +50,12 @@ typedef struct
 
 typedef struct
 {
-	char Name[32];
-	short Parent;
-	char Dummy;
-	BoneMatrix_t* BoneMatrixes;
-	char BoundingBox;
-	vec3_t BoundingVertices[8];
+	char         Name[32];
+	short        Parent;
+	char         Dummy;
+	BoneMatrix_t *BoneMatrixes;
+	char         BoundingBox;
+	vec3_t       BoundingVertices[8];
 } Bone_t;
 
 typedef struct
@@ -96,71 +91,74 @@ typedef struct
 
 typedef struct 
 {
-	BYTE m_Colors[3];
+	BYTE m_Colors[3];	//0~255 RGB
 } VertexColor_t;
 
 typedef struct
 {
-	char Polygon;
-	short VertexIndex[4];
-	short NormalIndex[4];
-	short TexCoordIndex[4];
-	short EdgeTriangleIndex[4];
-	bool Front;
+	char       Polygon;
+	short      VertexIndex[4];
+	short      NormalIndex[4];
+	short      TexCoordIndex[4];
+	short      EdgeTriangleIndex[4];
+	bool       Front;
+	//TexCoord_t LightMapCoord[4]; //ver1.2
+	//short      LightMapIndexes; //ver1.2
 } Triangle_t;
 
 typedef struct
 {
-	char Polygon;
-	short VertexIndex[4];
-	short NormalIndex[4];
-	short TexCoordIndex[4];
-	TexCoord_t LightMapCoord[4];
-	short LightMapIndexes;
+	char       Polygon;
+	short      VertexIndex[4];
+	short      NormalIndex[4];
+	short      TexCoordIndex[4];
+	TexCoord_t LightMapCoord[4]; //ver1.2
+	short      LightMapIndexes; //ver1.2
 } Triangle_t2;
+
 
 typedef struct
 {
-	bool Loop;
-	float PlaySpeed;
-	short NumAnimationKeys;
-	bool LockPositions;
-	vec3_t* Positions;
+	bool          Loop;
+	float         PlaySpeed;
+	short         NumAnimationKeys;
+	bool          LockPositions;
+	vec3_t        *Positions;
 } Action_t;
 
 typedef struct _Triangle_t3 : public Triangle_t
 {
-	short m_ivIndexAdditional[4];
+	short	   m_ivIndexAdditional[4];
 } Triangle_t3;
 
 typedef struct _Mesh_t
 {
-	bool NoneBlendMesh;
-	short Texture;
-	short NumVertices;
-	short NumNormals;
-	short NumTexCoords;
-	short NumVertexColors;
-	short NumTriangles;
-	int NumCommandBytes;
-	Vertex_t* Vertices;
-	Normal_t* Normals;
-	TexCoord_t* TexCoords;
-	VertexColor_t* VertexColors;
-	Triangle_t* Triangles;
-	unsigned char* Commands;
+    bool          NoneBlendMesh;
+	short         Texture;
+	short         NumVertices;
+	short         NumNormals;
+	short         NumTexCoords;
+	short		  NumVertexColors;	//ver1.3
+	short         NumTriangles;
+	int           NumCommandBytes; //ver1.1
+	Vertex_t      *Vertices;
+	Normal_t      *Normals;
+	TexCoord_t    *TexCoords;
+	VertexColor_t* VertexColors;	//ver1.3
+	Triangle_t    *Triangles;
+	unsigned char *Commands; //ver1.1
 
-	TextureScript* m_csTScript;
+    TextureScript* m_csTScript;
 
 	_Mesh_t()
-	{
-		Vertices = nullptr;
-		Normals = nullptr;
-		Triangles = nullptr;
-		Commands = nullptr;
-		m_csTScript = nullptr;
+	{	
+		Vertices = NULL;
+		Normals = NULL;
+		Triangles = NULL;
+		Commands = NULL;
+		m_csTScript= NULL;
 
-		NumVertices = NumNormals = NumTexCoords =
+		NumVertices = NumNormals = NumTexCoords = 
 			NumVertexColors = NumTriangles = 0;
 	}
 
@@ -169,36 +167,36 @@ typedef struct _Mesh_t
 class BMD
 {
 public:
-	char Name[32];
-	char Version;
-	short NumBones;
-	short NumMeshs;
-	short NumActions;
-	Mesh_t* Meshs;
-	Bone_t* Bones;
-	Action_t* Actions;
-	Texture_t* Textures;
-	GLuint* IndexTexture;
+	char          Name[32];
+	char          Version;
+    short         NumBones;
+	short         NumMeshs;
+	short         NumActions;
+	Mesh_t        *Meshs;
+	Bone_t        *Bones;
+	Action_t      *Actions;
+	Texture_t     *Textures;
+	GLuint*		  IndexTexture;
 
-	short NumLightMaps;
-	short IndexLightMap;
-	Bitmap_t* LightMaps;
+	short         NumLightMaps;  //ver1.2
+	short         IndexLightMap; //ver1.2
+	Bitmap_t      *LightMaps;    //ver1.2
 
-	bool LightEnable;
-	bool ContrastEnable;
-	vec3_t BodyLight;
-	int BoneHead;
+	bool          LightEnable;
+	bool          ContrastEnable;
+	vec3_t        BodyLight;
+	int           BoneHead;
 
-	int BoneFoot[4];
-	float BodyScale;
-	vec3_t BodyOrigin;
-	vec3_t BodyAngle;
-	float BodyHeight;
-	char StreamMesh;
-	vec3_t ShadowAngle;
-	char Skin;
-	bool HideSkin;
-	float Velocity;
+    int           BoneFoot[4];
+	float         BodyScale;
+	vec3_t        BodyOrigin;
+	vec3_t        BodyAngle;
+	float         BodyHeight;
+	char          StreamMesh;
+	vec3_t        ShadowAngle;
+	char          Skin;
+	bool          HideSkin;
+    float         Velocity;
 #ifdef PBG_ADD_NEWCHAR_MONK_ANI
 	unsigned short CurrentAction;
 	unsigned short PriorAction;
@@ -206,24 +204,29 @@ public:
 	unsigned char CurrentAction;
 	unsigned char PriorAction;
 #endif //PBG_ADD_NEWCHAR_MONK_ANI
-	float CurrentAnimation;
-	short CurrentAnimationFrame;
-	short Sounds[MAX_MONSTER_SOUND];
-	int renderCount;
-	float fTransformedSize;
+	float         CurrentAnimation;
+	short         CurrentAnimationFrame;
+	short         Sounds[MAX_MONSTER_SOUND];
+    int           renderCount;
+	float		  fTransformedSize;
 	
-	unsigned int m_iBMDSeqID;
-	bool bLightMap;
-	bool bOffLight;
-	char iBillType;
+	unsigned int		m_iBMDSeqID;
+	bool				bLightMap;
+	bool				bOffLight;
+	char				iBillType;
 
-	bool m_bCompletedAlloc;
+	bool				m_bCompletedAlloc;
 	
-	BMD() : NumBones(0), NumActions(0), NumMeshs(0),
-		Meshs(nullptr), Bones(nullptr), Actions(nullptr), Textures(nullptr), IndexTexture(nullptr),
-		LightEnable(false), ContrastEnable(false), HideSkin(false),
-		bLightMap(false), iBillType(-1), bOffLight(false), m_bCompletedAlloc(false)
+	BMD() : NumBones(0), NumActions(0), NumMeshs(0), 
+		Meshs(NULL), Bones(NULL), Actions(NULL), Textures(NULL), IndexTexture(NULL)
 	{
+		LightEnable = false;
+		ContrastEnable = false;
+		HideSkin = false;
+		bLightMap = false;
+		iBillType = -1;
+		bOffLight = false;
+		m_bCompletedAlloc = false;
 	}
 
 ~BMD();
@@ -235,7 +238,6 @@ public:
 	bool Save2(char *DirName,char *FileName);
 	void Release();
     void CreateBoundingBox();
-	void UpdateChromeVectors(int bone);
 
     //transform
 #ifdef PBG_ADD_NEWCHAR_MONK_ANI
@@ -253,39 +255,42 @@ public:
 #endif //PBG_ADD_NEWCHAR_MONK_ITEM
 
 	void TransformByObjectBone(vec3_t vResultPosition, OBJECT * pObject, int iBoneNumber, vec3_t vRelativePosition = NULL);
+	// (vResultPosition = (pObject->BoneTransform[iBoneNumber] * vRelativePosition) + pObject->Position)
 	void TransformByBoneMatrix(vec3_t vResultPosition, float (*BoneMatrix)[4], vec3_t vWorldPosition = NULL, vec3_t vRelativePosition = NULL);
+	// (vResultPosition = (BoneMatrix * vRelativePosition) + vWorldPosition)
     void TransformPosition(float (*Matrix)[4],vec3_t Position,vec3_t WorldPosition,bool Translate=false);
     void RotationPosition(float (*Matrix)[4],vec3_t Position,vec3_t WorldPosition);
 
 	public:
+	//typedef vector<vec3_t>		VECVEC3_TS;
 
-		void AnimationTransformWithAttachHighModel_usingGlobalTM(
-			OBJECT* oHighHierarchyModel,
-			BMD* bmdHighHierarchyModel,
-			int iBoneNumberHighHierarchyModel,
-			vec3_t& vOutPosHighHierarchyModelBone,
-			vec3_t* arrOutSetfAllBonePositions,
-			bool bApplyTMtoVertices);
+	void AnimationTransformWithAttachHighModel_usingGlobalTM( 
+				OBJECT* oHighHierarchyModel, 
+				BMD* bmdHighHierarchyModel, 
+				int iBoneNumberHighHierarchyModel,
+				vec3_t &vOutPosHighHiearachyModelBone,
+				vec3_t *arrOutSetfAllBonePositions,
+				bool bApplyTMtoVertices);
 
-		void AnimationTransformWithAttachHighModel(
-			OBJECT* oHighHierarchyModel,
-			BMD* bmdHighHierarchyModel,
-			int iBoneNumberHighHierarchyModel,
-			vec3_t& vOutPosHighHierarchyModelBone,
-			vec3_t* arrOutSetfAllBonePositions);
+	void AnimationTransformWithAttachHighModel( 
+				OBJECT* oHighHierarchyModel, 
+				BMD* bmdHighHierarchyModel, 
+				int iBoneNumberHighHierarchyModel,
+				vec3_t &vOutPosHighHiearachyModelBone,
+				vec3_t *arrOutSetfAllBonePositions);
 
-		void AnimationTransformOnlySelf(vec3_t* arrOutSetfAllBonePositions,
-			const OBJECT* oSelf);
+	void AnimationTransformOnlySelf( vec3_t *arrOutSetfAllBonePositions, 
+									 const OBJECT* oSelf );
 		
-		void AnimationTransformOnlySelf(vec3_t* arrOutSetfAllBonePositions,
-			const vec3_t& v3Angle,
-			const vec3_t& v3Position,
-			const float& fScale,
-			OBJECT* oRefAnimation = nullptr,
-			const float fFrameArea = -1.0f,
-			const float fWeight = -1.0f);
+	void AnimationTransformOnlySelf( vec3_t *arrOutSetfAllBonePositions, 
+									 const vec3_t &v3Angle, 
+									 const vec3_t &v3Position,
+									 const float &fScale,
+									 OBJECT* oRefAnimation = NULL,
+									 const float fFrameArea = -1.0f,
+									 const float fWeight = -1.0f );	
 
-	void Lighting(float* pLight, const Light_t* lp, const vec3_t Position, const vec3_t Normal);
+    void Lighting(float *,Light_t *,vec3_t,vec3_t);
     void Chrome(float *,int,vec3_t);
     
     //render
@@ -304,26 +309,29 @@ public:
     void RenderBodyTranslate(int RenderFlag,float Alpha=1.f,int BlendMesh=-1,float BlendMeshLight=1.f,float BlendMeshTexCoordU=0.f,float BlendMeshTexCoordV=0.f,int HiddenMesh=-1,int Texture=-1);
     void RenderBodyShadow(int BlendMesh=-1,int HiddenMesh=-1, int StartMeshNumber=-1, int EndMeshNumber=-1);
 
-	void SetBodyLight(vec3_t right)
-	{
-		VectorCopy(right, BodyLight);
-	}
+	void SetBodyLight( vec3_t right ) { VectorCopy( right, BodyLight ); }
 
+	//lightmap(ver1.2)
 	bool LightMapEnable;
     bool CollisionDetectLineToMesh(vec3_t,vec3_t,bool Collision=true,int Mesh=-1,int Triangle=-1);
     void CreateLightMapSurface(Light_t *,Mesh_t *,int,int,int,int,int,int,vec3_t,vec3_t,int);
 	void CreateLightMaps();
     void BindLightMaps();
 	void ReleaseLightMaps();
+
+//#ifdef USE_SHADOWVOLUME
 	void FindNearTriangle( void);
+
 	void FindTriangleForEdge( int iMesh, int iTri, int iIndex11);
 
+//#endif //USE_SHADOWVOLUME
 private:
-	BMD(const BMD& b) = delete;
-	BMD& operator=(const BMD& b) = delete;
+	BMD(const BMD& b);
+	BMD& operator=(const BMD& b);
 };
 
-extern BMD *Models;
+//extern BMD   Models[];
+extern BMD   *Models;
 extern BMD *ModelsDump;
 extern float BoneTransform[MAX_BONES][3][4];
 extern vec3_t VertexTransform[MAX_MESH][MAX_VERTICES];
@@ -331,5 +339,6 @@ extern vec3_t NormalTransform[MAX_MESH][MAX_VERTICES];
 extern vec3_t LightTransform[MAX_MESH][MAX_VERTICES];
 extern float  IntensityTransform[MAX_MESH][MAX_VERTICES];
 extern float g_chrome[MAX_VERTICES][2];
+
 
 #endif

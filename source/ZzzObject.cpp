@@ -1,4 +1,3 @@
-// Object Manager
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -50,337 +49,350 @@
 extern vec3_t VertexTransform[MAX_MESH][MAX_VERTICES];
 extern vec3_t LightTransform[MAX_MESH][MAX_VERTICES];
 
-int g_iTotalObj = 0;
-OBJECT_BLOCK ObjectBlock[256];
-OBJECT Boids[MAX_BOIDS];
-OBJECT Fishs[MAX_FISHS];
-OBJECT Butterfles[MAX_BUTTERFLES];
-OPERATE Operates[MAX_OPERATES];
-float EarthQuake = 0.0f;
+int          g_iTotalObj = 0;
+OBJECT_BLOCK ObjectBlock [256];
+OBJECT       Boids		 [MAX_BOIDS];
+OBJECT       Fishs		 [MAX_FISHS];
+OBJECT       Butterfles  [MAX_BUTTERFLES];
+OPERATE      Operates    [MAX_OPERATES];
+//int   World = -1;
+float EarthQuake;
 
-static int g_iThunderTime = 0;
-int g_iActionObjectType = -1;
-int g_iActionWorld = -1;
-int g_iActionTime = -1;
-float g_fActionObjectVelocity = -1.0f;
 
-void ClearActionObject()
+static  int g_iThunderTime = 0;
+        int g_iActionObjectType = -1;
+        int g_iActionWorld = -1;
+        int g_iActionTime  = -1;
+        float g_fActionObjectVelocity = -1;
+
+void ClearActionObject ()
 {
-	g_iActionObjectType = -1;
-	g_iActionWorld = -1;
-	g_iActionTime = -1;
-	g_fActionObjectVelocity = -1.0f;
+    g_iActionObjectType = -1;
+    g_iActionWorld = -1;
+    g_iActionTime  = -1;
+    g_fActionObjectVelocity = -1;
 }
 
-void SetActionObject(int iWorld, int iType, int iLifeTime, int iVel)
+void SetActionObject ( int iWorld, int iType, int iLifeTime, int iVel )
 {
-	g_iActionWorld = iWorld;
-	g_iActionObjectType = iType;
-	g_iActionTime = iLifeTime;
-	g_fActionObjectVelocity = static_cast<float>(iVel);
+    g_iActionWorld      = iWorld;
+    g_iActionObjectType = iType;
+    g_iActionTime       = iLifeTime;
+    g_fActionObjectVelocity = (float)iVel;
 }
 
-void ActionObject(OBJECT* o)
+void ActionObject ( OBJECT* o )
 {
-	if (g_iActionWorld < 0) return;
-	if (g_iActionObjectType < 0) return;
-	if (g_iActionTime < 0) return;
+    if ( g_iActionWorld<0 )     return;
+    if ( g_iActionObjectType<0 )return;
+    if ( g_iActionTime<0 )      return;
 
-	if (gMapManager.WorldActive == g_iActionWorld)
+    if ( gMapManager.WorldActive == g_iActionWorld )
+    {
+        if ( MoveChaosCastleAllObject( o ) ) return;
+        {
+            vec3_t  Position, Light;
+
+            Vector ( 1.f, 1.f, 1.f, Light );
+            if ( o->Type==g_iActionObjectType || o->Type==9 || o->Type==10 )
+            {
+                if ( o->Type==9 )
+                {
+                    if ( g_iActionTime==0 )
+                    {
+                        o->HiddenMesh = -1;
+                        o->PKKey = 4;
+                    }
+                }
+                else if ( o->Type==10 )
+                {
+                    if ( g_iActionTime==0 )
+                    {
+                        o->HiddenMesh = -1;
+                        o->PKKey = 4;
+                    }
+                }
+                else if ( o->Type==g_iActionObjectType )
+                {
+                    if ( g_iActionTime==20 )
+                    {
+                        o->Angle[0] = 35.f;
+                        o->HiddenMesh = -1;
+
+                        PlayBuffer ( SOUND_DOWN_GATE );
+                    }
+
+                    if ( g_iActionTime>=0 )
+                    {
+                        o->Angle[0] += g_fActionObjectVelocity;
+                        g_fActionObjectVelocity += 1.5f;
+
+                        if ( o->Angle[0]>=90.f )
+                        {
+                            o->Angle[0] -= g_iActionTime;
+                            g_fActionObjectVelocity = 2.f;
+
+					        VectorCopy ( o->Position, Position );
+
+                            if ( o->Angle[0]==80 )
+                            {
+                                for ( int i=0; i<10; ++i )
+                                {
+                                    Position[0] = o->Position[0] + (rand()%300-150.f);
+                                    Position[1] = o->Position[1] - (rand()%20+600.f);
+                                    CreateParticle(BITMAP_SMOKE+1,Position,o->Angle,o->Light);
+                                }
+                            }
+                        }
+                        if ( g_iActionTime==0 )
+                        {
+                            o->HiddenMesh = -2;
+                            o->Angle[0] = 90.f;
+                            ClearActionObject ();
+
+                            AddTerrainAttributeRange ( 13, 70, 3, 6, TW_NOGROUND, false );
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+OBJECT *CollisionDetectObjects(OBJECT *PickObject)
+{
+	OBJECT *Object = NULL;
+	InitCollisionDetectLineToFace();
+	for(int i=0;i<16;i++)
 	{
-		if (MoveChaosCastleAllObject(o)) return;
-
-		vec3_t Position, Light;
-		Vector(1.0f, 1.0f, 1.0f, Light);
-
-		if (o->Type == g_iActionObjectType || o->Type == 9 || o->Type == 10)
+		for(int j=0;j<16;j++)
 		{
-			if (o->Type == 9 && g_iActionTime == 0)
+			OBJECT_BLOCK *ob = &ObjectBlock[i*16+j];
+			OBJECT       *o  = ob->Head;
+			while(1)
 			{
-				o->HiddenMesh = -1;
-				o->PKKey = 4;
-			}
-			else if (o->Type == 10 && g_iActionTime == 0)
-			{
-				o->HiddenMesh = -1;
-				o->PKKey = 4;
-			}
-			else if (o->Type == g_iActionObjectType)
-			{
-				if (g_iActionTime == 20)
+				if(o != NULL) 
 				{
-					o->Angle[0] = 35.0f;
-					o->HiddenMesh = -1;
-					PlayBuffer(SOUND_DOWN_GATE);
-				}
-
-				if (g_iActionTime >= 0)
-				{
-					o->Angle[0] += g_fActionObjectVelocity;
-					g_fActionObjectVelocity += 1.5f;
-
-					if (o->Angle[0] >= 90.0f)
+					if(o->Live && o->Visible && o->Alpha>=0.01f)
 					{
-						o->Angle[0] -= g_iActionTime;
-						g_fActionObjectVelocity = 2.0f;
-						VectorCopy(o->Position, Position);
-
-						if (o->Angle[0] == 80)
+						//if(o != PickObject)
 						{
-							for (int i = 0; i < 10; ++i)
+							BMD *b = &Models[o->Type];
+							b->BodyScale     = o->Scale;
+							b->CurrentAction = o->CurrentAction;
+							VectorCopy(o->Position,b->BodyOrigin);
+							b->Animation(BoneTransform,o->AnimationFrame,o->PriorAnimationFrame,o->PriorAction,o->Angle,o->HeadAngle,false,false);
+							b->Transform(BoneTransform,o->BoundingBoxMin,o->BoundingBoxMax,&o->OBB,true);
+							if(CollisionDetectLineToOBB(MousePosition,MouseTarget,o->OBB))
 							{
-								Position[0] = o->Position[0] + (rand() % 300 - 150.0f);
-								Position[1] = o->Position[1] - (rand() % 20 + 600.0f);
-								CreateParticle(BITMAP_SMOKE + 1, Position, o->Angle, o->Light);
+								if(b->CollisionDetectLineToMesh(MousePosition,MouseTarget))
+								{
+									Object = o;
+									//return Object;
+								}
 							}
 						}
 					}
-
-					if (g_iActionTime == 0)
-					{
-						o->HiddenMesh = -2;
-						o->Angle[0] = 90.0f;
-						ClearActionObject();
-						AddTerrainAttributeRange(13, 70, 3, 6, TW_NOGROUND, false);
-					}
+					if(o->Next == NULL) break;
+					o = o->Next;
 				}
+				else break;
 			}
 		}
 	}
-}
-
-OBJECT* CollisionDetectObjects(OBJECT* PickObject)
-{
-	OBJECT* Object = NULL;
-	InitCollisionDetectLineToFace();
-
-	for (int i = 0; i < 16; i++)
-	{
-		for (int j = 0; j < 16; j++)
-		{
-			OBJECT_BLOCK* ob = &ObjectBlock[i * 16 + j];
-			OBJECT* o = ob->Head;
-
-			while (o != NULL)
-			{
-				if (o->Live && o->Visible && o->Alpha >= 0.01f)
-				{
-					BMD* b = &Models[o->Type];
-					b->BodyScale = o->Scale;
-					b->CurrentAction = o->CurrentAction;
-					VectorCopy(o->Position, b->BodyOrigin);
-					b->Animation(BoneTransform, o->AnimationFrame, o->PriorAnimationFrame, o->PriorAction, o->Angle, o->HeadAngle, false, false);
-					b->Transform(BoneTransform, o->BoundingBoxMin, o->BoundingBoxMax, &o->OBB, true);
-
-					if (CollisionDetectLineToOBB(MousePosition, MouseTarget, o->OBB) && b->CollisionDetectLineToMesh(MousePosition, MouseTarget))
-					{
-						Object = o;
-						break;
-					}
-				}
-
-				o = o->Next;
-			}
-		}
-	}
-
 	return Object;
 }
 
-void BodyLight(OBJECT* o, BMD* b)
+void BodyLight(OBJECT *o,BMD *b)
 {
-	if (o->Type == MODEL_MONSTER01 + 55)
+	if ( o->Type == MODEL_MONSTER01+55)
 	{
-		Vector(0.6f, 0.6f, 0.6f, b->BodyLight);
+		Vector( .6f, .6f, .6f, b->BodyLight);
 		return;
 	}
+    if ( o->Type==MODEL_PROTECT )
+    {
+        float Luminosity = sinf( WorldTime*0.003f )*0.5f+0.5f;
+        Vector( Luminosity, Luminosity, Luminosity, b->BodyLight );
+        return;
+    }
 
-	if (o->Type == MODEL_PROTECT)
+	b->LightEnable    = o->LightEnable;
+	if(o->LightEnable)
 	{
-		float Luminosity = sinf(WorldTime * 0.003f) * 0.5f + 0.5f;
-		Vector(Luminosity, Luminosity, Luminosity, b->BodyLight);
-		return;
-	}
-
-	b->LightEnable = o->LightEnable;
-
-	vec3_t Light;
-	RequestTerrainLight(o->Position[0], o->Position[1], Light);
-
-	if (o->LightEnable)
-	{
-		VectorAdd(Light, o->Light, b->BodyLight);
+		vec3_t Light;
+		RequestTerrainLight(o->Position[0],o->Position[1],Light);
+		VectorAdd(Light,o->Light,b->BodyLight);
 	}
 	else
 	{
-		VectorScale(Light, 0.1f, Light);
-		VectorAdd(Light, o->Light, b->BodyLight);
+		vec3_t Light;
+		RequestTerrainLight(o->Position[0],o->Position[1],Light);
+		VectorScale(Light,0.1f,Light);
+		VectorAdd(Light,o->Light,b->BodyLight);
 	}
 }
 
 extern float BoneScale;
 
-bool Calc_RenderObject(OBJECT* o, bool Translate, int Select, int ExtraMon)
+bool Calc_RenderObject(OBJECT *o,bool Translate,int Select, int ExtraMon)
 {
-	if (gMapManager.InChaosCastle() && Hero->Object.m_bActionStart)
-	{
-		o->Alpha -= 0.15f;
-	}
+    if(gMapManager.InChaosCastle() == true && Hero->Object.m_bActionStart == true)
+    {
+        o->Alpha -= 0.15f;
+    }
 
-	if (o->Alpha < 0.01f)
+	if(o->Alpha < 0.01f)
 	{
 		return false;
 	}
-
-	BMD* b = &Models[o->Type];
+	
+	BMD *b = &Models[o->Type];
 	b->BodyHeight = 0.f;
 	b->ContrastEnable = o->ContrastEnable;
-	BodyLight(o, b);
+	BodyLight(o,b);
 	b->BodyScale = o->Scale;
 	b->CurrentAction = o->CurrentAction;
-	VectorCopy(o->Position, b->BodyOrigin);
+	VectorCopy(o->Position,b->BodyOrigin);
 
-	if (o->Type == MODEL_MONSTER01 + 61)
-	{
-		vec3_t Position;
-		VectorCopy(o->Position, Position);
-		Position[1] += 60.f;
-		VectorCopy(Position, b->BodyOrigin);
-	}
-	else if (o->Type == MODEL_MONSTER01 + 60)
-	{
-		vec3_t Position;
-		VectorCopy(o->Position, Position);
-		Position[1] += 120.f;
-		VectorCopy(Position, b->BodyOrigin);
-	}
+    if ( o->Type==MODEL_MONSTER01+61 )
+    {
+        vec3_t Position;
+		VectorCopy(o->Position,Position);
 
-	if (o->Owner != NULL)
+        Position[1] += 60.f;
+		VectorCopy(Position,b->BodyOrigin);
+    }
+    else if ( o->Type==MODEL_MONSTER01+60 )
+    {
+        vec3_t Position;
+		VectorCopy(o->Position,Position);
+
+        Position[1] += 120.f;
+		VectorCopy(Position,b->BodyOrigin);
+    }
+
+	if(o->Owner != NULL)
 	{
-		if (g_isCharacterBuff(o->Owner, eDeBuff_Stun) || g_isCharacterBuff(o->Owner, eDeBuff_Sleep))
+		if(g_isCharacterBuff(o->Owner, eDeBuff_Stun) || g_isCharacterBuff(o->Owner, eDeBuff_Sleep) )	
 		{
 			o->AnimationFrame = 0.f;
 		}
 	}
 
-	if (o->EnableBoneMatrix)
+	if(o->EnableBoneMatrix)
 	{
-		b->Animation(o->BoneTransform, o->AnimationFrame, o->PriorAnimationFrame, o->PriorAction, o->Angle, o->HeadAngle, false, !Translate);
+		b->Animation(o->BoneTransform,o->AnimationFrame,o->PriorAnimationFrame,o->PriorAction,o->Angle,o->HeadAngle,false,!Translate);
 	}
 	else
 	{
-		b->Animation(BoneTransform, o->AnimationFrame, o->PriorAnimationFrame, o->PriorAction, o->Angle, o->HeadAngle, false, !Translate);
+        b->Animation(BoneTransform,o->AnimationFrame,o->PriorAnimationFrame,o->PriorAction,o->Angle,o->HeadAngle,false,!Translate );
 	}
 
 	BoneScale = 1.f;
-	if (Select == 3)
+	if(3==Select)
 	{
 		BoneScale = 1.4f;
 	}
-	else if (Select == 2)
+	else if(2==Select)
 	{
 		BoneScale = 1.2f;
 	}
-	else if (Select == 1)
+	else if(1==Select)
 	{
-		b->LightEnable = false;
-
-		if (gMapManager.InChaosCastle() || o->Kind != KIND_NPC)
+      	b->LightEnable = false;
+			
+	    if(gMapManager.InChaosCastle() == true || o->Kind != KIND_NPC )
 		{
-			Vector(0.1f, 0.01f, 0.f, b->BodyLight);
-			if (o->Type == MODEL_MONSTER01 + 32)
+			Vector(0.1f,0.01f,0.f,b->BodyLight);
+			if(o->Type == MODEL_MONSTER01+32)
 			{
-				BoneScale = 1.2f;
+		     	BoneScale = 1.2f;
 			}
 			else
 			{
 				BoneScale = 1.f + (0.1f / o->Scale);
 			}
-			if (o->m_fEdgeScale != 1.2f)
-			{
-				BoneScale = o->m_fEdgeScale;
-			}
+	        if( o->m_fEdgeScale != 1.2f)
+	        {
+	            BoneScale = o->m_fEdgeScale;
+	        }
 		}
 		else
 		{
-			Vector(0.02f, 0.1f, 0.f, b->BodyLight);
+			Vector(0.02f,0.1f,0.f,b->BodyLight);
 			BoneScale = 1.2f;
-			BoneScale = o->m_fEdgeScale;
+	        BoneScale = o->m_fEdgeScale;
 		}
-
 		float Scale = BoneScale;
-		RenderPartObjectEdge(b, o, RENDER_BRIGHT, Translate, Scale);
-
-		if (gMapManager.InChaosCastle() || o->Kind != KIND_NPC)
+	    RenderPartObjectEdge(b, o, RENDER_BRIGHT, Translate, Scale);
+		
+	    if(gMapManager.InChaosCastle() == true || o->Kind != KIND_NPC)
 		{
-			Vector(0.7f, 0.07f, 0.f, b->BodyLight);
-			if (o->Type == MODEL_MONSTER01 + 32)
+			Vector(0.7f,0.07f,0.f,b->BodyLight);
+			if(o->Type == MODEL_MONSTER01+32)
 			{
-				BoneScale =
-
-					1.08f;
+		     	BoneScale = 1.08f;
 			}
 			else
 			{
-				BoneScale = 1.f + (0.04f / o->Scale);
+		     	BoneScale = 1.f + (0.04f / o->Scale);
 			}
-			if (o->m_fEdgeScale != 1.2f)
-			{
-				BoneScale = maxf(o->m_fEdgeScale - 0.04f, 1.01f);
-			}
+	        if(o->m_fEdgeScale != 1.2f)
+	        {
+	            BoneScale = maxf(o->m_fEdgeScale - 0.04f, 1.01f);
+	        }
 		}
 		else
 		{
-			Vector(0.16f, 0.7f, 0.f, b->BodyLight);
+			Vector(0.16f,0.7f,0.f,b->BodyLight);
 			BoneScale = 1.08f;
-			BoneScale = maxf(o->m_fEdgeScale - 0.12f, 1.01f);
+	        BoneScale = maxf(o->m_fEdgeScale - 0.12f, 1.01f);
 		}
 
-		Scale = BoneScale;
-		RenderPartObjectEdge(b, o, RENDER_BRIGHT, Translate, Scale);
-		BodyLight(o, b);
+	    Scale = BoneScale;
+	    RenderPartObjectEdge(b, o, RENDER_BRIGHT, Translate, Scale);
+		BodyLight(o,b);
 		BoneScale = 1.f;
 	}
 
-	if (o->EnableBoneMatrix)
+	if(o->EnableBoneMatrix)
 	{
-		b->Transform(o->BoneTransform, o->BoundingBoxMin, o->BoundingBoxMax, &o->OBB, Translate);
+		b->Transform(o->BoneTransform,o->BoundingBoxMin,o->BoundingBoxMax,&o->OBB,Translate);
 	}
 	else
 	{
-		b->Transform(BoneTransform, o->BoundingBoxMin, o->BoundingBoxMax, &o->OBB, Translate);
+		b->Transform(BoneTransform,o->BoundingBoxMin,o->BoundingBoxMax,&o->OBB,Translate);
 	}
 
 	return true;
 }
 
-bool Calc_ObjectAnimation(OBJECT* o, bool Translate, int Select)
+bool Calc_ObjectAnimation ( OBJECT* o, bool Translate, int Select )
 {
-	if (gMapManager.InChaosCastle() && Hero->Object.m_bActionStart)
-	{
-		o->Alpha -= 0.15f;
-	}
+    if ( gMapManager.InChaosCastle()==true && Hero->Object.m_bActionStart )
+    {
+        o->Alpha -= 0.15f;
+    }
 
-	if (o->Alpha < 0.01f)
-		return false;
-
-	BMD* b = &Models[o->Type];
-	b->BodyHeight = 0.f;
+	if(o->Alpha < 0.01f) return false;
+	
+	BMD *b = &Models[o->Type];
+	b->BodyHeight     = 0.f;
 	b->ContrastEnable = o->ContrastEnable;
-	BodyLight(o, b);
-	b->BodyScale = o->Scale;
+	BodyLight(o,b);
+	b->BodyScale     = o->Scale;
 	b->CurrentAction = o->CurrentAction;
-	VectorCopy(o->Position, b->BodyOrigin);
+	VectorCopy(o->Position,b->BodyOrigin);
 
-	if (o->EnableBoneMatrix)
+	if ( o->EnableBoneMatrix )
 	{
-		b->Animation(o->BoneTransform, o->AnimationFrame, o->PriorAnimationFrame, o->PriorAction, o->Angle, o->HeadAngle, false, !Translate);
+		b->Animation ( o->BoneTransform, o->AnimationFrame, o->PriorAnimationFrame, o->PriorAction, o->Angle, o->HeadAngle, false, !Translate );
 	}
 	else
 	{
-		b->Animation(BoneTransform, o->AnimationFrame, o->PriorAnimationFrame, o->PriorAction, o->Angle, o->HeadAngle, false, !Translate);
+        b->Animation ( BoneTransform, o->AnimationFrame, o->PriorAnimationFrame, o->PriorAction, o->Angle, o->HeadAngle, false, !Translate );
 	}
-
 	return true;
 }
 
@@ -395,43 +407,48 @@ void Draw_RenderObject(OBJECT *o,bool Translate,int Select, int ExtraMon)
 		{
 			float Alpha = 0.5f;
 
-			for (int i = 0; i < MAX_CHARACTERS_CLIENT; ++i)
+			for ( int i=0; i<MAX_CHARACTERS_CLIENT; ++i )
 			{
-				CHARACTER* c = &CharactersClient[i];
-				OBJECT* oa = &c->Object;
-				OBJECT* ob = o->Owner;
+				CHARACTER *c = &CharactersClient[i];
+				OBJECT *oa = &c->Object;
+				OBJECT *ob = o->Owner;
+				
 
-				if (oa == ob)
+				if(oa == ob)
 				{
-					if (c != Hero && battleCastle::IsBattleCastleStart() == true && g_isCharacterBuff(ob, eBuff_Cloaking))
+					if ( c!=Hero && battleCastle::IsBattleCastleStart()==true && g_isCharacterBuff(ob, eBuff_Cloaking) )
 					{
-						if (Hero->EtcPart == PARTS_ATTACK_KING_TEAM_MARK || Hero->EtcPart == PARTS_ATTACK_TEAM_MARK)
+
+						if ( Hero->EtcPart==PARTS_ATTACK_KING_TEAM_MARK || Hero->EtcPart==PARTS_ATTACK_TEAM_MARK )
 						{
-							if (!(c->EtcPart == PARTS_ATTACK_KING_TEAM_MARK || c->EtcPart == PARTS_ATTACK_TEAM_MARK))
+							if(!( c->EtcPart==PARTS_ATTACK_KING_TEAM_MARK || c->EtcPart==PARTS_ATTACK_TEAM_MARK ))
 							{
 								View = false;
 								break;
 							}
 						}
-						else if (Hero->EtcPart == PARTS_ATTACK_KING_TEAM_MARK2 || Hero->EtcPart == PARTS_ATTACK_TEAM_MARK2)
+						else
+						if ( Hero->EtcPart==PARTS_ATTACK_KING_TEAM_MARK2 || Hero->EtcPart==PARTS_ATTACK_TEAM_MARK2 )
 						{
-							if (!(c->EtcPart == PARTS_ATTACK_KING_TEAM_MARK2 || c->EtcPart == PARTS_ATTACK_TEAM_MARK2))
+							if(!( c->EtcPart==PARTS_ATTACK_KING_TEAM_MARK2 || c->EtcPart==PARTS_ATTACK_TEAM_MARK2 ))
 							{
 								View = false;
 								break;
 							}
 						}
-						else if (Hero->EtcPart == PARTS_ATTACK_KING_TEAM_MARK3 || Hero->EtcPart == PARTS_ATTACK_TEAM_MARK3)
+						else
+						if ( Hero->EtcPart==PARTS_ATTACK_KING_TEAM_MARK3 || Hero->EtcPart==PARTS_ATTACK_TEAM_MARK3 )
 						{
-							if (!(c->EtcPart == PARTS_ATTACK_KING_TEAM_MARK3 || c->EtcPart == PARTS_ATTACK_TEAM_MARK3))
+							if(!( c->EtcPart==PARTS_ATTACK_KING_TEAM_MARK3 || c->EtcPart==PARTS_ATTACK_TEAM_MARK3 ))
 							{
 								View = false;
 								break;
 							}
 						}
-						else if (Hero->EtcPart == PARTS_DEFENSE_KING_TEAM_MARK || Hero->EtcPart == PARTS_DEFENSE_TEAM_MARK)
+						else
+						if ( Hero->EtcPart==PARTS_DEFENSE_KING_TEAM_MARK || Hero->EtcPart==PARTS_DEFENSE_TEAM_MARK )
 						{
-							if (!(c->EtcPart == PARTS_DEFENSE_KING_TEAM_MARK || c->EtcPart == PARTS_DEFENSE_TEAM_MARK))
+							if(!( c->EtcPart==PARTS_DEFENSE_KING_TEAM_MARK || c->EtcPart==PARTS_DEFENSE_TEAM_MARK ))
 							{
 								View = false;
 								break;
@@ -497,6 +514,8 @@ void Draw_RenderObject(OBJECT *o,bool Translate,int Select, int ExtraMon)
 		}
 		else if (o->Type == MODEL_SUMMON)
 		{
+//			Vector(0.4f,0.5f,1.f,b->BodyLight);
+//			b->RenderBody(RENDER_TEXTURE,o->Alpha,o->BlendMesh,o->BlendMeshLight,o->BlendMeshTexCoordU,o->BlendMeshTexCoordV);
 			if(!M39Kanturu3rd::IsInKanturu3rd())
 			{
 				VectorCopy ( o->Light,b->BodyLight )
@@ -747,15 +766,15 @@ void Draw_RenderObject(OBJECT *o,bool Translate,int Select, int ExtraMon)
         else if ( o->Type==MODEL_DARK_HORSE )
         {
 			Vector(1.f,1.f,1.f,b->BodyLight);
-			b->RenderBody(RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
+			b->RenderBody(RENDER_TEXTURE,o->Alpha,o->BlendMesh,o->BlendMeshLight,o->BlendMeshTexCoordU,o->BlendMeshTexCoordV,o->HiddenMesh);
 
 			Vector(1.f,0.8f,0.3f,b->BodyLight);
-			b->RenderMesh(12, RENDER_CHROME | RENDER_BRIGHT, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
-			b->RenderMesh(13, RENDER_CHROME | RENDER_BRIGHT, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
-			b->RenderMesh(14, RENDER_CHROME | RENDER_BRIGHT, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
-			b->RenderMesh(15, RENDER_CHROME | RENDER_BRIGHT, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV, o->HiddenMesh);
+			b->RenderMesh(12, RENDER_CHROME|RENDER_BRIGHT,o->Alpha,o->BlendMesh,o->BlendMeshLight,o->BlendMeshTexCoordU,o->BlendMeshTexCoordV,o->HiddenMesh);
+			b->RenderMesh(13, RENDER_CHROME|RENDER_BRIGHT,o->Alpha,o->BlendMesh,o->BlendMeshLight,o->BlendMeshTexCoordU,o->BlendMeshTexCoordV,o->HiddenMesh);
+			b->RenderMesh(14, RENDER_CHROME|RENDER_BRIGHT,o->Alpha,o->BlendMesh,o->BlendMeshLight,o->BlendMeshTexCoordU,o->BlendMeshTexCoordV,o->HiddenMesh);
+			b->RenderMesh(15, RENDER_CHROME|RENDER_BRIGHT,o->Alpha,o->BlendMesh,o->BlendMeshLight,o->BlendMeshTexCoordU,o->BlendMeshTexCoordV,o->HiddenMesh);
 
-			if (gMapManager.WorldActive != WD_10HEAVEN && !gMapManager.InHellas() && !g_Direction.m_CKanturu.IsMayaScene())
+			if ( gMapManager.WorldActive != WD_10HEAVEN && gMapManager.InHellas()==false )
 			{
 				if(!g_Direction.m_CKanturu.IsMayaScene())
 				{
@@ -773,10 +792,10 @@ void Draw_RenderObject(OBJECT *o,bool Translate,int Select, int ExtraMon)
 				}
 			}
         }
-		else if (o->Type == MODEL_FENRIR_BLACK || o->Type == MODEL_FENRIR_BLUE || o->Type == MODEL_FENRIR_RED || o->Type == MODEL_FENRIR_GOLD) 
+		else if(o->Type == MODEL_FENRIR_BLACK || o->Type == MODEL_FENRIR_BLUE || o->Type == MODEL_FENRIR_RED || o->Type == MODEL_FENRIR_GOLD)
 		{
 			vec3_t vLight, vPos, vPosition;
-			float fLuminosity = sinf(WorldTime * 0.002f) * 0.2f;
+			float fLuminosity = (float)sinf((WorldTime)*0.002f)*0.2f;
 
 			b->BeginRender(1.f);
 
@@ -784,18 +803,20 @@ void Draw_RenderObject(OBJECT *o,bool Translate,int Select, int ExtraMon)
 			b->BodyLight[1] = 1.0f;
 			b->BodyLight[2] = 1.0f;
 
-			if (o->Type == MODEL_FENRIR_GOLD) {
+			if(o->Type == MODEL_FENRIR_GOLD)
+			{
 				b->StreamMesh = 0;
 
-				b->RenderMesh(0, RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
-				b->RenderMesh(0, RENDER_TEXTURE | RENDER_BRIGHT | RENDER_CHROME, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
-				b->RenderMesh(1, RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
+				b->RenderMesh ( 0, RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV );
+				b->RenderMesh ( 0, RENDER_TEXTURE|RENDER_BRIGHT|RENDER_CHROME, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
+				b->RenderMesh ( 1, RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV );
 
-				if (o->CurrentAction == FENRIR_ATTACK_SKILL) {
-					Vector(1.0f, 0.0f, 0.0f, vLight);
-					Vector((float)(rand() % 10 - 10) * 0.5f, 0.f, (float)(rand() % 40 - 20) * 0.5f, vPos);
-					b->TransformPosition(BoneTransform[14], vPos, vPosition, false);
-					CreateParticle(BITMAP_SPARK + 1, vPosition, o->Angle, vLight, 15, 0.7f + (fLuminosity * 0.05f));
+				if(o->CurrentAction == FENRIR_ATTACK_SKILL)
+				{
+					Vector ( 1.0f, 0.0f, 0.0f, vLight );
+					Vector ( (float)(rand()%10-10)*0.5f, 0.f, (float)(rand()%40-20)*0.5f, vPos );
+					b->TransformPosition ( BoneTransform[14], vPos, vPosition, false );
+					CreateParticle(BITMAP_SPARK+1, vPosition, o->Angle, vLight, 15, 0.7f+(fLuminosity*0.05f));
 				}
 
 				b->StreamMesh = -1;
@@ -804,70 +825,77 @@ void Draw_RenderObject(OBJECT *o,bool Translate,int Select, int ExtraMon)
 			{
 				b->StreamMesh = 0;
 
-				b->RenderMesh(0, RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
-				b->RenderMesh(1, RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
-				b->RenderMesh(1, RENDER_TEXTURE | RENDER_BRIGHT | RENDER_CHROME, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
+				b->RenderMesh ( 0, RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV );
+				b->RenderMesh ( 1, RENDER_TEXTURE, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV );
+				b->RenderMesh ( 1, RENDER_TEXTURE | RENDER_BRIGHT | RENDER_CHROME, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV );
 
-				if (o->CurrentAction == FENRIR_ATTACK_SKILL)
+				if(o->CurrentAction == FENRIR_ATTACK_SKILL)
 				{
 					b->BodyLight[0] = 1.0f;
 					b->BodyLight[1] = 1.0f;
 					b->BodyLight[2] = 1.0f;
 
-					b->RenderMesh(1, RENDER_TEXTURE | RENDER_BRIGHT | RENDER_CHROME, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
+					b->RenderMesh ( 1, RENDER_TEXTURE|RENDER_BRIGHT|RENDER_CHROME, o->Alpha, o->BlendMesh, o->BlendMeshLight, o->BlendMeshTexCoordU, o->BlendMeshTexCoordV);
 
-					Vector(1.0f, 0.0f, 0.0f, vLight);
-					Vector((float)(rand() % 10 - 10) * 0.5f, 0.f, (float)(rand() % 40 - 20) * 0.5f, vPos);
-					b->TransformPosition(BoneTransform[14], vPos, vPosition, false);
-					CreateParticle(BITMAP_SPARK + 1, vPosition, o->Angle, vLight, 15, 0.7f + (fLuminosity * 0.05f));
+					Vector ( 1.0f, 0.0f, 0.0f, vLight );
+					Vector ( (float)(rand()%10-10)*0.5f, 0.f, (float)(rand()%40-20)*0.5f, vPos );
+					b->TransformPosition ( BoneTransform[14], vPos, vPosition, false );	// ен
+					CreateParticle(BITMAP_SPARK+1, vPosition, o->Angle, vLight, 15, 0.7f+(fLuminosity*0.05f));
 				}
 				b->StreamMesh = -1;
 			}
 
 			b->EndRender();
 			
-			if (gMapManager.WorldActive != WD_10HEAVEN && gMapManager.InHellas() == FALSE) {
-				if (!g_Direction.m_CKanturu.IsMayaScene()) {
+			if (gMapManager.WorldActive != WD_10HEAVEN && gMapManager.InHellas() == FALSE)
+			{
+				if(!g_Direction.m_CKanturu.IsMayaScene())
+				{
 					EnableAlphaTest();
 
-					if (gMapManager.WorldActive == WD_7ATLANSE) {
-						glColor4f(0.f, 0.f, 0.f, 0.2f);
+					if ( gMapManager.WorldActive==WD_7ATLANSE )
+					{
+						glColor4f(0.f,0.f,0.f,0.2f);
 					}
-					else {
-						glColor4f(0.f, 0.f, 0.f, 0.7f);
+					else
+					{
+   						glColor4f(0.f,0.f,0.f,0.7f);
 					}
 
 					b->RenderBodyShadow();
 				}
 			}
 
-			Vector(0.9f + fLuminosity, 0.2f + (fLuminosity * 0.5f), 0.1f + (fLuminosity * 0.5f), vLight);
-			Vector(50.f, 2.f, 11.f, vPos);
-			b->TransformPosition(BoneTransform[11], vPos, vPosition, false);
-			CreateSprite(BITMAP_LIGHT, vPosition, 0.5f + (fLuminosity * 0.1f), vLight, o);
-			CreateSprite(BITMAP_LIGHT, vPosition, 0.5f + (fLuminosity * 0.1f), vLight, o);
-			Vector(50.f, 2.f, -11.f, vPos);
-			b->TransformPosition(BoneTransform[11], vPos, vPosition, false);
-			CreateSprite(BITMAP_LIGHT, vPosition, 0.5f + (fLuminosity * 0.1f), vLight, o);
-			CreateSprite(BITMAP_LIGHT, vPosition, 0.5f + (fLuminosity * 0.1f), vLight, o);
+			Vector ( 0.9f+fLuminosity, 0.2f+(fLuminosity*0.5f), 0.1f+(fLuminosity*0.5f), vLight );
+			Vector ( 50.f, 2.f, 11.f, vPos );
+			b->TransformPosition ( BoneTransform[11], vPos, vPosition, false );
+			CreateSprite ( BITMAP_LIGHT, vPosition, 0.5f+(fLuminosity*0.1f), vLight, o);
+			CreateSprite ( BITMAP_LIGHT, vPosition, 0.5f+(fLuminosity*0.1f), vLight, o);
+			Vector ( 50.f, 2.f, -11.f, vPos );
+			b->TransformPosition ( BoneTransform[11], vPos, vPosition, false );
+			CreateSprite ( BITMAP_LIGHT, vPosition, 0.5f+(fLuminosity*0.1f), vLight, o);
+			CreateSprite ( BITMAP_LIGHT, vPosition, 0.5f+(fLuminosity*0.1f), vLight, o);
 
-			Vector(1.0f, 0.3f, 0.2f, vLight);
-			Vector(40.f, 15.f, 0.f, vPos);
-			b->TransformPosition(BoneTransform[13], vPos, vPosition, false);
-			CreateSprite(BITMAP_LIGHT, vPosition, 1.5f, vLight, o);
-			CreateSprite(BITMAP_LIGHT, vPosition, 1.0f, vLight, o);
+			Vector ( 1.0f, 0.3f, 0.2f, vLight );
+			Vector ( 40.f, 15.f, 0.f, vPos );
+			b->TransformPosition ( BoneTransform[13], vPos, vPosition, false );
+			CreateSprite ( BITMAP_LIGHT, vPosition, 1.5f, vLight, o);
+			CreateSprite ( BITMAP_LIGHT, vPosition, 1.0f, vLight, o);
 
 			int iSubType = 0;
-			if (o->Type == MODEL_FENRIR_RED) {
-				Vector(0.8f, 0.0f, 0.0f, vLight);
+			if(o->Type == MODEL_FENRIR_RED)
+			{
+				Vector ( 0.8f, 0.0f, 0.0f, vLight );
 				iSubType = 1;
 			}
-			else if (o->Type == MODEL_FENRIR_BLUE) {
-				Vector(0.1f, 0.1f, 0.8f, vLight);
+			else if(o->Type == MODEL_FENRIR_BLUE)
+			{
+				Vector ( 0.1f, 0.1f, 0.8f, vLight );
 				iSubType = 2;
 			}
-			else if (o->Type == MODEL_FENRIR_GOLD) {
-				Vector(0.8f, 0.8f, 0.1f, vLight);
+			else if(o->Type == MODEL_FENRIR_GOLD)
+			{
+				Vector ( 0.8f, 0.8f, 0.1f, vLight );
 				iSubType = 4;
 			}
 			else 
@@ -879,44 +907,44 @@ void Draw_RenderObject(OBJECT *o,bool Translate,int Select, int ExtraMon)
 			CreateEffect(MODEL_FENRIR_THUNDER, o->Position, o->Angle, vLight, 0, o);
 
 			Vector(1.0f, 1.0f, 1.0f, vLight);
-			if (o->CurrentAction == FENRIR_WALK) 
+			if(o->CurrentAction == FENRIR_WALK)
 			{
-				if (o->AnimationFrame >= 0.0f && o->AnimationFrame <= 1.5f) 
+				if(o->AnimationFrame >= 0.0f && o->AnimationFrame <= 1.5f)
 				{
 					Vector(0.0f, 0.0f, 0.0f, vPos);
-					b->TransformPosition(BoneTransform[22], vPos, vPosition, false);
+					b->TransformPosition ( BoneTransform[22], vPos, vPosition, false );
 					CreateEffect(MODEL_FENRIR_FOOT_THUNDER, vPosition, o->Angle, vLight, iSubType, o);
-
 					Vector(0.0f, 0.0f, 0.0f, vPos);
-					b->TransformPosition(BoneTransform[28], vPos, vPosition, false);
+					b->TransformPosition ( BoneTransform[28], vPos, vPosition, false );
 					CreateEffect(MODEL_FENRIR_FOOT_THUNDER, vPosition, o->Angle, vLight, iSubType, o);
-
 					Vector(0.0f, 0.0f, 0.0f, vPos);
-					b->TransformPosition(BoneTransform[36], vPos, vPosition, false);
+					b->TransformPosition ( BoneTransform[36], vPos, vPosition, false );
 					CreateEffect(MODEL_FENRIR_FOOT_THUNDER, vPosition, o->Angle, vLight, iSubType, o);
-
 					Vector(0.0f, 0.0f, 0.0f, vPos);
-					b->TransformPosition(BoneTransform[44], vPos, vPosition, false);
+					b->TransformPosition ( BoneTransform[44], vPos, vPosition, false );
 					CreateEffect(MODEL_FENRIR_FOOT_THUNDER, vPosition, o->Angle, vLight, iSubType, o);
 				}
 			}
-			else if (o->CurrentAction == FENRIR_RUN) {
-				if (o->AnimationFrame > 1.0f && o->AnimationFrame <= 1.4f) {
+			else if(o->CurrentAction == FENRIR_RUN)
+			{
+				if ( o->AnimationFrame>1.f && o->AnimationFrame<=1.4f )
+                {
 					Vector(0.0f, 0.0f, 0.0f, vPos);
-					b->TransformPosition(BoneTransform[22], vPos, vPosition, false);
+					b->TransformPosition ( BoneTransform[22], vPos, vPosition, false );
 					CreateEffect(MODEL_FENRIR_FOOT_THUNDER, vPosition, o->Angle, vLight, iSubType, o);
 					Vector(0.0f, 0.0f, 0.0f, vPos);
-					b->TransformPosition(BoneTransform[28], vPos, vPosition, false);
+					b->TransformPosition ( BoneTransform[28], vPos, vPosition, false );
 					CreateEffect(MODEL_FENRIR_FOOT_THUNDER, vPosition, o->Angle, vLight, iSubType, o);
-				}
-				else if (o->AnimationFrame > 4.8f && o->AnimationFrame <= 5.2f) {
+                }
+                else if ( o->AnimationFrame>4.8f && o->AnimationFrame<=5.2f )
+                {
+                    Vector(0.0f, 0.0f, 0.0f, vPos);
+					b->TransformPosition ( BoneTransform[36], vPos, vPosition, false );
+					CreateEffect(MODEL_FENRIR_FOOT_THUNDER, vPosition, o->Angle, vLight, iSubType, o);
 					Vector(0.0f, 0.0f, 0.0f, vPos);
-					b->TransformPosition(BoneTransform[36], vPos, vPosition, false);
+					b->TransformPosition ( BoneTransform[44], vPos, vPosition, false );
 					CreateEffect(MODEL_FENRIR_FOOT_THUNDER, vPosition, o->Angle, vLight, iSubType, o);
-					Vector(0.0f, 0.0f, 0.0f, vPos);
-					b->TransformPosition(BoneTransform[44], vPos, vPosition, false);
-					CreateEffect(MODEL_FENRIR_FOOT_THUNDER, vPosition, o->Angle, vLight, iSubType, o);
-				}
+                }
 			}
 		}
 		else if ( o->Type >= MODEL_FACE && 
