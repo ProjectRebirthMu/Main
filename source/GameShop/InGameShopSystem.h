@@ -68,9 +68,7 @@ public:
 public:
 	static CInGameShopSystem* GetInstance();
 
- 	void Initalize();
-// 	bool Update();
-// 	bool Render();
+ 	void Initialize();
  	void Release();
 
 	void SetScriptVersion(int iSalesZone, int iYear, int iYearId);
@@ -207,7 +205,7 @@ protected:
 
 	bool					m_bIsRequestEventPackage;
 
-	bool					m_bIsRequestShopOpenning;
+	bool					m_bIsRequestShopOpening;
 
 	bool					m_bSelectEventCategory;
 	bool					m_bAbleRequestEventPackage;

@@ -1,5 +1,6 @@
 //*****************************************************************************
 // File: Button.cpp
+// Revised: 10/07/23
 //*****************************************************************************
 
 #include "stdafx.h"
@@ -17,12 +18,10 @@
 extern float g_fScreenRate_x;
 extern float g_fScreenRate_y;
 
-CButton*	CButton::m_pBtnHeld;
+CButton* CButton::m_pBtnHeld = nullptr;
 
-CButton::CButton() : m_szText(NULL), m_adwTextColorMap(NULL)
-{
-
-}
+CButton::CButton() : m_szText(nullptr), m_adwTextColorMap(nullptr)
+{}
 
 CButton::~CButton()
 {
@@ -34,7 +33,7 @@ void CButton::Release()
 	ReleaseText();
 }
 
-void CButton::Create(int nWidth, int nHeight, int nTexID, int nMaxFrame,int nDownFrame, int nActiveFrame, int nDisableFrame,int nCheckUpFrame, int nCheckDownFrame, int nCheckActiveFrame, int nCheckDisableFrame)
+void CButton::Create(int nWidth, int nHeight, int nTexID, int nMaxFrame, int nDownFrame, int nActiveFrame, int nDisableFrame, int nCheckUpFrame, int nCheckDownFrame, int nCheckActiveFrame, int nCheckDisableFrame)
 {
 	Release();
 
@@ -47,18 +46,18 @@ void CButton::Create(int nWidth, int nHeight, int nTexID, int nMaxFrame,int nDow
 
 	CSprite::Create(nWidth, nHeight, nTexID, nMaxFrame, aFrameCoord);
 
-	delete [] aFrameCoord;
+	delete[] aFrameCoord;
 
 	CSprite::SetAction(0, nMaxFrame - 1);
 
 	m_anImgMap[BTN_UP] = 0;
-	m_anImgMap[BTN_DOWN] = nDownFrame > -1 ? nDownFrame : 0;
-	m_anImgMap[BTN_ACTIVE] = nActiveFrame > -1 ? nActiveFrame : 0;
+	m_anImgMap[BTN_DOWN] = (nDownFrame > -1) ? nDownFrame : 0;
+	m_anImgMap[BTN_ACTIVE] = (nActiveFrame > -1) ? nActiveFrame : 0;
 	m_anImgMap[BTN_DISABLE] = nDisableFrame;
 
 	m_anImgMap[BTN_UP_CHECK] = nCheckUpFrame;
-	m_anImgMap[BTN_DOWN_CHECK] = nCheckDownFrame > -1 ? nCheckDownFrame : m_anImgMap[BTN_UP_CHECK];
-	m_anImgMap[BTN_ACTIVE_CHECK] = nCheckActiveFrame > -1 ? nCheckActiveFrame : m_anImgMap[BTN_UP_CHECK];
+	m_anImgMap[BTN_DOWN_CHECK] = (nCheckDownFrame > -1) ? nCheckDownFrame : m_anImgMap[BTN_UP_CHECK];
+	m_anImgMap[BTN_ACTIVE_CHECK] = (nCheckActiveFrame > -1) ? nCheckActiveFrame : m_anImgMap[BTN_UP_CHECK];
 	m_anImgMap[BTN_DISABLE_CHECK] = nCheckDisableFrame;
 
 	m_bClick = m_bCheck = false;
@@ -69,13 +68,16 @@ void CButton::Show(bool bShow)
 {
 	CSprite::Show(bShow);
 	if (!bShow)
+	{
 		m_bClick = false;
+		m_bCheck = false;
+	}
 }
 
-BOOL CButton::CursorInObject()
+bool CButton::CursorInObject()
 {
 	if (!m_bActive)
-		return FALSE;
+		return false;
 
 	return CSprite::CursorInObject();
 }
@@ -89,30 +91,31 @@ void CButton::Update()
 
 	m_fTextAddYPos = 0.5f;
 
-	if (m_bEnable/* && m_bActive*/)
+	if (m_bEnable)
 	{
 		if (CursorInObject() && rInput.IsLBtnDn())
 			m_pBtnHeld = this;
 
 		m_bClick = false;
 
-		if(rInput.IsLBtnUp())
+		if (rInput.IsLBtnUp())
 		{
-			if(CursorInObject() && this == m_pBtnHeld)
+			if (CursorInObject() && this == m_pBtnHeld)
 			{
 				m_bClick = true;
 
 				::PlayBuffer(SOUND_CLICK01);
 
-				if(-1 < m_anImgMap[BTN_UP_CHECK])
+				if (-1 < m_anImgMap[BTN_UP_CHECK])
 					m_bCheck = !m_bCheck;
 			}
 
-			if(this == m_pBtnHeld)
+			if (this == m_pBtnHeld)
 				m_pBtnHeld = NULL;
 		}
 
 		if (CursorInObject() && NULL == m_pBtnHeld)
+		{
 			if (m_bCheck)
 			{
 				CSprite::SetNowFrame(m_anImgMap[BTN_ACTIVE_CHECK]);
@@ -125,6 +128,7 @@ void CButton::Update()
 				if (NULL != m_szText)
 					m_dwTextColor = m_adwTextColorMap[BTN_ACTIVE];
 			}
+		}
 		else if (CursorInObject() && this == m_pBtnHeld)
 		{
 			m_fTextAddYPos = 1.5f;
@@ -143,6 +147,7 @@ void CButton::Update()
 			}
 		}
 		else
+		{
 			if (m_bCheck)
 			{
 				CSprite::SetNowFrame(m_anImgMap[BTN_UP_CHECK]);
@@ -155,6 +160,7 @@ void CButton::Update()
 				if (NULL != m_szText)
 					m_dwTextColor = m_adwTextColorMap[BTN_UP];
 			}
+		}
 	}
 	else
 	{
@@ -175,8 +181,6 @@ void CButton::Update()
 				m_dwTextColor = m_adwTextColorMap[BTN_DISABLE];
 		}
 	}
-
-//	CSprite::Update(dDeltaTick);	// ¹öÆ° Animation.
 }
 
 void CButton::Render()
@@ -206,24 +210,28 @@ void CButton::Render()
 
 	float fTextRelativeYPos = ((CSprite::GetHeight() - size.cy) / 2.0f);
 
-	g_pRenderText->RenderText(int(CSprite::GetXPos() / g_fScreenRate_x),int(((float)CSprite::GetYPos() + fTextRelativeYPos) / g_fScreenRate_y + m_fTextAddYPos), m_szText, CSprite::GetWidth() / g_fScreenRate_x, 0, RT3_SORT_CENTER);
+	g_pRenderText->RenderText(int(CSprite::GetXPos() / g_fScreenRate_x), int(((float)CSprite::GetYPos() + fTextRelativeYPos) / g_fScreenRate_y + m_fTextAddYPos), m_szText, CSprite::GetWidth() / g_fScreenRate_x, 0, RT3_SORT_CENTER);
 }
 
 void CButton::ReleaseText()
 {
-	SAFE_DELETE_ARRAY(m_szText);
-	SAFE_DELETE_ARRAY(m_adwTextColorMap);
+	delete[] m_szText;
+	m_szText = NULL;
+
+	delete[] m_adwTextColorMap;
+	m_adwTextColorMap = NULL;
 }
 
 void CButton::SetText(const char* pszText, DWORD* adwColor)
 {
 	ReleaseText();
 
-	m_szText = new char[::strlen(pszText) + 1];
-	::strcpy(m_szText, pszText);
+	size_t textLength = strlen(pszText);
+	m_szText = new char[textLength + 1];
+	strcpy_s(m_szText, textLength + 1, pszText);
 
-	int nTextColor = -1 < m_anImgMap[BTN_UP_CHECK] ? BTN_IMG_MAX : BTN_IMG_MAX / 2;
+	int nTextColor = (m_anImgMap[BTN_UP_CHECK] >= 0) ? BTN_IMG_MAX : BTN_IMG_MAX / 2;
 
 	m_adwTextColorMap = new DWORD[nTextColor];
-	::memcpy(m_adwTextColorMap, adwColor, sizeof(DWORD) * nTextColor);
+	memcpy(m_adwTextColorMap, adwColor, sizeof(DWORD) * nTextColor);
 }

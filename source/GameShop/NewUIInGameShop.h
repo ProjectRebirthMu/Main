@@ -205,7 +205,7 @@ namespace SEASON3B
 		void StorageNextPage();
 		void UpdateStorageItemList();
 		
-		void InitBanner(unicode::t_char* pszFileName, unicode::t_char* pszBannerURL);
+		void InitBanner(const unicode::t_char* pszFileName, const unicode::t_char* pszBannerURL);
 		void ReleaseBanner();
 		
 		void SetRateScale(int _ItemType);

@@ -79,7 +79,7 @@ void BindTextureStream(int tex);
 void EndTextureStream();
 void BeginOpengl(int x=0,int y=0,int Width=640,int Height=480);
 void EndOpengl();
-void UpdateMousePositionn();
+void UpdateMousePosition();
 extern inline void TEXCOORD(float *c,float u,float v);
 void RenderBox(float Matrix[3][4]);
 void RenderPlane3D(float Width,float Height,float Matrix[3][4]);

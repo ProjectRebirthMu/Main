@@ -651,7 +651,7 @@ void EndOpengl()
 	glPopMatrix();
 }
 
-void UpdateMousePositionn()
+void UpdateMousePosition()
 {
 	vec3_t vPos;
 

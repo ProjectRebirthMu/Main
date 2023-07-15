@@ -126,7 +126,7 @@ namespace SEASON3B
 		RenderItem3D(x, y, width, height, m_CoinItem->Type, m_CoinItem->Level, 0, 0, true);
 		SetItemRotation(false);
 		
-		UpdateMousePositionn();
+		UpdateMousePosition();
 		
 		glMatrixMode(GL_MODELVIEW);
 		glPopMatrix();

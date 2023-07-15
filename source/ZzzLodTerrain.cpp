@@ -1,6 +1,6 @@
-///////////////////////////////////////////////////////////////////////////////
-// Terrain 관련 함수
-///////////////////////////////////////////////////////////////////////////////
+// Revisado: 14/07/23 17:50 GMT-3
+// By: Qubit
+//////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include <gl\gl.h>
@@ -36,30 +36,29 @@ bool ActiveTerrain      = false;
 bool TerrainGrassEnable = true;
 bool DetailLowEnable    = false;
 
-char            LodBuffer[64*64];
-vec3_t          TerrainNormal[TERRAIN_SIZE*TERRAIN_SIZE];
-vec3_t          PrimaryTerrainLight[TERRAIN_SIZE*TERRAIN_SIZE];
-vec3_t          BackTerrainLight[TERRAIN_SIZE*TERRAIN_SIZE];
-vec3_t          TerrainLight[TERRAIN_SIZE*TERRAIN_SIZE];
-float           PrimaryTerrainHeight[TERRAIN_SIZE*TERRAIN_SIZE];
-float           BackTerrainHeight[TERRAIN_SIZE*TERRAIN_SIZE];
-unsigned char   TerrainMappingLayer1[TERRAIN_SIZE*TERRAIN_SIZE];
-unsigned char   TerrainMappingLayer2[TERRAIN_SIZE*TERRAIN_SIZE];
-float           TerrainMappingAlpha[TERRAIN_SIZE*TERRAIN_SIZE];
-float           TerrainGrassTexture[TERRAIN_SIZE*TERRAIN_SIZE];
-float           TerrainGrassWind[TERRAIN_SIZE*TERRAIN_SIZE];
+char LodBuffer[64*64];
+vec3_t TerrainNormal[TERRAIN_SIZE*TERRAIN_SIZE];
+vec3_t PrimaryTerrainLight[TERRAIN_SIZE*TERRAIN_SIZE];
+vec3_t BackTerrainLight[TERRAIN_SIZE*TERRAIN_SIZE];
+vec3_t TerrainLight[TERRAIN_SIZE*TERRAIN_SIZE];
+float PrimaryTerrainHeight[TERRAIN_SIZE*TERRAIN_SIZE];
+float BackTerrainHeight[TERRAIN_SIZE*TERRAIN_SIZE];
+unsigned char TerrainMappingLayer1[TERRAIN_SIZE*TERRAIN_SIZE];
+unsigned char TerrainMappingLayer2[TERRAIN_SIZE*TERRAIN_SIZE];
+float TerrainMappingAlpha[TERRAIN_SIZE*TERRAIN_SIZE];
+float TerrainGrassTexture[TERRAIN_SIZE*TERRAIN_SIZE];
+float TerrainGrassWind[TERRAIN_SIZE*TERRAIN_SIZE];
 #ifdef ASG_ADD_MAP_KARUTAN
-float			g_fTerrainGrassWind1[TERRAIN_SIZE*TERRAIN_SIZE];
+float g_fTerrainGrassWind1[TERRAIN_SIZE*TERRAIN_SIZE];
 #endif	// ASG_ADD_MAP_KARUTAN
 
-WORD            TerrainWall[TERRAIN_SIZE*TERRAIN_SIZE];
+WORD TerrainWall[TERRAIN_SIZE*TERRAIN_SIZE];
 
-float           SelectXF;
-float           SelectYF;
-float           WaterMove;
-int             CurrentLayer;
-
-float           g_fSpecialHeight = 1200.f;
+float SelectXF;
+float SelectYF;
+float WaterMove;
+int CurrentLayer;
+float g_fSpecialHeight = 1200.f;
 
 #ifdef DYNAMIC_FRUSTRUM
 FrustrumMap_t	g_FrustrumMap;
@@ -68,148 +67,141 @@ FrustrumMap_t	g_FrustrumMap;
 const float g_fMinHeight = -500.f;
 const float g_fMaxHeight = 1000.f;
 
-extern  short   g_shCameraLevel;
+extern  short g_shCameraLevel;
 extern  float CameraDistanceTarget;
 extern  float CameraDistance;
 
-static  float   g_fFrustumRange = -40.f;
+constexpr float g_fFrustumRange = -40.f;
 
-
-inline int TERRAIN_INDEX(int x,int y)
-{
-	return (y)*TERRAIN_SIZE+(x);
+inline int TERRAIN_INDEX(int x, int y) {
+  return (y) * TERRAIN_SIZE + (x);
 }
 
-inline int TERRAIN_INDEX_REPEAT(int x,int y)
-{
-	return (y&TERRAIN_SIZE_MASK)*TERRAIN_SIZE+(x&TERRAIN_SIZE_MASK);
+inline int TERRAIN_INDEX_REPEAT(int x, int y) {
+  return (y & TERRAIN_SIZE_MASK) * TERRAIN_SIZE + (x & TERRAIN_SIZE_MASK);
 }
 
-inline WORD TERRAIN_ATTRIBUTE(float x,float y)
-{
-    int xf = (int)(x/TERRAIN_SCALE);
-    int yf = (int)(y/TERRAIN_SCALE);
-    return TerrainWall[(yf)*TERRAIN_SIZE+(xf)];
+inline WORD TERRAIN_ATTRIBUTE(float x, float y) {
+  int xf = (int)(x / TERRAIN_SCALE);
+  int yf = (int)(y / TERRAIN_SCALE);
+  return TerrainWall[(yf) * TERRAIN_SIZE + (xf)];
 }
 
 void InitTerrainMappingLayer()
 {
-	for(int i=0;i<TERRAIN_SIZE*TERRAIN_SIZE;i++)
-	{
+	for (int i = 0; i < TERRAIN_SIZE * TERRAIN_SIZE; i++) {
 		TerrainMappingLayer1[i] = 0;
 		TerrainMappingLayer2[i] = 255;
 		TerrainMappingAlpha[i] = 0.f;
-        TerrainGrassTexture[i] = (float)((rand()%4)/4.f);
+		TerrainGrassTexture[i] = (float)((rand() % 4) / 4.f);
 	}
 }
 
 void ExitProgram()
 {
-	MessageBox(g_hWnd,GlobalText[11],NULL,MB_OK);
-	SendMessage(g_hWnd,WM_DESTROY,0,0);
+	MessageBox(g_hWnd, GlobalText[11], NULL, MB_OK);
+	PostQuitMessage(0);
 }
 
+constexpr BYTE bBuxCode[] = { 0xfc, 0xcf, 0xab };
 
-static BYTE bBuxCode[3] = {0xfc,0xcf,0xab};
-
-static void BuxConvert(BYTE *Buffer,int Size)
+static void BuxConvert(BYTE* Buffer, int Size)
 {
-	for(int i=0;i<Size;i++)
-		Buffer[i] ^= bBuxCode[i%3];
+	for (int i = 0; i < Size; i++)
+		Buffer[i] ^= bBuxCode[i % 3];
 }
 
-int OpenTerrainAttribute(char *FileName)
+int OpenTerrainAttribute(char* FileName)
 {
-	FILE *fp = fopen(FileName,"rb");
-	if(fp == NULL)
+	FILE* fp = fopen(FileName, "rb");
+	if (fp == nullptr)
 	{
 		char Text[256];
-   		sprintf(Text,"%s file not found.",FileName);
-		g_ErrorReport.Write( Text);
-		g_ErrorReport.Write( "\r\n");
-		MessageBox(g_hWnd,Text,NULL,MB_OK);
-		SendMessage(g_hWnd,WM_DESTROY,0,0);
-		return ( -1);
+		sprintf(Text, "%s file not found.", FileName);
+		g_ErrorReport.Write(Text);
+		g_ErrorReport.Write("\r\n");
+		MessageBox(g_hWnd, Text, nullptr, MB_OK);
+		SendMessage(g_hWnd, WM_DESTROY, 0, 0);
+		return (-1);
 	}
 
 	BYTE Version;
 	BYTE Width;
 	BYTE Height;
 
-	fseek(fp,0,SEEK_END);
-	int EncBytes = ftell(fp);	//
-	fseek(fp,0,SEEK_SET);
-	unsigned char *EncData = new unsigned char [EncBytes];
-	fread( EncData, EncBytes, 1, fp);
+	fseek(fp, 0, SEEK_END);
+	int EncBytes = ftell(fp);
+	fseek(fp, 0, SEEK_SET);
+	unsigned char* EncData = new unsigned char[EncBytes];
+	fread(EncData, EncBytes, 1, fp);
 
-	int iSize = MapFileDecrypt( NULL, EncData, EncBytes);	//
-	unsigned char *byBuffer = new unsigned char[iSize];		//
-	MapFileDecrypt( byBuffer, EncData, EncBytes);	//
-	delete [] EncData;		//
+	int iSize = MapFileDecrypt(nullptr, EncData, EncBytes);
+	unsigned char* byBuffer = new unsigned char[iSize];
+	MapFileDecrypt(byBuffer, EncData, EncBytes);
+	delete[] EncData;
 
-    bool extAtt = false;
+	bool extAtt = false;
 
-    if ( iSize!=131076 && iSize!=65540 )
+	if (iSize != 131076 && iSize != 65540)
 	{
-		delete [] byBuffer;
-		return ( -1);
+		delete[] byBuffer;
+		return (-1);
 	}
 
-    if ( iSize==131076 )
-    {
-        extAtt = true;
-    }
+	if (iSize == 131076)
+	{
+		extAtt = true;
+	}
 
-	BuxConvert( byBuffer, iSize);
+	BuxConvert(byBuffer, iSize);
 	Version = byBuffer[0];
 	int iMap = byBuffer[1];
 	Width = byBuffer[2];
 	Height = byBuffer[3];
 
-    if ( extAtt==false )
-    {
-        unsigned char TWall[TERRAIN_SIZE*TERRAIN_SIZE];
-    	memcpy ( TWall, &byBuffer[4], TERRAIN_SIZE*TERRAIN_SIZE );
+	if (extAtt == false)
+	{
+		unsigned char TWall[TERRAIN_SIZE * TERRAIN_SIZE];
+		memcpy(TWall, &byBuffer[4], TERRAIN_SIZE * TERRAIN_SIZE);
 
-        for ( int i=0; i<TERRAIN_SIZE*TERRAIN_SIZE; ++i )
-        {
-            TerrainWall[i] = TWall[i];
-        }
-    }
-    else
-    {
-	    memcpy ( TerrainWall, &byBuffer[4], TERRAIN_SIZE*TERRAIN_SIZE*sizeof(WORD) );
-    }
+		for (int i = 0; i < TERRAIN_SIZE * TERRAIN_SIZE; ++i)
+		{
+			TerrainWall[i] = TWall[i];
+		}
+	}
+	else
+	{
+		memcpy(TerrainWall, &byBuffer[4], TERRAIN_SIZE * TERRAIN_SIZE * sizeof(WORD));
+	}
 
-	delete [] byBuffer;	//
+	delete[] byBuffer;
 
 	bool Error = false;
-	if(Version!=0 || Width!=255 || Height!=255)
+	if (Version != 0 || Width != 255 || Height != 255)
 	{
 		Error = true;
 	}
 
-	switch(gMapManager.WorldActive)
+	switch (gMapManager.WorldActive)
 	{
-	case WD_0LORENCIA:if(TerrainWall[123*256+135]!=5) Error=true;break;
-	case WD_1DUNGEON:if(TerrainWall[120*256+227]!=4) Error=true;break;
-	case WD_2DEVIAS:if(TerrainWall[ 55*256+208]!=5) Error=true;break;
-	case WD_3NORIA:if(TerrainWall[119*256+186]!=5) Error=true;break;
-	case WD_4LOSTTOWER:if(TerrainWall[ 75*256+193]!=5) Error=true;break;
+	case WD_0LORENCIA: if (TerrainWall[123 * 256 + 135] != 5) Error = true; break;
+	case WD_1DUNGEON: if (TerrainWall[120 * 256 + 227] != 4) Error = true; break;
+	case WD_2DEVIAS: if (TerrainWall[55 * 256 + 208] != 5) Error = true; break;
+	case WD_3NORIA: if (TerrainWall[119 * 256 + 186] != 5) Error = true; break;
+	case WD_4LOSTTOWER: if (TerrainWall[75 * 256 + 193] != 5) Error = true; break;
 	}
-	
-	for(int i=0;i<256*256;i++)
+
+	for (int i = 0; i < 256 * 256; i++)
 	{
 		WORD wWall = TerrainWall[i];
-		//Wall = ( Wall ^ ( Wall & 8)) | ( (TerrainWall[i]&4) << 1);
-		//Wall = ( Wall ^ ( Wall & 4)) | ( (TerrainWall[i]&8) >> 1);
 		TerrainWall[i] = wWall;
 		TerrainWall[i] = TerrainWall[i] & 0xFF;
 
-		if((BYTE)TerrainWall[i] >= 128)
+		if ((BYTE)TerrainWall[i] >= 128)
 			Error = true;
 	}
-	if(Error)
+
+	if (Error)
 	{
 		ExitProgram();
 		return ( -1);
@@ -219,385 +211,293 @@ int OpenTerrainAttribute(char *FileName)
     return iMap;
 }
 
-bool SaveTerrainAttribute(char *FileName, int iMap)
+bool SaveTerrainAttribute(char* FileName, int iMap)
 {
-	FILE *fp = fopen(FileName,"wb");
+	FILE* fp = fopen(FileName, "wb");
 
 	BYTE Version = 0;
-	BYTE Width   = 255;
-	BYTE Height  = 255;
- 	fwrite(&Version,1,1,fp);
-	fwrite(&iMap,1,1,fp);
- 	fwrite(&Width,1,1,fp);
- 	fwrite(&Height,1,1,fp);
- 	fwrite(TerrainWall,TERRAIN_SIZE*TERRAIN_SIZE,1,fp);
+	BYTE Width = 255;
+	BYTE Height = 255;
+	fwrite(&Version, sizeof(Version), 1, fp);
+	fwrite(&iMap, sizeof(iMap), 1, fp);
+	fwrite(&Width, sizeof(Width), 1, fp);
+	fwrite(&Height, sizeof(Height), 1, fp);
+	fwrite(TerrainWall, sizeof(TerrainWall), 1, fp);
 
 	fclose(fp);
-    return true;
+	return true;
 }
 
-void AddTerrainAttribute ( int x, int y, BYTE att )
+void AddTerrainAttribute(int x, int y, BYTE att)
 {
-    int     iIndex = (x+(y*TERRAIN_SIZE));
+	int iIndex = (x + (y * TERRAIN_SIZE));
 
-    TerrainWall[iIndex] |= att;
+	TerrainWall[iIndex] |= att;
 }
 
-
-void SubTerrainAttribute ( int x, int y, BYTE att )
+void SubTerrainAttribute(int x, int y, BYTE att)
 {
-    int     iIndex = (x+(y*TERRAIN_SIZE));
+	int iIndex = (x + (y * TERRAIN_SIZE));
 
-    TerrainWall[iIndex] ^= (TerrainWall[iIndex]&att);
+	TerrainWall[iIndex] ^= (TerrainWall[iIndex] & att);
 }
 
-void AddTerrainAttributeRange ( int x, int y, int dx, int dy, BYTE att, BYTE Add )
+void AddTerrainAttributeRange(int x, int y, int dx, int dy, BYTE att, BYTE add)
 {
-    for ( int j=0; j<dy; ++j )
-    {
-        for ( int i=0; i<dx; ++i )
-        {
-            if ( Add )
-			{
-                AddTerrainAttribute ( x+i, y+j, att );
-            }
-            else
-            {
-                SubTerrainAttribute ( x+i, y+j, att );
-            }
-        }
-    }
-}
-
-void SetTerrainWaterState(std::list<int>& terrainIndex, int state )
-{
-	if( state == 0 )
+	for (int j = 0; j < dy; ++j)
 	{
-		for ( int i = 0; i < TERRAIN_SIZE*TERRAIN_SIZE; ++i )
+		for (int i = 0; i < dx; ++i)
 		{
-			if( (TerrainWall[i]&TW_WATER)==TW_WATER )
+			if (add)
+			{
+				AddTerrainAttribute(x + i, y + j, att);
+			}
+			else
+			{
+				SubTerrainAttribute(x + i, y + j, att);
+			}
+		}
+	}
+}
+
+void SetTerrainWaterState(std::list<int>& terrainIndex, int state)
+{
+	if (state == 0)
+	{
+		for (int i = 0; i < TERRAIN_SIZE * TERRAIN_SIZE; ++i)
+		{
+			if ((TerrainWall[i] & TW_WATER) == TW_WATER)
 			{
 				TerrainWall[i] = 0;
-				terrainIndex.push_back( i );
+				terrainIndex.push_back(i);
 			}
 		}
 	}
 	else
 	{
-		for (std::list<int>::iterator iter = terrainIndex.begin(); iter != terrainIndex.end(); )
+		for (std::list<int>::iterator iter = terrainIndex.begin(); iter != terrainIndex.end(); ++iter)
 		{
-			std::list<int>::iterator curiter = iter;
-			++iter;
-			int index = *curiter;
+			int index = *iter;
 			TerrainWall[index] = TW_WATER;
 		}
 	}
 }
 
-int OpenTerrainMapping(char *FileName)	//
+int OpenTerrainMapping(char* FileName)
 {
-    InitTerrainMappingLayer();
+	InitTerrainMappingLayer();
 
-    FILE *fp = fopen(FileName,"rb");
-	if(fp == NULL)
+	FILE* fp = fopen(FileName, "rb");
+	if (fp == nullptr)
 	{
-		return ( -1);
+		return (-1);
 	}
-	fseek(fp,0,SEEK_END);
-	int EncBytes = ftell(fp);	//
-	fseek(fp,0,SEEK_SET);
-    unsigned char *EncData = new unsigned char[EncBytes];	//
-	fread(EncData,1,EncBytes,fp);	//
+	fseek(fp, 0, SEEK_END);
+	int EncBytes = ftell(fp);
+	fseek(fp, 0, SEEK_SET);
+	unsigned char* EncData = new unsigned char[EncBytes];
+	fread(EncData, 1, EncBytes, fp);
 	fclose(fp);
 
-	int DataBytes = MapFileDecrypt( NULL, EncData, EncBytes);	//
-	unsigned char *Data = new unsigned char[DataBytes];		//
-	MapFileDecrypt( Data, EncData, EncBytes);	//
-	delete [] EncData;		//
+	int DataBytes = MapFileDecrypt(nullptr, EncData, EncBytes);
+	unsigned char* Data = new unsigned char[DataBytes];
+	MapFileDecrypt(Data, EncData, EncBytes);
+	delete[] EncData;
 
 	int DataPtr = 0;
-	DataPtr+=1;
-	int iMapNumber = ( int)*((BYTE *)(Data+DataPtr));DataPtr+=1;		//
-	memcpy(TerrainMappingLayer1,Data+DataPtr,256*256);DataPtr+=256*256;
-	memcpy(TerrainMappingLayer2,Data+DataPtr,256*256);DataPtr+=256*256;
-	for(int i=0;i<TERRAIN_SIZE*TERRAIN_SIZE;i++)
+	DataPtr++;
+	int iMapNumber = *((BYTE*)(Data + DataPtr));
+	DataPtr++;
+	memcpy(TerrainMappingLayer1, Data + DataPtr, 256 * 256);
+	DataPtr += 256 * 256;
+	memcpy(TerrainMappingLayer2, Data + DataPtr, 256 * 256);
+	DataPtr += 256 * 256;
+	for (int i = 0; i < TERRAIN_SIZE * TERRAIN_SIZE; i++)
 	{
 		BYTE Alpha;
-      	Alpha = *((BYTE *)(Data+DataPtr));DataPtr+=1;
-		TerrainMappingAlpha[i] = (float)Alpha/255.f;
+		Alpha = *((BYTE*)(Data + DataPtr));
+		DataPtr++;
+		TerrainMappingAlpha[i] = (float)Alpha / 255.f;
 	}
-	delete [] Data;
-	
+	delete[] Data;
+
 	fclose(fp);
 
-    TerrainGrassEnable = true;
+	TerrainGrassEnable = true;
 
-    if ( gMapManager.InChaosCastle()==true )
-    {
-        TerrainGrassEnable = false;
-    }
-    if ( gMapManager.InBattleCastle() )
-    {
-        TerrainGrassEnable = false;
-    }
+	if (gMapManager.InChaosCastle())
+	{
+		TerrainGrassEnable = false;
+	}
+	if (gMapManager.InBattleCastle())
+	{
+		TerrainGrassEnable = false;
+	}
 
-    return ( iMapNumber);
+	return (iMapNumber);
 }
 
-bool SaveTerrainMapping(char *FileName, int iMapNumber)	//
+bool SaveTerrainMapping(char* FileName, int iMapNumber)
 {
-	FILE *fp = fopen(FileName,"wb");
+	FILE* fp = fopen(FileName, "wb");
 
 	BYTE Version = 0;
- 	fwrite(&Version,1,1,fp);
-	fwrite(&iMapNumber,1,1,fp);	//
- 	fwrite(TerrainMappingLayer1,TERRAIN_SIZE*TERRAIN_SIZE,1,fp);
- 	fwrite(TerrainMappingLayer2,TERRAIN_SIZE*TERRAIN_SIZE,1,fp);
-	for(int i=0;i<TERRAIN_SIZE*TERRAIN_SIZE;i++)
+	fwrite(&Version, sizeof(Version), 1, fp);
+	fwrite(&iMapNumber, sizeof(iMapNumber), 1, fp);
+	fwrite(TerrainMappingLayer1, sizeof(TerrainMappingLayer1), 1, fp);
+	fwrite(TerrainMappingLayer2, sizeof(TerrainMappingLayer2), 1, fp);
+	for (int i = 0; i < TERRAIN_SIZE * TERRAIN_SIZE; i++)
 	{
-		unsigned char Alpha = (unsigned char)(TerrainMappingAlpha[i]*255.f);
-		fwrite(&Alpha,1,1,fp);
+		unsigned char Alpha = (unsigned char)(TerrainMappingAlpha[i] * 255.f);
+		fwrite(&Alpha, sizeof(Alpha), 1, fp);
 	}
-	/*
-#ifndef BATTLE_CASTLE
-	for(i=0;i<MAX_GROUNDS;i++)
-	{
-		GROUND *o = &Grounds[i];
-		if(o->Live)
-		{
-          	fwrite(&o->Type ,2,1,fp);
-          	fwrite(&o->x    ,1,1,fp);
-          	fwrite(&o->y    ,1,1,fp);
-          	fwrite(&o->Angle,1,1,fp);
-		}
-	}
-#endif// BATTLE_CASTLE
-*/
+
 	fclose(fp);
 
 	{
-		fp = fopen(FileName,"rb");
-		if(fp == NULL)
+		fp = fopen(FileName, "rb");
+		if (fp == nullptr)
 		{
-			return ( false);
+			return (false);
 		}
-		fseek(fp,0,SEEK_END);
-		int EncBytes = ftell(fp);	//
-		fseek(fp,0,SEEK_SET);
-		unsigned char *EncData = new unsigned char[EncBytes];	//
-		fread(EncData,1,EncBytes,fp);	//
+		fseek(fp, 0, SEEK_END);
+		int EncBytes = ftell(fp);
+		fseek(fp, 0, SEEK_SET);
+		unsigned char* EncData = new unsigned char[EncBytes];
+		fread(EncData, 1, EncBytes, fp);
 		fclose(fp);
 
-		int DataBytes = MapFileEncrypt( NULL, EncData, EncBytes);	//
-		unsigned char *Data = new unsigned char[DataBytes];		//
-		MapFileEncrypt( Data, EncData, EncBytes);	//
-		delete [] EncData;		//
+		int DataBytes = MapFileEncrypt(nullptr, EncData, EncBytes);
+		unsigned char* Data = new unsigned char[DataBytes];
+		MapFileEncrypt(Data, EncData, EncBytes);
+		delete[] EncData;
 
-		fp = fopen(FileName,"wb");
-		fwrite( Data, DataBytes, 1, fp);
-		fclose( fp);
-		delete [] Data;
+		fp = fopen(FileName, "wb");
+		fwrite(Data, DataBytes, 1, fp);
+		fclose(fp);
+		delete[] Data;
 	}
-    return true;
+	return true;
 }
 
-/*
-#ifndef BATTLE_CASTLE
-    void CreateGround(int Type,int x,int y,float Angle)
-    {
-	    for(int i=0;i<MAX_GROUNDS;i++)
-	    {
-		    GROUND *o = &Grounds[i];
-		    if(!o->Live)
-		    {
-			    o->Live  = true;
-			    o->Type  = Type;
-			    o->x     = x;
-			    o->y     = y;
-			    o->Angle = (unsigned char)(Angle/360.f*255.f);
-			    return;
-		    }
-	    }
-    }
-
-    void DeleteGround(int x,int y)
-    {
-	    for(int i=0;i<MAX_GROUNDS;i++)
-	    {
-		    GROUND *o = &Grounds[i];
-		    if(o->Live)
-		    {
-			    if(o->x==x && o->y==y) o->Live = false;
-		    }
-	    }
-    }
-
-    void RenderGrounds()
-    {
-	    for(int i=0;i<MAX_GROUNDS;i++)
-	    {
-		    GROUND *o = &Grounds[i];
-		    if(o->Live)
-		    {
-			    float Angle = (float)o->Angle/255.f*360.f;
-			    RenderTerrainBitmap(BITMAP_CURSOR+6,o->x,o->y,Angle);
-		    }
-	    }
-    }
-#endif// BATTLE_CASTLE
-*/
 void CreateTerrainNormal()
 {
-	for(int y=0;y<TERRAIN_SIZE;y++)
+	for (int y = 0; y < TERRAIN_SIZE; y++)
 	{
-		for(int x=0;x<TERRAIN_SIZE;x++)
+		for (int x = 0; x < TERRAIN_SIZE; x++)
 		{
-			int Index = TERRAIN_INDEX(x,y);
-			vec3_t v1,v2,v3,v4;
-			Vector((x  )*TERRAIN_SCALE,(y  )*TERRAIN_SCALE,BackTerrainHeight[TERRAIN_INDEX_REPEAT(x  ,y  )],v4);
-			Vector((x+1)*TERRAIN_SCALE,(y  )*TERRAIN_SCALE,BackTerrainHeight[TERRAIN_INDEX_REPEAT(x+1,y  )],v1);
-			Vector((x+1)*TERRAIN_SCALE,(y+1)*TERRAIN_SCALE,BackTerrainHeight[TERRAIN_INDEX_REPEAT(x+1,y+1)],v2);
-			Vector((x  )*TERRAIN_SCALE,(y+1)*TERRAIN_SCALE,BackTerrainHeight[TERRAIN_INDEX_REPEAT(x  ,y+1)],v3);
-			FaceNormalize(v1,v2,v3,TerrainNormal[Index]);
+			int Index = TERRAIN_INDEX(x, y);
+			vec3_t v1, v2, v3, v4;
+			Vector((x)*TERRAIN_SCALE, (y)*TERRAIN_SCALE, BackTerrainHeight[TERRAIN_INDEX_REPEAT(x, y)], v4);
+			Vector((x + 1) * TERRAIN_SCALE, (y)*TERRAIN_SCALE, BackTerrainHeight[TERRAIN_INDEX_REPEAT(x + 1, y)], v1);
+			Vector((x + 1) * TERRAIN_SCALE, (y + 1) * TERRAIN_SCALE, BackTerrainHeight[TERRAIN_INDEX_REPEAT(x + 1, y + 1)], v2);
+			Vector((x)*TERRAIN_SCALE, (y + 1) * TERRAIN_SCALE, BackTerrainHeight[TERRAIN_INDEX_REPEAT(x, y + 1)], v3);
+			FaceNormalize(v1, v2, v3, TerrainNormal[Index]);
 		}
 	}
 }
 
-void CreateTerrainNormal_Part ( int xi, int yi )
-{
-    if ( xi>TERRAIN_SIZE-4 ) xi = TERRAIN_SIZE-4;
-    else if ( xi<4 )         xi = 4;
-    
-    if ( yi>TERRAIN_SIZE-4 ) yi = TERRAIN_SIZE-4;
-    else if ( yi<4 )         yi = 4;
+void CreateTerrainNormal_Part(int xi, int yi) {
+	int min_xi = xi > 4 ? xi - 4 : 4;
+	int max_xi = xi < TERRAIN_SIZE - 4 ? xi + 4 : TERRAIN_SIZE - 4;
+	int min_yi = yi > 4 ? yi - 4 : 4;
+	int max_yi = yi < TERRAIN_SIZE - 4 ? yi + 4 : TERRAIN_SIZE - 4;
 
-	for(int y=yi-4;y<yi+4;y++)
-	{
-		for(int x=xi-4;x<xi+4;x++)
-		{
-			int Index = TERRAIN_INDEX(x,y);
-			vec3_t v1,v2,v3,v4;
-			Vector((x  )*TERRAIN_SCALE,(y  )*TERRAIN_SCALE,BackTerrainHeight[TERRAIN_INDEX_REPEAT(x  ,y  )],v4);
-			Vector((x+1)*TERRAIN_SCALE,(y  )*TERRAIN_SCALE,BackTerrainHeight[TERRAIN_INDEX_REPEAT(x+1,y  )],v1);
-			Vector((x+1)*TERRAIN_SCALE,(y+1)*TERRAIN_SCALE,BackTerrainHeight[TERRAIN_INDEX_REPEAT(x+1,y+1)],v2);
-			Vector((x  )*TERRAIN_SCALE,(y+1)*TERRAIN_SCALE,BackTerrainHeight[TERRAIN_INDEX_REPEAT(x  ,y+1)],v3);
-			FaceNormalize(v1,v2,v3,TerrainNormal[Index]);
+	for (int y = min_yi; y < max_yi; y++) {
+		for (int x = min_xi; x < max_xi; x++) {
+			int index = TERRAIN_INDEX(x, y);
+			vec3_t v1, v2, v3, v4;
+			Vector(x * TERRAIN_SCALE, y * TERRAIN_SCALE, BackTerrainHeight[TERRAIN_INDEX_REPEAT(x, y)], v4);
+			Vector((x + 1) * TERRAIN_SCALE, y * TERRAIN_SCALE, BackTerrainHeight[TERRAIN_INDEX_REPEAT(x + 1, y)], v1);
+			Vector((x + 1) * TERRAIN_SCALE, (y + 1) * TERRAIN_SCALE, BackTerrainHeight[TERRAIN_INDEX_REPEAT(x + 1, y + 1)], v2);
+			Vector(x * TERRAIN_SCALE, (y + 1) * TERRAIN_SCALE, BackTerrainHeight[TERRAIN_INDEX_REPEAT(x, y + 1)], v3);
+			FaceNormalize(v1, v2, v3, TerrainNormal[index]);
 		}
 	}
 }
+
+//~~ Melhorar o light terrain
 
 void CreateTerrainLight()
 {
 	vec3_t Light;
-    if ( gMapManager.InBattleCastle() )
-    {
-        Vector ( 0.5f, -1.f, 1.f, Light );
-    }
-    else
-    {
-	    Vector(0.5f,-0.5f,0.5f,Light);
-    }
-	for(int y=0;y<TERRAIN_SIZE;y++)
+	if (gMapManager.InBattleCastle())
 	{
-		for(int x=0;x<TERRAIN_SIZE;x++)
-		{
-			int Index = TERRAIN_INDEX(x,y);
-			float Luminosity = DotProduct(TerrainNormal[Index],Light) + 0.5f;
-			if(Luminosity < 0.f) Luminosity = 0.f;
-			else if(Luminosity > 1.f) Luminosity = 1.f;
-			for(int i=0;i<3;i++)
-    			BackTerrainLight[Index][i] = TerrainLight[Index][i] * Luminosity;
-		}
-	}
-}
-
-
-void CreateTerrainLight_Part ( int xi, int yi )
-{
-    if ( xi>TERRAIN_SIZE-4 ) xi = TERRAIN_SIZE-4;
-    else if ( xi<4 )         xi = 4;
-    
-    if ( yi>TERRAIN_SIZE-4 ) yi = TERRAIN_SIZE-4;
-    else if ( yi<4 )         yi = 4;
-
-	vec3_t Light;
-	Vector(0.5f,-0.5f,0.5f,Light);
-	for(int y=yi-4;y<yi+4;y++)
-	{
-		for(int x=xi-4;x<xi+4;x++)
-		{
-			int Index = TERRAIN_INDEX(x,y);
-			float Luminosity = DotProduct(TerrainNormal[Index],Light) + 0.5f;
-			if(Luminosity < 0.f) Luminosity = 0.f;
-			else if(Luminosity > 1.f) Luminosity = 1.f;
-			for(int i=0;i<3;i++)
-    			BackTerrainLight[Index][i] = TerrainLight[Index][i] * Luminosity;
-		}
-	}
-}
-
-void OpenTerrainLight(char *FileName)
-{
-    OpenJpegBuffer(FileName,&TerrainLight[0][0]);
-
-	/*float Light;
-	for(int i=0;i<256*256;i++)
-	{
-		Light = TerrainLight[i][2];
-		Light -= 0.3f;
-		if(Light < 0.f) Light = 0.f;
-		TerrainLight[i][2] = Light;
-
-		Light = TerrainLight[i][1];
-		Light -= 0.2f;
-		if(Light < 0.f) Light = 0.f;
-		TerrainLight[i][1] = Light;
-	}*/
-
-	CreateTerrainNormal();
-    CreateTerrainLight();
-
-/*
-#ifdef BATTLE_CASTLE
-    if ( 1 )//battleCastle::InBattleCastle() )
-    {
-        g_fFrustumRange = -80.f;
-    }
-    else
-#endif// BATTLE_CASTLE
-    {
-        g_fFrustumRange = -40.f;
-    }
-*/
-}
-
-void SaveTerrainLight(char *FileName)
-{
-	unsigned char *Buffer = new unsigned char [TERRAIN_SIZE*TERRAIN_SIZE*3];
-	for(int i=0;i<TERRAIN_SIZE*TERRAIN_SIZE;i++)
-	{
-		for(int j=0;j<3;j++)
-		{
-			float Light = TerrainLight[i][j]*255.f;
-			if(Light < 0.f) Light = 0.f;
-			else if(Light > 255.f) Light = 255.f;
-			Buffer[i*3+j] = (unsigned char)(Light);
-		}
-	}
-	WriteJpeg(FileName,TERRAIN_SIZE,TERRAIN_SIZE,Buffer,100);
-	SAFE_DELETE_ARRAY(Buffer);
-}
-
-void CreateTerrain(char *FileName, bool bNew)
-{
-	ActiveTerrain = true;
-
-	if(bNew)
-	{
-		OpenTerrainHeightNew(FileName);
+		Vector(0.5f, -1.f, 1.f, Light);
 	}
 	else
 	{
+		Vector(0.5f, -0.5f, 0.5f, Light);
+	}
+	for (int y = 0; y < TERRAIN_SIZE; y++)
+	{
+		for (int x = 0; x < TERRAIN_SIZE; x++)
+		{
+			int Index = TERRAIN_INDEX(x, y);
+			float Luminosity = DotProduct(TerrainNormal[Index], Light) + 0.5f;
+			if (Luminosity < 0.f) Luminosity = 0.f;
+			else if (Luminosity > 1.f) Luminosity = 1.f;
+			for (int i = 0; i < 3; i++)
+				BackTerrainLight[Index][i] = TerrainLight[Index][i] * Luminosity;
+		}
+	}
+}
+
+void CreateTerrainLight_Part(int xi, int yi)
+{
+	if (xi > TERRAIN_SIZE - 4) xi = TERRAIN_SIZE - 4;
+	else if (xi < 4)         xi = 4;
+
+	if (yi > TERRAIN_SIZE - 4) yi = TERRAIN_SIZE - 4;
+	else if (yi < 4)         yi = 4;
+
+	vec3_t Light;
+	Vector(0.5f, -0.5f, 0.5f, Light);
+	for (int y = yi - 4; y < yi + 4; y++)
+	{
+		for (int x = xi - 4; x < xi + 4; x++)
+		{
+			int Index = TERRAIN_INDEX(x, y);
+			float Luminosity = DotProduct(TerrainNormal[Index], Light) + 0.5f;
+			if (Luminosity < 0.f) Luminosity = 0.f;
+			else if (Luminosity > 1.f) Luminosity = 1.f;
+			for (int i = 0; i < 3; i++)
+				BackTerrainLight[Index][i] = TerrainLight[Index][i] * Luminosity;
+		}
+	}
+}
+
+void OpenTerrainLight(char* FileName)
+{
+	OpenJpegBuffer(FileName, &TerrainLight[0][0]);
+	CreateTerrainNormal();
+	CreateTerrainLight();
+}
+
+void SaveTerrainLight(char* FileName)
+{
+	unsigned char* Buffer = new unsigned char[TERRAIN_SIZE * TERRAIN_SIZE * 3];
+	for (int i = 0; i < TERRAIN_SIZE * TERRAIN_SIZE; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			float Light = TerrainLight[i][j] * 255.f;
+			if (Light < 0.f) Light = 0.f;
+			else if (Light > 255.f) Light = 255.f;
+			Buffer[i * 3 + j] = (unsigned char)(Light);
+		}
+	}
+	WriteJpeg(FileName, TERRAIN_SIZE, TERRAIN_SIZE, Buffer, 100);
+	SAFE_DELETE_ARRAY(Buffer);
+}
+
+void CreateTerrain(char* FileName, bool bNew) {
+	ActiveTerrain = true;
+
+	if (bNew) {
+		OpenTerrainHeightNew(FileName);
+	}
+	else {
 		OpenTerrainHeight(FileName);
 	}
 

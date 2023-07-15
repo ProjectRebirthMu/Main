@@ -874,6 +874,7 @@
     <ClInclude Include="source\UISenatus.h" />
     <ClInclude Include="source\UIWindows.h" />
     <ClInclude Include="source\UsefulDef.h" />
+    <ClInclude Include="source\Utilities\GLM\glm.h" />
     <ClInclude Include="source\Utilities\Log\DebugAngel.h" />
     <ClInclude Include="source\Utilities\Log\ErrorReport.h" />
     <ClInclude Include="source\Utilities\Log\muConsoleDebug.h" />

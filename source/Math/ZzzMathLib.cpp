@@ -1,17 +1,16 @@
-///////////////////////////////////////////////////////////////////////////////
 // 3D Vector
-///////////////////////////////////////////////////////////////////////////////
+// Revisado: 14/07/23 21:31 GMT-3
+// By: Qubit
+//////////////////////////////////////////////////////////////////////
+
 #include "stdafx.h"
 
 vec3_t vec3_origin = { 0,0,0 };
 
-int VectorCompare(const vec3_t v1, const vec3_t v2)
-{
+bool VectorCompare(const vec3_t& v1, const vec3_t& v2) {
 	const float EPSILON = 0.0001f;
-	for (int i = 0; i < 3; ++i)
-	{
-		if (std::fabs(v1[i] - v2[i]) > EPSILON)
-		{
+	for (int i = 0; i < 3; ++i) {
+		if (std::fabs(v1[i] - v2[i]) > EPSILON) {
 			return false;
 		}
 	}
@@ -32,16 +31,14 @@ int QuaternionCompare(const vec4_t v1, const vec4_t v2)
 	return 1;
 }
 
-void VectorInterpolation(vec3_t& v_out, const vec3_t& v_1, const vec3_t& v_2, const float fWeight)
-{
+void VectorInterpolation(vec3_t& v_out, const vec3_t& v_1, const vec3_t& v_2, const float fWeight) {
 	LInterpolationF(v_out[0], v_1[0], v_2[0], fWeight);
 	LInterpolationF(v_out[1], v_1[1], v_2[1], fWeight);
 	LInterpolationF(v_out[2], v_1[2], v_2[2], fWeight);
 }
 
-void VectorInterpolation_F(vec3_t& v_out, const vec3_t& v_1, const vec3_t& v_2, const float fArea, const float fCurrent)
-{
-	float fWeight = (fArea != 0.0f) ? (fCurrent / fArea) : 0.0f;
+void VectorInterpolation_F(vec3_t& v_out, const vec3_t& v_1, const vec3_t& v_2, const float fArea, const float fCurrent) {
+	float fWeight = fArea != 0.0f ? fCurrent / fArea : 0.0f;
 	VectorInterpolation(v_out, v_1, v_2, fWeight);
 }
 
@@ -57,25 +54,21 @@ void VectorDistanceInterpolation_F(vec3_t& v_out, const vec3_t& v_Distance, cons
 	v_out[2] *= fRate;
 }
 
-float VectorDistance3D(const vec3_t& vPosStart, const vec3_t& vPosEnd)
-{
+float VectorDistance3D(const vec3_t& vPosStart, const vec3_t& vPosEnd) {
 	vec3_t vDist;
 	VectorSubtract(vPosEnd, vPosStart, vDist);
-	float squaredDist = vDist[0] * vDist[0] + vDist[1] * vDist[1] + vDist[2] * vDist[2];
-	return sqrtf(squaredDist);
+	return std::sqrt(vDist[0] * vDist[0] + vDist[1] * vDist[1] + vDist[2] * vDist[2]);
 }
 
-void VectorDistance3D_Dir(const vec3_t& vPosStart, const vec3_t& vPosEnd, vec3_t& vDirDist)
-{
+void VectorDistance3D_Dir(const vec3_t& vPosStart, const vec3_t& vPosEnd, vec3_t& vDirDist) {
 	VectorSubtract(vPosEnd, vPosStart, vDirDist);
 }
 
-float VectorDistance3D_DirDist(const vec3_t& vPosStart, const vec3_t& vPosEnd, vec3_t& vOut)
-{
+float VectorDistance3D_DirDist(const vec3_t& vPosStart, const vec3_t& vPosEnd, vec3_t& vOut) {
 	vec3_t vDist;
 	VectorSubtract(vPosEnd, vPosStart, vDist);
 	float squaredDist = vDist[0] * vDist[0] + vDist[1] * vDist[1] + vDist[2] * vDist[2];
-	return sqrtf(squaredDist);
+	return std::sqrt(squaredDist);
 }
 
 vec_t Q_rint(vec_t in)

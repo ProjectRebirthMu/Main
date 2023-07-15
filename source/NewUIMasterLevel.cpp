@@ -14,31 +14,32 @@
 #include "CSitemOption.h"
 #include "CharacterManager.h"
 #include "SkillManager.h"
+#include <glm/glm.hpp>
 
-MASTER_LEVEL_DATA		m_MasterLevel[MAX_MASTER];
-BYTE					Master_Skill_Data[9][5];
-int						JobPoint[4] = {0,0,0,0};
+MASTER_LEVEL_DATA m_MasterLevel[MAX_MASTER];
+BYTE Master_Skill_Data[9][5];
+int	JobPoint[4] = {0,0,0,0};
 char Need_Point = 0;
-int	 In_Skill = 0;
+int	In_Skill = 0;
 using namespace SEASON3B;
 extern char TextList[50][100];
-extern int  TextListColor[50];
-extern int  TextBold[50];
+extern int TextListColor[50];
+extern int TextBold[50];
 extern SIZE Size[50];
 
 SEASON3B::CNewUIMasterLevel::CNewUIMasterLevel()
 {
-	m_pNewUIMng = NULL;
+	m_pNewUIMng = nullptr;
 }
 
-SEASON3B::CNewUIMasterLevel::~CNewUIMasterLevel() 
-{ 
-	Release(); 
+SEASON3B::CNewUIMasterLevel::~CNewUIMasterLevel()
+{
+	Release();
 }
 
 bool SEASON3B::CNewUIMasterLevel::Create(CNewUIManager* pNewUIMng, int x, int y)
 {
-	if(NULL == pNewUIMng)
+	if (pNewUIMng == nullptr)
 		return false;
 
 	m_pNewUIMng = pNewUIMng;
@@ -48,29 +49,30 @@ bool SEASON3B::CNewUIMasterLevel::Create(CNewUIManager* pNewUIMng, int x, int y)
 
 	LoadImages();
 
+	m_BtnExit.ChangeButtonImgState(true, IMAGE_MASTER_EXIT, false);
+	m_BtnExit.ChangeButtonInfo(m_Pos.x + 591, m_Pos.y + 390, 36, 29);
+	m_BtnExit.ChangeToolTipText(GlobalText[1002], true);
 
-	m_BtnExit.ChangeButtonImgState( true, IMAGE_MASTER_EXIT, false );
-	m_BtnExit.ChangeButtonInfo( m_Pos.x+591, m_Pos.y+390, 36, 29 );		
-	m_BtnExit.ChangeToolTipText( GlobalText[1002], true );
-
-	for(int i = 0; i < 4; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		m_EventState[i] = EVENT_NONE;
 		m_Loc[i] = 0;
 	}
-	if( WindowWidth != 800 && WindowHeight != 600 )
+
+	if (WindowWidth != 800 && WindowHeight != 600)
 	{
 		int panelspaceX = 0;
 		int panelspaceY = 7;
-		int panelspace = 219+panelspaceY;
+		int panelspace = 219 + panelspaceY;
 
-		if( WindowWidth == 1024 && WindowHeight == 768 )
+		if (WindowWidth == 1024 && WindowHeight == 768)
 		{
 			panelspaceX = -127;
 			panelspaceY = -120;
-			panelspace = 219+panelspaceY;
+			panelspace = 219 + panelspaceY;
 		}
 	}
+
 	return true;
 }
 
@@ -84,21 +86,14 @@ float SEASON3B::CNewUIMasterLevel::GetLayerDepth()
 	return 8.1f;
 }
 
-void SEASON3B::CNewUIMasterLevel::OpenningProcess()
-{
-
-}
-
 void SEASON3B::CNewUIMasterLevel::Release()
 {
 	UnloadImages();
 
-//	SAFE_DELETE_ARRAY(m_Button);
-
-	if(m_pNewUIMng)
+	if (m_pNewUIMng != nullptr)
 	{
 		m_pNewUIMng->RemoveUIObj(this);
-		m_pNewUIMng = NULL;
+		m_pNewUIMng = nullptr;
 	}
 }
 
@@ -106,14 +101,14 @@ void SEASON3B::CNewUIMasterLevel::SetPos(int x, int y)
 {
 	m_Pos.x = x;
 	m_Pos.y = y;
-	m_BtnExit.ChangeButtonInfo( m_Pos.x+513, m_Pos.y+392, 36, 29 );
+	m_BtnExit.ChangeButtonInfo(m_Pos.x + 513, m_Pos.y + 392, 36, 29);
 }
 
 bool SEASON3B::CNewUIMasterLevel::UpdateKeyEvent()
 {
-	if(g_pNewUISystem->IsVisible(SEASON3B::INTERFACE_MASTER_LEVEL))
+	if (g_pNewUISystem->IsVisible(SEASON3B::INTERFACE_MASTER_LEVEL))
 	{
-		if(SEASON3B::IsPress(VK_ESCAPE) == true || SEASON3B::IsPress('A') == true)
+		if (SEASON3B::IsPress(VK_ESCAPE) || SEASON3B::IsPress('A'))
 		{
 			g_pNewUISystem->Hide(SEASON3B::INTERFACE_MASTER_LEVEL);
 			PlayBuffer(SOUND_CLICK01);
@@ -126,16 +121,8 @@ bool SEASON3B::CNewUIMasterLevel::UpdateKeyEvent()
 
 bool SEASON3B::CNewUIMasterLevel::Render()
 {
-	//WindowWidth
-	//WindowHeight
-
 	EnableAlphaTest();
 	glColor4f(1.f, 1.f, 1.f, 1.f);
-
-	//RenderImage(IMAGE_MASTER_INTERFACE + 14, m_Pos.x, m_Pos.y, 800, 536);
-	//RenderImage(IMAGE_MASTER_INTERFACE + 14, m_Pos.x, m_Pos.y, 640 * (640/WindowWidth), 480 * (,0.f,0.f,1.f,1.f);
-//	float nx = float(640.f * (640.f/(float)WindowWidth));
-//	float ny = float(429.f * (480.f/(float)WindowHeight));
 
 	m_Width.x = float(800.f * (800.f/(float)1024));
 	m_Width.y = float(540.f * (600.f/(float)768));
@@ -145,8 +132,6 @@ bool SEASON3B::CNewUIMasterLevel::Render()
 	
 
 	Render_Icon();
-//	Render_Scroll();
-	//RenderImage( IMAGE_SKILL_ICON, m_SkillIconPos.x+1, m_SkillIconPos.y, (float)SKILL_ICON_WIDTH, (float)SKILL_ICON_HEIGHT, src_x, src_y);
 	m_BtnExit.Render();
 
 	DisableAlphaBlend();
@@ -157,14 +142,11 @@ bool SEASON3B::CNewUIMasterLevel::Render()
 
 void SEASON3B::CNewUIMasterLevel::Render_Scroll()
 {
-	int Scroll_Loc[4][2] = {{185,65},{308,65},{432,65},{590,65}};
+	int Scroll_Loc[4][2] = { {185,65}, {308,65}, {432,65}, {590,65} };
 
-	for(int i = 0; i < 4; i++)
+	for (int i = 0; i < 4; i++)
 	{
-		if (m_EventState[i] == EVENT_SCROLL_BTN_DOWN) 
-			glColor4f(0.7f, 0.7f, 0.7f, 1.0f);
-		else 
-			glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+		glm::vec4 color = (m_EventState[i] == EVENT_SCROLL_BTN_DOWN) ? glm::vec4(0.7f, 0.7f, 0.7f, 1.0f) : glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
 		RenderImage(IMAGE_MASTER_SCROLLBAR_ON, m_Pos.x+Scroll_Loc[i][0], Scroll_Loc[i][1] + m_Loc[i], 15, 30);
 	}

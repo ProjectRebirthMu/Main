@@ -7,179 +7,169 @@
 #include "MapManager.h"
 #include "ZzzCharacter.h"
 
+// Create the global skill manager object.
 CSkillManager gSkillManager;
+
+// Declare an external function to check if an attack is possible.
 extern bool CheckAttack();
 
-CSkillManager::CSkillManager() // OK
-{
+// CSkillManager constructor.
+CSkillManager::CSkillManager() {
 }
 
-CSkillManager::~CSkillManager() // OK
-{
+// CSkillManager destructor.
+CSkillManager::~CSkillManager() {
 }
 
-bool CSkillManager::FindHeroSkill(ActionSkillType eSkillType) 
-{
-	for (int i = 0; i < CharacterAttribute->SkillNumber; ++i)
-	{
-		if (CharacterAttribute->Skill[i] == eSkillType)
-		{
+bool CSkillManager::FindHeroSkill(ActionSkillType eSkillType) {
+	// Check if the skill is in the character's skill list.
+	for (int i = 0; i < CharacterAttribute->SkillNumber; ++i) {
+		if (CharacterAttribute->Skill[i] == eSkillType) {
 			return true;
 		}
 	}
+
+	// The skill is not in the character's skill list.
 	return false;
 }
 
-void CSkillManager::GetSkillInformation( int iType, int iLevel, char *lpszName, int *piMana, int *piDistance, int *piSkillMana)
-{
-	SKILL_ATTRIBUTE *p = &SkillAttribute[iType];
-	if ( lpszName)
-	{
-		strcpy( lpszName, p->Name);
+void CSkillManager::GetSkillInformation(int iType, int iLevel, char* lpszName, int* piMana, int* piDistance, int* piSkillMana) {
+	// Get the skill attribute.
+	SKILL_ATTRIBUTE* p = &SkillAttribute[iType];
+
+	// Copy the skill name.
+	if (lpszName) {
+		strcpy(lpszName, p->Name);
 	}
-	if ( piMana)
-	{
-		*piMana = p->Mana;
+
+	// Set the mana cost.
+	if (piMana) {
+		*piMana = p->Mana * iLevel;
 	}
-	if ( piDistance)
-	{
+
+	// Set the distance.
+	if (piDistance) {
 		*piDistance = p->Distance;
 	}
-	if (piSkillMana)
-	{
-		*piSkillMana = p->AbilityGuage;
+
+	// Set the ability guage cost.
+	if (piSkillMana) {
+		*piSkillMana = p->AbilityGuage * iLevel;
 	}
 }
 
-void CSkillManager::GetSkillInformation_Energy(int iType, int *piEnergy)
-{
-	SKILL_ATTRIBUTE *p = &SkillAttribute[iType];
+void CSkillManager::GetSkillInformation_Energy(int iType, int* piEnergy) {
+	// Get the skill attribute.
+	SKILL_ATTRIBUTE* p = &SkillAttribute[iType];
 
-	if(piEnergy)
-	{
-		if(p->Energy == 0)
-		{
+	// Set the energy cost.
+	if (piEnergy) {
+		if (p->Energy == 0) {
 			*piEnergy = 0;
 		}
-		else
-		{
-			*piEnergy = 20 + (p->Energy*p->Level*4/100);
+		else {
+			*piEnergy = 20 + (p->Energy * p->Level * 4 / 100);
 
-			if( iType == AT_SKILL_SUMMON_EXPLOSION || iType == AT_SKILL_SUMMON_REQUIEM ){
-				*piEnergy = 20 + (p->Energy*p->Level*3/100);
+			if (iType == AT_SKILL_SUMMON_EXPLOSION || iType == AT_SKILL_SUMMON_REQUIEM) {
+				*piEnergy = 20 + (p->Energy * p->Level * 3 / 100);
 			}
 
-			if( gCharacterManager.GetBaseClass(Hero->Class) == CLASS_KNIGHT ) {
-				*piEnergy = 10 + (p->Energy*p->Level*4/100);
+			if (gCharacterManager.GetBaseClass(Hero->Class) == CLASS_KNIGHT) {
+				*piEnergy = 10 + (p->Energy * p->Level * 4 / 100);
 			}
 		}
 	}
-
 }
 
-void CSkillManager::GetSkillInformation_Charisma(int iType, int *piCharisma)
-{
-	
-	SKILL_ATTRIBUTE *p = &SkillAttribute[iType];
+void CSkillManager::GetSkillInformation_Charisma(int iType, int* piCharisma) {
+	// Get the skill attribute.
+	SKILL_ATTRIBUTE* p = &SkillAttribute[iType];
 
-	if(piCharisma)
-	{
+	// Set the charisma cost.
+	if (piCharisma) {
 		*piCharisma = p->Charisma;
 	}
-
 }
 
-void CSkillManager::GetSkillInformation_Damage(int iType, int *piDamage)
-{
-	
-	SKILL_ATTRIBUTE *p = &SkillAttribute[iType];
+void CSkillManager::GetSkillInformation_Damage(int iType, int* piDamage) {
+	// Get the skill attribute.
+	SKILL_ATTRIBUTE* p = &SkillAttribute[iType];
 
-	if(piDamage)
-	{
+	// Set the damage.
+	if (piDamage) {
 		*piDamage = p->Damage;
 	}
-
 }
 
-float CSkillManager::GetSkillDistance(int Index, CHARACTER* c)
-{
-    float Distance = (float)( SkillAttribute[Index].Distance );
+float CSkillManager::GetSkillDistance(int Index, CHARACTER* c) {
+	float Distance = (float)SkillAttribute[Index].Distance;
 
-	if( Index == AT_SKILL_BLOW_UP + 4 ) 
-	{
-		if(Distance != 3)
+	if (Index == AT_SKILL_BLOW_UP + 4) {
+		if (Distance != 3) {
 			int aaa = 0;
+		}
 	}
 
-    if(c != NULL)
-    {
-        if(c->Helper.Type == MODEL_HELPER+4)
-		{
-            Distance += 2;
+	if (c != NULL) {
+		if (c->Helper.Type == MODEL_HELPER + 4) {
+			Distance += 2;
 		}
-    }
+	}
 
-    return Distance;
+	return Distance;
 }
 
-bool CSkillManager::CheckSkillDelay ( int SkillIndex )
-{
+bool CSkillManager::CheckSkillDelay(int SkillIndex) {
 	int Skill = CharacterAttribute->Skill[SkillIndex];
 
-    int Delay = SkillAttribute[Skill].Delay;
+	int Delay = SkillAttribute[Skill].Delay;
 
 #ifdef PBG_ADD_NEWCHAR_MONK_SKILL
-	if(!CheckAttack() && (Skill == AT_SKILL_GIANTSWING || Skill == AT_SKILL_DRAGON_LOWER ||
-		Skill == AT_SKILL_DRAGON_KICK))
-	{
+	if (!CheckAttack() && (Skill == AT_SKILL_GIANTSWING || Skill == AT_SKILL_DRAGON_LOWER ||
+		Skill == AT_SKILL_DRAGON_KICK)) {
 		return false;
 	}
 #endif //PBG_ADD_NEWCHAR_MONK_SKILL
-    if ( Delay>0 )
-    {
-        if ( CharacterAttribute->SkillDelay[SkillIndex] > 0 )
-        {
-            return false;
-        }
+
+	if (Delay > 0) {
+		if (CharacterAttribute->SkillDelay[SkillIndex] > 0) {
+			return false;
+		}
 
 		int iCharisma;
 		GetSkillInformation_Charisma(Skill, &iCharisma);
-		if(iCharisma > (CharacterAttribute->Charisma + CharacterAttribute->AddCharisma))
-		{
-            return false;
+		if (iCharisma > (CharacterAttribute->Charisma + CharacterAttribute->AddCharisma)) {
+			return false;
 		}
 
 		CharacterAttribute->SkillDelay[SkillIndex] = Delay;
-    }
-    return true;
+	}
+	return true;
 }
-void CSkillManager::CalcSkillDelay( int time )
-{
-	int iSkillNumber;
-	iSkillNumber = CharacterAttribute->SkillNumber+2;
+
+void CSkillManager::CalcSkillDelay(int time) {
+	int iSkillNumber = CharacterAttribute->SkillNumber + 2;
 	iSkillNumber = min(iSkillNumber, MAX_SKILLS);
 
-    for ( int i=0; i<iSkillNumber; ++i )
-    {
-		if ( CharacterAttribute->SkillDelay[i] <= 0 ) 
+	for (int i = 0; i < iSkillNumber; ++i) {
+		if (CharacterAttribute->SkillDelay[i] <= 0) {
 			continue;
+		}
 
-        CharacterAttribute->SkillDelay[i] -= time;
-        if ( CharacterAttribute->SkillDelay[i]<0 )
-        {
-            CharacterAttribute->SkillDelay[i] = 0;
-        }
-    }
+		CharacterAttribute->SkillDelay[i] -= time;
+		if (CharacterAttribute->SkillDelay[i] < 0) {
+			CharacterAttribute->SkillDelay[i] = 0;
+		}
+	}
 }
 
-BYTE CSkillManager::GetSkillMasteryType( int iType )
-{
-    BYTE MasteryType = 255;
-    SKILL_ATTRIBUTE* p = &SkillAttribute[iType];
+BYTE CSkillManager::GetSkillMasteryType(int iType) {
+	BYTE MasteryType = 255;
+	SKILL_ATTRIBUTE* p = &SkillAttribute[iType];
 
-    MasteryType = p->MasteryType;
+	MasteryType = p->MasteryType;
 
-    return MasteryType;
+	return MasteryType;
 }
 
 int CSkillManager::MasterSkillToBaseSkillIndex(int iMasterSkillIndex)
@@ -404,56 +394,47 @@ int CSkillManager::MasterSkillToBaseSkillIndex(int iMasterSkillIndex)
 	return iBaseSkillIndex;
 }
 
-bool CSkillManager::skillVScharactorCheck( const DemendConditionInfo& basicInfo, const DemendConditionInfo& heroInfo )
-{
-	if( basicInfo <= heroInfo )
-	{
+bool CSkillManager::skillVScharactorCheck(const DemendConditionInfo& basicInfo, const DemendConditionInfo& heroInfo) {
+	if (basicInfo <= heroInfo) {
 		return true;
 	}
 	return false;
 }
 	
-bool CSkillManager::DemendConditionCheckSkill(WORD SkillType)
-{
-	if( SkillType >= MAX_SKILLS ) 
-	{
+bool CSkillManager::DemendConditionCheckSkill(WORD SkillType) {
+	if (SkillType >= MAX_SKILLS) {
 		return false;
 	}
 
-	if( (true == gMapManager.IsEmpireGuardian()) && (SkillType == AT_SKILL_TELEPORT_B || SkillType == AT_SKILL_TELEPORT) )
-	{
+	if ((true == gMapManager.IsEmpireGuardian()) && (SkillType == AT_SKILL_TELEPORT_B || SkillType == AT_SKILL_TELEPORT)) {
 		return false;
 	}
 
- 	if(SkillAttribute[SkillType].Energy == 0)
- 	{
- 		return true;
- 	}
+	if (SkillAttribute[SkillType].Energy == 0) {
+		return true;
+	}
 
 	SkillType = MasterSkillToBaseSkillIndex(SkillType);
 
-	bool result = true;	
-		
+	bool result = true;
+
 	DemendConditionInfo BasicCharacterInfo;
-		
-	BasicCharacterInfo.SkillLevel     = SkillAttribute[SkillType].Level;
-	BasicCharacterInfo.SkillStrength  = SkillAttribute[SkillType].Strength;
+	BasicCharacterInfo.SkillLevel = SkillAttribute[SkillType].Level;
+	BasicCharacterInfo.SkillStrength = SkillAttribute[SkillType].Strength;
 	BasicCharacterInfo.SkillDexterity = SkillAttribute[SkillType].Dexterity;
-	BasicCharacterInfo.SkillVitality  = 0;
-	BasicCharacterInfo.SkillEnergy = (20 + ( SkillAttribute[SkillType].Energy * SkillAttribute[SkillType].Level ) * 0.04);
+	BasicCharacterInfo.SkillVitality = 0;
+	BasicCharacterInfo.SkillEnergy = 20 + (SkillAttribute[SkillType].Energy * SkillAttribute[SkillType].Level) * 0.04;
 	BasicCharacterInfo.SkillCharisma = SkillAttribute[SkillType].Charisma;
-		
+
 	DemendConditionInfo HeroCharacterInfo;
-		
-	HeroCharacterInfo.SkillLevel     = CharacterMachine->Character.Level; 
-	HeroCharacterInfo.SkillStrength  = CharacterMachine->Character.Strength + CharacterMachine->Character.AddStrength;
-	HeroCharacterInfo.SkillDexterity = CharacterMachine->Character.Dexterity + CharacterMachine->Character.AddDexterity; 
-	HeroCharacterInfo.SkillVitality  = CharacterMachine->Character.Vitality + CharacterMachine->Character.AddVitality; 
-	HeroCharacterInfo.SkillEnergy    = CharacterMachine->Character.Energy + CharacterMachine->Character.AddEnergy; 
-	HeroCharacterInfo.SkillCharisma  = CharacterMachine->Character.Charisma + CharacterMachine->Character.AddCharisma;
-		
-	result = skillVScharactorCheck( BasicCharacterInfo, HeroCharacterInfo );
+	HeroCharacterInfo.SkillLevel = CharacterMachine->Character.Level;
+	HeroCharacterInfo.SkillStrength = CharacterMachine->Character.Strength + CharacterMachine->Character.AddStrength;
+	HeroCharacterInfo.SkillDexterity = CharacterMachine->Character.Dexterity + CharacterMachine->Character.AddDexterity;
+	HeroCharacterInfo.SkillVitality = CharacterMachine->Character.Vitality + CharacterMachine->Character.AddVitality;
+	HeroCharacterInfo.SkillEnergy = CharacterMachine->Character.Energy + CharacterMachine->Character.AddEnergy;
+	HeroCharacterInfo.SkillCharisma = CharacterMachine->Character.Charisma + CharacterMachine->Character.AddCharisma;
 
-	return result;	
+	result = skillVScharactorCheck(BasicCharacterInfo, HeroCharacterInfo);
+
+	return result;
 }
-

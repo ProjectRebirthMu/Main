@@ -1573,10 +1573,11 @@ bool M34CryWolf1st::RenderCryWolf1stMonsterVisual(CHARACTER* c, OBJECT* o, BMD* 
 	case MODEL_CRYWOLF_ALTAR4:
 	case MODEL_CRYWOLF_ALTAR5:
 		{
-			vec3_t Light;
-			float fRotation1, fRotation2;
-			float Luminosity = sinf(WorldTime*0.002f)*0.1f+0.28f;
-			float Luminosity2 = sinf(WorldTime*0.002f)*0.04f+0.2f;
+		    vec3_t Light;
+		    float fRotation1 = 0.0f;
+			float fRotation2 = 0.0f;
+		    float Luminosity = sinf(WorldTime * 0.002f) * 0.1f + 0.28f;
+		    float Luminosity2 = sinf(WorldTime * 0.002f) * 0.04f + 0.2f;
 
 			EnableAlphaBlend();
 

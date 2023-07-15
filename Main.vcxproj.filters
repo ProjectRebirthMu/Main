@@ -2271,6 +2271,9 @@
     <ClInclude Include="source\NewUIMuHelper.h">
       <Filter>MU\Interface\NewUI</Filter>
     </ClInclude>
+    <ClInclude Include="source\Utilities\GLM\glm.h">
+      <Filter>MU\Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="script\Mu_Chs.py">
