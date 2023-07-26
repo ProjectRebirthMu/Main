@@ -5,7 +5,7 @@
 //extern CGlobalBitmap Bitmaps;
 
 extern bool OpenJpegBuffer(char *filename,float *BufferFloat);
-extern bool WriteJpeg(char *filename,int Width,int Height,unsigned char *Buffer,int quality);
+extern bool WriteJpeg(const char *filename,int Width,int Height,unsigned char *Buffer,int quality);
 extern void SaveImage(int HeaderSize,char *Ext,char *filename,BYTE *PakBuffer,int Size);
 
 #ifdef KJH_ADD_INGAMESHOP_UI_SYSTEM

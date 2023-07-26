@@ -925,42 +925,37 @@ void EndSprite()
 	glPopMatrix();
 }
 
-void RenderSprite(int Texture, vec3_t Position, float Width, float Height, vec3_t Light, float Rotation, float u, float v, float uWidth, float vHeight)
-{
-	BindTexture(Texture);
+void RenderSprite(int texture, vec3_t position, float width, float height, vec3_t light, float rotation, float u, float v, float uWidth, float vHeight) {
+	BindTexture(texture);
 
 	vec3_t p2;
-	VectorTransform(Position, CameraMatrix, p2);
-	//VectorCopy(Position,p2);
+	VectorTransform(position, CameraMatrix, p2);
 	float x = p2[0];
 	float y = p2[1];
 	float z = p2[2];
 
-	Width *= 0.5f;
-	Height *= 0.5f;
+	width *= 0.5f;
+	height *= 0.5f;
 
 	vec3_t p[4];
-	if (Rotation == 0)
-	{
-		Vector(x - Width, y - Height, z, p[0]);
-		Vector(x + Width, y - Height, z, p[1]);
-		Vector(x + Width, y + Height, z, p[2]);
-		Vector(x - Width, y + Height, z, p[3]);
+	if (rotation == 0) {
+		Vector(x - width, y - height, z, p[0]);
+		Vector(x + width, y - height, z, p[1]);
+		Vector(x + width, y + height, z, p[2]);
+		Vector(x - width, y + height, z, p[3]);
 	}
-	else
-	{
+	else {
 		vec3_t p2[4];
-		Vector(-Width, -Height, z, p2[0]);
-		Vector(Width, -Height, z, p2[1]);
-		Vector(Width, Height, z, p2[2]);
-		Vector(-Width, Height, z, p2[3]);
-		vec3_t Angle;
-		Vector(0.f, 0.f, Rotation, Angle);
-		float Matrix[3][4];
-		AngleMatrix(Angle, Matrix);
-		for (int i = 0; i < 4; i++)
-		{
-			VectorRotate(p2[i], Matrix, p[i]);
+		Vector(-width, -height, z, p2[0]);
+		Vector(width, -height, z, p2[1]);
+		Vector(width, height, z, p2[2]);
+		Vector(-width, height, z, p2[3]);
+		vec3_t angle;
+		Vector(0.0f, 0.0f, rotation, angle);
+		float matrix[3][4];
+		AngleMatrix(angle, matrix);
+		for (int i = 0; i < 4; i++) {
+			VectorRotate(p2[i], matrix, p[i]);
 			p[i][0] += x;
 			p[i][1] += y;
 		}
@@ -973,114 +968,104 @@ void RenderSprite(int Texture, vec3_t Position, float Width, float Height, vec3_
 	TEXCOORD(c[0], u, v + vHeight);
 
 	glBegin(GL_QUADS);
-	if (Bitmaps[Texture].Components == 3)
-		glColor3fv(Light);
-	else
-	{
-		if (Texture == BITMAP_BLOOD + 1 || Texture == BITMAP_FONT_HIT)
-			glColor4f(Light[0], Light[1], Light[2], 1.f);
-		else
-			glColor4f(Light[0], Light[1], Light[2], Light[0]);
+	if (Bitmaps[texture].Components == 3) {
+		glColor3fv(light);
 	}
-	for (int i = 0; i < 4; i++)
-	{
+	else {
+		if (texture == BITMAP_BLOOD + 1 || texture == BITMAP_FONT_HIT) {
+			glColor4f(light[0], light[1], light[2], 1.0f);
+		}
+		else {
+			glColor4f(light[0], light[1], light[2], light[0]);
+		}
+	}
+	for (int i = 0; i < 4; i++) {
 		glTexCoord2f(c[i][0], c[i][1]);
 		glVertex3fv(p[i]);
 	}
 	glEnd();
 }
 
-void RenderSpriteUV(int Texture, vec3_t Position, float Width, float Height, float(*UV)[2], vec3_t Light[4], float Alpha)
-{
-	BindTexture(Texture);
+void RenderSpriteUV(int texture, vec3_t position, float width, float height, float(*uv)[2], vec3_t light[4], float alpha) {
+	BindTexture(texture);
 
 	vec3_t p2;
-	VectorTransform(Position, CameraMatrix, p2);
+	VectorTransform(position, CameraMatrix, p2);
 	float x = p2[0];
 	float y = p2[1];
 	float z = p2[2];
 
-	Width *= 0.5f;
-	Height *= 0.5f;
+	width *= 0.5f;
+	height *= 0.5f;
 	vec3_t p[4];
-	Vector(x - Width, y - Height, z, p[0]);
-	Vector(x + Width, y - Height, z, p[1]);
-	Vector(x + Width, y + Height, z, p[2]);
-	Vector(x - Width, y + Height, z, p[3]);
+	Vector(x - width, y - height, z, p[0]);
+	Vector(x + width, y - height, z, p[1]);
+	Vector(x + width, y + height, z, p[2]);
+	Vector(x - width, y + height, z, p[3]);
 
 	glBegin(GL_QUADS);
-	for (int i = 0; i < 4; i++)
-	{
-		glColor4f(Light[i][0], Light[i][1], Light[i][2], Alpha);
-		glTexCoord2f(UV[i][0], UV[i][1]);
+	for (int i = 0; i < 4; i++) {
+		glColor4f(light[i][0], light[i][1], light[i][2], alpha);
+		glTexCoord2f(uv[i][0], uv[i][1]);
 		glVertex3fv(p[i]);
 	}
 	glEnd();
 }
 
-void RenderNumber(vec3_t Position, int Num, vec3_t Color, float Alpha, float Scale)
-{
+void RenderNumber(vec3_t position, int num, vec3_t color, float alpha, float scale) {
 	vec3_t p;
-	VectorCopy(Position, p);
-	vec3_t Light[4];
-	VectorCopy(Color, Light[0]);
-	VectorCopy(Color, Light[1]);
-	VectorCopy(Color, Light[2]);
-	VectorCopy(Color, Light[3]);
-	if (Num == -1)
-	{
-		float UV[4][2];
-		TEXCOORD(UV[0], 0.f, 32.f / 32.f);
-		TEXCOORD(UV[1], 32.f / 256.f, 32.f / 32.f);
-		TEXCOORD(UV[2], 32.f / 256.f, 17.f / 32.f);
-		TEXCOORD(UV[3], 0.f, 17.f / 32.f);
-		RenderSpriteUV(BITMAP_FONT + 1, p, 45, 20, UV, Light, Alpha);
+	vec3_t light[4];
+	VectorCopy(color, light[0]);
+	VectorCopy(color, light[1]);
+	VectorCopy(color, light[2]);
+	VectorCopy(color, light[3]);
+
+	if (num == -1) {
+		float uv[4][2];
+		TEXCOORD(uv[0], 0.0f, 32.0f / 32.0f);
+		TEXCOORD(uv[1], 32.0f / 256.0f, 32.0f / 32.0f);
+		TEXCOORD(uv[2], 32.0f / 256.0f, 17.0f / 32.0f);
+		TEXCOORD(uv[3], 0.0f, 17.0f / 32.0f);
+		RenderSpriteUV(BITMAP_FONT + 1, p, 45, 20, uv, light, alpha);
 	}
-	else if (Num == -2)
-	{
-		RenderSprite(BITMAP_FONT_HIT, p, 32 * Scale, 20 * Scale, Light[0], 0.f, 0.f, 0.f, 27.f / 32.f, 15.f / 16.f);
+	else if (num == -2) {
+		RenderSprite(BITMAP_FONT_HIT, p, 32 * scale, 20 * scale, light[0], 0.0f, 0.0f, 0.0f, 27.0f / 32.0f, 15.0f / 16.0f);
 	}
-	else
-	{
-		char Text[32];
-		itoa(Num, Text, 10);
-		p[0] -= strlen(Text) * 5.f;
-		unsigned int Length = strlen(Text);
-		p[0] -= Length * Scale * 0.125f;
-		p[1] -= Length * Scale * 0.125f;
-		for (unsigned int i = 0; i < Length; i++)
-		{
-			float UV[4][2];
-			float u = (float)(Text[i] - 48) * 16.f / 256.f;
-			TEXCOORD(UV[0], u, 16.f / 32.f);
-			TEXCOORD(UV[1], u + 16.f / 256.f, 16.f / 32.f);
-			TEXCOORD(UV[2], u + 16.f / 256.f, 0.f);
-			TEXCOORD(UV[3], u, 0.f);
-			RenderSpriteUV(BITMAP_FONT + 1, p, Scale, Scale, UV, Light, Alpha);
-			p[0] += Scale * 0.5f;
-			p[1] += Scale * 0.5f;
+	else {
+		char text[32];
+		itoa(num, text, 10);
+		p[0] -= strlen(text) * 5.0f;
+		unsigned int length = strlen(text);
+		p[0] -= length * scale * 0.125f;
+		p[1] -= length * scale * 0.125f;
+		for (unsigned int i = 0; i < length; i++) {
+			float uv[4][2];
+			float u = (float)(text[i] - 48) * 16.0f / 256.0f;
+			TEXCOORD(uv[0], u, 16.0f / 32.0f);
+			TEXCOORD(uv[1], u + 16.0f / 256.0f, 16.0f / 32.0f);
+			TEXCOORD(uv[2], u + 16.0f / 256.0f, 0.0f);
+			TEXCOORD(uv[3], u, 0.0f);
+			RenderSpriteUV(BITMAP_FONT + 1, p, scale, scale, uv, light, alpha);
+			p[0] += scale * 0.5f;
+			p[1] += scale * 0.5f;
 		}
 	}
 }
 
-float RenderNumber2D(float x, float y, int Num, float Width, float Height)
-{
-	char Text[32];
-	itoa(Num, Text, 10);
-	int Length = (int)strlen(Text);
-	x -= Width * Length / 2;
-	for (int i = 0; i < Length; i++)
-	{
-		float u = (float)(Text[i] - 48) * 16.f / 256.f;
-		//glColor3fv(Color);
-		RenderBitmap(BITMAP_FONT + 1, x, y, Width, Height, u, 0.f, 16.f / 256.f, 16.f / 32.f);
-		x += Width * 0.7f;
+float RenderNumber2D(float x, float y, int num, float width, float height) {
+	char text[32];
+	itoa(num, text, 10);
+	int length = strlen(text);
+	x -= width * length / 2;
+	for (int i = 0; i < length; i++) {
+		float u = (float)(text[i] - 48) * 16.f / 256.f;
+		RenderBitmap(BITMAP_FONT + 1, x, y, width, height, u, 0.f, 16.f / 256.f, 16.f / 32.f);
+		x += width * 0.7f;
 	}
 	return x;
 }
 
-void BeginBitmap()
-{
+void BeginBitmap() {
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
@@ -1106,66 +1091,70 @@ void EndBitmap()
 	glPopMatrix();
 }
 
-void RenderColor(float x, float y, float Width, float Height, float Alpha, int Flag)
-{
+void RenderColor(float x, float y, float width, float height, float alpha, int flag) {
 	DisableTexture();
 
 	x = ConvertX(x);
 	y = ConvertY(y);
-	Width = ConvertX(Width);
-	Height = ConvertY(Height);
+	width = ConvertX(width);
+	height = ConvertY(height);
 
 	float p[4][2];
 	y = WindowHeight - y;
 
-	p[0][0] = x; p[0][1] = y;
-	p[1][0] = x; p[1][1] = y - Height;
-	p[2][0] = x + Width; p[2][1] = y - Height;
-	p[3][0] = x + Width; p[3][1] = y;
+	p[0][0] = x;
+	p[0][1] = y;
+	p[1][0] = x;
+	p[1][1] = y - height;
+	p[2][0] = x + width;
+	p[2][1] = y - height;
+	p[3][0] = x + width;
+	p[3][1] = y;
 
 	glBegin(GL_TRIANGLE_FAN);
-	for (int i = 0; i < 4; i++)
-	{
-		if (Alpha > 0.f)
-		{
-			if (Flag == 0)
-				glColor4f(1.f, 1.f, 1.f, Alpha);
-			else
-				if (Flag == 1)
-					glColor4f(0.f, 0.f, 0.f, Alpha);
+	for (int i = 0; i < 4; i++) {
+		if (alpha > 0.0f) {
+			if (flag == 0) {
+				glColor4f(1.0f, 1.0f, 1.0f, alpha);
+			}
+			else if (flag == 1) {
+				glColor4f(0.0f, 0.0f, 0.0f, alpha);
+			}
 		}
 		glVertex2f(p[i][0], p[i][1]);
-		if (Alpha > 0.f)
-		{
-			glColor4f(1.f, 1.f, 1.f, 1.f);
+		if (alpha > 0.0f) {
+			glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 		}
 	}
 	glEnd();
 }
-void EndRenderColor()
-{
+
+void EndRenderColor() {
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	glEnable(GL_TEXTURE_2D);
 }
 
-void RenderColorBitmap(int Texture, float x, float y, float Width, float Height, float u, float v, float uWidth, float vHeight, unsigned int color)
-{
+void RenderColorBitmap(int texture, float x, float y, float width, float height, float u, float v, float uWidth, float vHeight, unsigned int color) {
 	x = ConvertX(x);
 	y = ConvertY(y);
 
-	Width = ConvertX(Width);
-	Height = ConvertY(Height);
+	width = ConvertX(width);
+	height = ConvertY(height);
 
-	BindTexture(Texture);
+	BindTexture(texture);
 
 	float p[4][2];
 
 	y = WindowHeight - y;
 
-	p[0][0] = x; p[0][1] = y;
-	p[1][0] = x; p[1][1] = y - Height;
-	p[2][0] = x + Width; p[2][1] = y - Height;
-	p[3][0] = x + Width; p[3][1] = y;
+	p[0][0] = x;
+	p[0][1] = y;
+	p[1][0] = x;
+	p[1][1] = y - height;
+	p[2][0] = x + width;
+	p[2][1] = y - height;
+	p[3][0] = x + width;
+	p[3][1] = y;
 
 	float c[4][2];
 	TEXCOORD(c[0], u, v);
@@ -1175,44 +1164,46 @@ void RenderColorBitmap(int Texture, float x, float y, float Width, float Height,
 
 	glBegin(GL_TRIANGLE_FAN);
 
-	for (int i = 0; i < 4; i++)
-	{
-		glColor4ub(static_cast<GLubyte>((color & 0xff)),         //Rad
-			static_cast<GLubyte>((color >> 8) & 0xff),      //Green
-			static_cast<GLubyte>((color >> 16) & 0xff),     //Blue
-			static_cast<GLubyte>((color >> 24) & 0xff));   //Alpha
+	for (int i = 0; i < 4; i++) {
+		glColor4f(
+			static_cast<float>((color & 0xff)) / 255.0f,  // Red
+			static_cast<float>((color >> 8) & 0xff) / 255.0f,  // Green
+			static_cast<float>((color >> 16) & 0xff) / 255.0f,  // Blue
+			static_cast<float>((color >> 24) & 0xff) / 255.0f  // Alpha
+		);
 
 		glTexCoord2f(c[i][0], c[i][1]);
 		glVertex2f(p[i][0], p[i][1]);
 
-		glColor4f(1.f, 1.f, 1.f, 1.f);
+		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 	glEnd();
 }
 
-void RenderBitmap(int Texture, float x, float y, float Width, float Height, float u, float v, float uWidth, float vHeight, bool Scale, bool StartScale, float Alpha)
-{
-	if (StartScale)
-	{
+void RenderBitmap(int texture, float x, float y, float width, float height, float u, float v, float uWidth, float vHeight, bool scale, bool startScale, float alpha) {
+	if (startScale) {
 		x = ConvertX(x);
 		y = ConvertY(y);
 	}
-	if (Scale)
-	{
-		Width = ConvertX(Width);
-		Height = ConvertY(Height);
+	if (scale) {
+		width = ConvertX(width);
+		height = ConvertY(height);
 	}
 
-	BindTexture(Texture);
+	BindTexture(texture);
 
 	float p[4][2];
 
 	y = WindowHeight - y;
 
-	p[0][0] = x; p[0][1] = y;
-	p[1][0] = x; p[1][1] = y - Height;
-	p[2][0] = x + Width; p[2][1] = y - Height;
-	p[3][0] = x + Width; p[3][1] = y;
+	p[0][0] = x;
+	p[0][1] = y;
+	p[1][0] = x;
+	p[1][1] = y - height;
+	p[2][0] = x + width;
+	p[2][1] = y - height;
+	p[3][0] = x + width;
+	p[3][1] = y;
 
 	float c[4][2];
 	TEXCOORD(c[0], u, v);
@@ -1221,45 +1212,39 @@ void RenderBitmap(int Texture, float x, float y, float Width, float Height, floa
 	TEXCOORD(c[1], u, v + vHeight);
 
 	glBegin(GL_TRIANGLE_FAN);
-	for (int i = 0; i < 4; i++)
-	{
-		if (Alpha > 0.f)
-		{
-			glColor4f(1.f, 1.f, 1.f, Alpha);
+	for (int i = 0; i < 4; i++) {
+		if (alpha > 0.0f) {
+			glColor4f(1.0f, 1.0f, 1.0f, alpha);
 		}
 		glTexCoord2f(c[i][0], c[i][1]);
 		glVertex2f(p[i][0], p[i][1]);
-		if (Alpha > 0.f)
-		{
-			glColor4f(1.f, 1.f, 1.f, 1.f);
+		if (alpha > 0.0f) {
+			glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 		}
 	}
 	glEnd();
 }
 
-void RenderBitmapRotate(int Texture, float x, float y, float Width, float Height, float Rotate, float u, float v, float uWidth, float vHeight)
-{
+void RenderBitmapRotate(int texture, float x, float y, float width, float height, float rotate, float u, float v, float uWidth, float vHeight) {
 	x = ConvertX(x);
 	y = ConvertY(y);
-	Width = ConvertX(Width);
-	Height = ConvertY(Height);
-	//x -= Width *0.5f;
-	//y -= Height*0.5f;
-	BindTexture(Texture);
+	width = ConvertX(width);
+	height = ConvertY(height);
+	BindTexture(texture);
 
 	vec3_t p[4], p2[4];
 
 	y = WindowHeight - y;
 
-	Vector(-Width * 0.5f, Height * 0.5f, 0.f, p[0]);
-	Vector(-Width * 0.5f, -Height * 0.5f, 0.f, p[1]);
-	Vector(Width * 0.5f, -Height * 0.5f, 0.f, p[2]);
-	Vector(Width * 0.5f, Height * 0.5f, 0.f, p[3]);
+	Vector(-width * 0.5f, height * 0.5f, 0.0f, p[0]);
+	Vector(-width * 0.5f, -height * 0.5f, 0.0f, p[1]);
+	Vector(width * 0.5f, -height * 0.5f, 0.0f, p[2]);
+	Vector(width * 0.5f, height * 0.5f, 0.0f, p[3]);
 
-	vec3_t Angle;
-	Vector(0.f, 0.f, Rotate, Angle);
-	float Matrix[3][4];
-	AngleMatrix(Angle, Matrix);
+	vec3_t angle;
+	Vector(0.0f, 0.0f, rotate, angle);
+	float matrix[3][4];
+	AngleMatrix(angle, matrix);
 
 	float c[4][2];
 	TEXCOORD(c[0], u, v);
@@ -1268,67 +1253,63 @@ void RenderBitmapRotate(int Texture, float x, float y, float Width, float Height
 	TEXCOORD(c[1], u, v + vHeight);
 
 	glBegin(GL_TRIANGLE_FAN);
-	for (int i = 0; i < 4; i++)
-	{
+	for (int i = 0; i < 4; i++) {
 		glTexCoord2f(c[i][0], c[i][1]);
-		VectorRotate(p[i], Matrix, p2[i]);
+		VectorRotate(p[i], matrix, p2[i]);
 		glVertex2f(p2[i][0] + x, p2[i][1] + y);
 	}
 	glEnd();
 }
 
-void RenderBitRotate(int Texture, float x, float y, float Width, float Height, float Rotate)
-{
+void RenderBitRotate(int texture, float x, float y, float width, float height, float rotate) {
 	x = ConvertX(x);
 	y = ConvertY(y);
-	Width = ConvertX(Width);
-	Height = ConvertY(Height);
+	width = ConvertX(width);
+	height = ConvertY(height);
 
-	BindTexture(Texture);
+	BindTexture(texture);
 
 	vec3_t p[4], p2[4];
 
-	y = Height - y;
+	y = WindowHeight - y;
 
-	float cx = (Width / 2.f) - (Width - x);
-	float cy = (Height / 2.f) - (Height - y);
+	float cx = (width / 2.0f) - (width - x);
+	float cy = (height / 2.0f) - (height - y);
 
-	float ax = (-Width * 0.5f) + cx;
-	float bx = (Width * 0.5f) + cx;
-	float ay = (-Height * 0.5f) + cy;
-	float by = (Height * 0.5f) + cy;
+	float ax = -width * 0.5f + cx;
+	float bx = width * 0.5f + cx;
+	float ay = -height * 0.5f + cy;
+	float by = height * 0.5f + cy;
 
-	Vector(ax, by, 0.f, p[0]);
-	Vector(ax, ay, 0.f, p[1]);
-	Vector(bx, ay, 0.f, p[2]);
-	Vector(bx, by, 0.f, p[3]);
+	Vector(ax, by, 0.0f, p[0]);
+	Vector(ax, ay, 0.0f, p[1]);
+	Vector(bx, ay, 0.0f, p[2]);
+	Vector(bx, by, 0.0f, p[3]);
 
-	vec3_t Angle;
-	Vector(0.f, 0.f, Rotate, Angle);
-	float Matrix[3][4];
-	AngleMatrix(Angle, Matrix);
+	vec3_t angle;
+	Vector(0.0f, 0.0f, rotate, angle);
+	float matrix[3][4];
+	AngleMatrix(angle, matrix);
 
 	float c[4][2];
-	TEXCOORD(c[0], 0.f, 0.f);
-	TEXCOORD(c[3], 1.f, 0.f);
-	TEXCOORD(c[2], 1.f, 1.f);
-	TEXCOORD(c[1], 0.f, 1.f);
+	TEXCOORD(c[0], 0.0f, 0.0f);
+	TEXCOORD(c[3], 1.0f, 0.0f);
+	TEXCOORD(c[2], 1.0f, 1.0f);
+	TEXCOORD(c[1], 0.0f, 1.0f);
 
 	glBegin(GL_TRIANGLE_FAN);
-	for (int i = 0; i < 4; i++)
-	{
+	for (int i = 0; i < 4; i++) {
 		glTexCoord2f(c[i][0], c[i][1]);
-		VectorRotate(p[i], Matrix, p2[i]);
-		glVertex2f(p2[i][0] + (WindowWidth / 2.f), p2[i][1] + (WindowHeight / 2.f));
+		VectorRotate(p[i], matrix, p2[i]);
+		glVertex2f(p2[i][0] + WindowWidth / 2.0f, p2[i][1] + WindowHeight / 2.0f);
 	}
 	glEnd();
 }
 
-void RenderPointRotate(int Texture, float ix, float iy, float iWidth, float iHeight, float x, float y, float Width, float Height, float Rotate, float Rotate_Loc, float uWidth, float vHeight, int Num)
-{
+void RenderPointRotate(int texture, float ix, float iy, float iWidth, float iHeight, float x, float y, float Width, float Height, float rotate, float rotateLoc, float uWidth, float vHeight, int num) {
 	int i = 0;
-	vec3_t p, p2[4], p3, p4[4], Angle;
-	float c[4][2], Matrix[3][4];
+	vec3_t p, p2[4], p3, p4[4], angle;
+	float c[4][2], matrix[3][4];
 
 	ix = ConvertX(ix);
 	iy = ConvertY(iy);
@@ -1337,84 +1318,79 @@ void RenderPointRotate(int Texture, float ix, float iy, float iWidth, float iHei
 	Width = ConvertX(Width);
 	Height = ConvertY(Height);
 
-	BindTexture(Texture);
+	BindTexture(texture);
 
 	y = Height - y;
 	iy = Height - iy;
 
 	Vector((ix - (Width * 0.5f)) + ((Width / 2.f) - (Width - x)), (iy - (Height * 0.5f)) + ((Height / 2.f) - (Height - y)), 0.f, p);
 
-	Vector(0.f, 0.f, Rotate, Angle);
-	AngleMatrix(Angle, Matrix);
+	Vector(0.f, 0.f, rotate, angle);
+	AngleMatrix(angle, matrix);
 
-	VectorRotate(p, Matrix, p3);
+	VectorRotate(p, matrix, p3);
 
 	Vector(-(iWidth * 0.5f), (iHeight * 0.5f), 0.f, p2[0]);
 	Vector(-(iWidth * 0.5f), -(iHeight * 0.5f), 0.f, p2[1]);
 	Vector((iWidth * 0.5f), -(iHeight * 0.5f), 0.f, p2[2]);
 	Vector((iWidth * 0.5f), (iHeight * 0.5f), 0.f, p2[3]);
 
-	Vector(0.f, 0.f, Rotate_Loc, Angle);
-	AngleMatrix(Angle, Matrix);
+	Vector(0.f, 0.f, rotateLoc, angle);
+	AngleMatrix(angle, matrix);
 
-	TEXCOORD(c[0], 0.f, 0.f);
-	TEXCOORD(c[3], uWidth, 0.f);
+	TEXCOORD(c[0], 0.0f, 0.0f);
+	TEXCOORD(c[3], uWidth, 0.0f);
 	TEXCOORD(c[2], uWidth, vHeight);
-	TEXCOORD(c[1], 0.f, vHeight);
+	TEXCOORD(c[1], 0.0f, vHeight);
 
 	glBegin(GL_TRIANGLE_FAN);
-	for (i = 0; i < 4; i++)
-	{
+	for (i = 0; i < 4; i++) {
 		glTexCoord2f(c[i][0], c[i][1]);
 
-		Matrix[0][3] = p3[0] + 25;
-		Matrix[1][3] = p3[1];
-		VectorTransform(p2[i], Matrix, p4[i]);
+		matrix[0][3] = p3[0] + 25;
+		matrix[1][3] = p3[1];
+		VectorTransform(p2[i], matrix, p4[i]);
 
-		glVertex2f(p4[i][0] + (WindowWidth / 2.f), p4[i][1] + (WindowHeight / 2.f));
+		glVertex2f(p4[i][0] + WindowWidth / 2.0f, p4[i][1] + WindowHeight / 2.0f);
 	}
 	glEnd();
 
-	if (Num > -1)
-	{
+	if (num > -1) {
 		float dx, dy;
-		dx = p4[0][0] + (WindowWidth / 2.f);
-		dy = p4[0][1] + (WindowHeight / 2.f);
-		dx = dx * (float)(640.f / WindowWidth);
-		dy = dy * (float)(480.f / WindowHeight);
-		if (Num >= 100)
-		{
-			g_pNewUIMiniMap->SetBtnPos(Num - 100, dx - (iWidth / 2), (480 - dy) - (iHeight / 2), iWidth, iHeight);
+		dx = p4[0][0] + WindowWidth / 2.0f;
+		dy = p4[0][1] + WindowHeight / 2.0f;
+		dx = dx * (float)(640.0f / WindowWidth);
+		dy = dy * (float)(480.0f / WindowHeight);
+		if (num >= 100) {
+			g_pNewUIMiniMap->SetBtnPos(num - 100, dx - (iWidth / 2), (480 - dy) - (iHeight / 2), iWidth, iHeight);
 		}
-		else
-		{
-			g_pNewUIMiniMap->SetBtnPos(Num, dx, 480 - dy, iWidth / 2, iHeight / 2);
+		else {
+			g_pNewUIMiniMap->SetBtnPos(num, dx, 480 - dy, iWidth / 2, iHeight / 2);
 		}
 	}
 }
 
-void RenderBitmapLocalRotate(int Texture, float x, float y, float Width, float Height, float Rotate, float u, float v, float uWidth, float vHeight)
-{
-	BindTexture(Texture);
+void RenderBitmapLocalRotate(int texture, float x, float y, float width, float height, float rotate, float u, float v, float uWidth, float vHeight) {
+	BindTexture(texture);
 
 	vec3_t p[4];
 	x = ConvertX(x);
 	y = ConvertY(y);
 	y = WindowHeight - y;
-	Width = ConvertX(Width);
-	Height = ConvertY(Height);
+	width = ConvertX(width);
+	height = ConvertY(height);
 
 	vec3_t vCenter, vDir;
-	Vector(x, y, 0, vCenter);
-	Vector(Width * 0.5f, -Height * 0.5f, 0, vDir);
-	p[0][0] = vCenter[0] + (vDir[0]) * cosf(Rotate);
-	p[0][1] = vCenter[1] + (vDir[1]) * sinf(Rotate);
-	p[1][0] = vCenter[0] + (vDir[0]) * sinf(Rotate);
-	p[1][1] = vCenter[1] - (vDir[1]) * cosf(Rotate);
-	p[2][0] = vCenter[0] - (vDir[0]) * cosf(Rotate);
-	p[2][1] = vCenter[1] - (vDir[1]) * sinf(Rotate);
-	p[3][0] = vCenter[0] - (vDir[0]) * sinf(Rotate);
-	p[3][1] = vCenter[1] + (vDir[1]) * cosf(Rotate);
+	Vector(x, y, 0.0f, vCenter);
+	Vector(width * 0.5f, -height * 0.5f, 0.0f, vDir);
+	p[0][0] = vCenter[0] + (vDir[0]) * cosf(rotate);
+	p[0][1] = vCenter[1] + (vDir[1]) * sinf(rotate);
+	p[1][0] = vCenter[0] + (vDir[0]) * sinf(rotate);
+	p[1][1] = vCenter[1] - (vDir[1]) * cosf(rotate);
+	p[2][0] = vCenter[0] - (vDir[0]) * cosf(rotate);
+	p[2][1] = vCenter[1] - (vDir[1]) * sinf(rotate);
+	p[3][0] = vCenter[0] - (vDir[0]) * sinf(rotate);
+	p[3][1] = vCenter[1] + (vDir[1]) * cosf(rotate);
 
 	float c[4][2];
 	TEXCOORD(c[0], u, v);
@@ -1423,50 +1399,57 @@ void RenderBitmapLocalRotate(int Texture, float x, float y, float Width, float H
 	TEXCOORD(c[1], u, v + vHeight);
 
 	glBegin(GL_TRIANGLE_FAN);
-	for (int i = 0; i < 4; i++)
-	{
+	for (int i = 0; i < 4; i++) {
 		glTexCoord2f(c[i][0], c[i][1]);
-		glVertex2f(p[i][0], p[i][1]);
+		glVertex2f(p[i][0] + WindowWidth / 2.0f, p[i][1] + WindowHeight / 2.0f);
 	}
 	glEnd();
 }
 
-void RenderBitmapAlpha(int Texture, float sx, float sy, float Width, float Height)
-{
+void RenderBitmapAlpha(int texture, float sx, float sy, float width, float height) {
 	EnableAlphaTest();
-	BindTexture(Texture);
+	BindTexture(texture);
 
 	sy = WindowHeight - sy;
-	for (int y = 0; y < 4; y++)
-	{
-		for (int x = 0; x < 4; x++)
-		{
+	for (int y = 0; y < 4; y++) {
+		for (int x = 0; x < 4; x++) {
 			float p[4][2];
-			p[0][0] = sx + ((x)*Width) * 0.25f; p[0][1] = sy - ((y)*Height) * 0.25f;
-			p[1][0] = sx + ((x)*Width) * 0.25f; p[1][1] = sy - ((y + 1) * Height) * 0.25f;
-			p[2][0] = sx + ((x + 1) * Width) * 0.25f; p[2][1] = sy - ((y + 1) * Height) * 0.25f;
-			p[3][0] = sx + ((x + 1) * Width) * 0.25f; p[3][1] = sy - ((y)*Height) * 0.25f;
+			p[0][0] = sx + (x * width) * 0.25f;
+			p[0][1] = sy - (y * height) * 0.25f;
+			p[1][0] = sx + (x * width) * 0.25f;
+			p[1][1] = sy - ((y + 1) * height) * 0.25f;
+			p[2][0] = sx + ((x + 1) * width) * 0.25f;
+			p[2][1] = sy - ((y + 1) * height) * 0.25f;
+			p[3][0] = sx + ((x + 1) * width) * 0.25f;
+			p[3][1] = sy - (y * height) * 0.25f;
 
 			float c[4][2];
-			TEXCOORD(c[0], (x) * 0.25f, (y) * 0.25f);
-			TEXCOORD(c[1], (x) * 0.25f, (y + 1) * 0.25f);
+			TEXCOORD(c[0], x * 0.25f, y * 0.25f);
+			TEXCOORD(c[1], x * 0.25f, (y + 1) * 0.25f);
 			TEXCOORD(c[2], (x + 1) * 0.25f, (y + 1) * 0.25f);
-			TEXCOORD(c[3], (x + 1) * 0.25f, (y) * 0.25f);
+			TEXCOORD(c[3], (x + 1) * 0.25f, y * 0.25f);
 
-			float Alpha[4] = { 1.f,1.f,1.f,1.f };
-			if (x == 0) { Alpha[0] = 0.f; Alpha[1] = 0.f; }
-			if (x == 3) { Alpha[2] = 0.f; Alpha[3] = 0.f; }
-			if (y == 0) { Alpha[0] = 0.f; Alpha[3] = 0.f; }
-			if (y == 3) { Alpha[1] = 0.f; Alpha[2] = 0.f; }
-			/*if(x==0&&y==0) Alpha[0] = 0.f;
-			if(x==0&&y==3) Alpha[1] = 0.f;
-			if(x==3&&y==3) Alpha[2] = 0.f;
-			if(x==3&&y==0) Alpha[3] = 0.f;*/
+			float alpha[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+			if (x == 0) {
+				alpha[0] = 0.0f;
+				alpha[1] = 0.0f;
+			}
+			if (x == 3) {
+				alpha[2] = 0.0f;
+				alpha[3] = 0.0f;
+			}
+			if (y == 0) {
+				alpha[0] = 0.0f;
+				alpha[3] = 0.0f;
+			}
+			if (y == 3) {
+				alpha[1] = 0.0f;
+				alpha[2] = 0.0f;
+			}
 
 			glBegin(GL_TRIANGLE_FAN);
-			for (int i = 0; i < 4; i++)
-			{
-				glColor4f(1.f, 1.f, 1.f, Alpha[i]);
+			for (int i = 0; i < 4; i++) {
+				glColor4f(1.0f, 1.0f, 1.0f, alpha[i]);
 				glTexCoord2f(c[i][0], c[i][1]);
 				glVertex2f(p[i][0], p[i][1]);
 			}
@@ -1475,32 +1458,34 @@ void RenderBitmapAlpha(int Texture, float sx, float sy, float Width, float Heigh
 	}
 }
 
-void RenderBitmapUV(int Texture, float x, float y, float Width, float Height, float u, float v, float uWidth, float vHeight)
-{
+void RenderBitmapUV(int texture, float x, float y, float width, float height, float u, float v, float uWidth, float vHeight) {
 	x = ConvertX(x);
 	y = ConvertY(y);
-	Width = ConvertX(Width);
-	Height = ConvertY(Height);
-	BindTexture(Texture);
+	width = ConvertX(width);
+	height = ConvertY(height);
+	BindTexture(texture);
 
 	float p[4][2];
 	y = WindowHeight - y;
-	p[0][0] = x; p[0][1] = y;
-	p[1][0] = x; p[1][1] = y - Height;
-	p[2][0] = x + Width; p[2][1] = y - Height;
-	p[3][0] = x + Width; p[3][1] = y;
+	p[0][0] = x;
+	p[0][1] = y;
+	p[1][0] = x;
+	p[1][1] = y - height;
+	p[2][0] = x + width;
+	p[2][1] = y - height;
+	p[3][0] = x + width;
+	p[3][1] = y;
 
 	float c[4][2];
-	TEXCOORD(c[0], u, v + vHeight * 0.25f);
+	TEXCOORD(c[0], u, v + vHeight);
 	TEXCOORD(c[3], u + uWidth, v);
 	TEXCOORD(c[2], u + uWidth, v + vHeight);
-	TEXCOORD(c[1], u, v + vHeight - vHeight * 0.25f);
+	TEXCOORD(c[1], u, v + (vHeight - vHeight * 0.25f));
 
 	glBegin(GL_TRIANGLE_FAN);
-	for (int i = 0; i < 4; i++)
-	{
+	for (int i = 0; i < 4; i++) {
 		glTexCoord2f(c[i][0], c[i][1]);
-		glVertex2f(p[i][0], p[i][1]);
+		glVertex2f(p[i][0] + WindowWidth / 2.0f, p[i][1] + WindowHeight / 2.0f);
 	}
 	glEnd();
 }
@@ -1509,28 +1494,23 @@ void RenderBitmapUV(int Texture, float x, float y, float Width, float Height, fl
 // collision detect util
 ///////////////////////////////////////////////////////////////////////////////
 
-float absf(float a)
-{
-	if (a < 0.f) return -a;
-	return a;
+float absf(float a) {
+	return a < 0.0f ? -a : a;
 }
 
-float minf(float a, float b)
-{
-	if (a > b) return b;
-	return a;
+float minf(float a, float b) {
+	return a < b ? a : b;
 }
 
-float maxf(float a, float b)
-{
-	if (a > b) return a;
-	return b;
+float maxf(float a, float b) {
+	return a > b ? a : b;
 }
 
 int InsideTest(float x, float y, float z, int n, float* v1, float* v2, float* v3, float* v4, int flag, float type)
 {
-	if (type > 0.f)
-		flag <<= 3;
+	if (type > 0.0f) {
+		flag = flag << 3;
+	}
 
 	int i;
 	vec3_t* vtx[4];

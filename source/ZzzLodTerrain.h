@@ -55,7 +55,7 @@ void AddTerrainLight(float xf,float yf,vec3_t Light,int Range,vec3_t *Buffer);
 void AddTerrainLightClip(float xf,float yf,vec3_t Light,int Range,vec3_t *Buffer);
 void RequestTerrainLight(float xf,float yf,vec3_t Light);
 void OpenTerrainLight(char *FileName);
-void SaveTerrainLight(char *FileName);
+void SaveTerrainLight(const char *FileName);
 
 void CreateFrustrum(float Aspect, vec3_t position);
 void CreateLodBuffer();

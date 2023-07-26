@@ -27,24 +27,23 @@ METHODDEF(void) my_error_exit(j_common_ptr cinfo) {
 	longjmp(myerr->setjmp_buffer, 1);
 }
 
-bool WriteJpeg(char* filename, int Width, int Height, unsigned char* Buffer, int quality)
-{
+bool WriteJpeg(const char* filename, int width, int height, unsigned char* buffer, int quality) {
 	struct jpeg_compress_struct cinfo;
 	struct jpeg_error_mgr jerr;
 	FILE* outfile;
 	JSAMPROW row_pointer[1];
 	int row_stride;
+
 	cinfo.err = jpeg_std_error(&jerr);
 	jpeg_create_compress(&cinfo);
 
-	if ((outfile = fopen(filename, "wb")) == NULL)
-	{
+	if ((outfile = fopen(filename, "wb")) == NULL) {
 		return false;
 	}
 	jpeg_stdio_dest(&cinfo, outfile);
 
-	cinfo.image_width = Width;
-	cinfo.image_height = Height;
+	cinfo.image_width = width;
+	cinfo.image_height = height;
 	cinfo.input_components = 3;
 	cinfo.in_color_space = JCS_RGB;
 	jpeg_set_defaults(&cinfo);
@@ -52,10 +51,9 @@ bool WriteJpeg(char* filename, int Width, int Height, unsigned char* Buffer, int
 	jpeg_start_compress(&cinfo, TRUE);
 	row_stride = cinfo.image_width * 3;
 
-	while (cinfo.next_scanline < cinfo.image_height)
-	{
-		row_pointer[0] = &Buffer[(Height - 1 - cinfo.next_scanline) * row_stride];
-		(void)jpeg_write_scanlines(&cinfo, row_pointer, 1);
+	while (cinfo.next_scanline < cinfo.image_height) {
+		row_pointer[0] = &buffer[(height - 1 - cinfo.next_scanline) * row_stride];
+		jpeg_write_scanlines(&cinfo, row_pointer, 1);
 	}
 
 	jpeg_finish_compress(&cinfo);

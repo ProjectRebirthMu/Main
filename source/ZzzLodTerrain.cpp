@@ -473,7 +473,7 @@ void OpenTerrainLight(char* FileName)
 	CreateTerrainLight();
 }
 
-void SaveTerrainLight(char* FileName) {
+void SaveTerrainLight(const char* FileName) {
 	unsigned char* Buffer = new unsigned char[TERRAIN_SIZE * TERRAIN_SIZE * 3];
 	for (int i = 0; i < TERRAIN_SIZE * TERRAIN_SIZE; i++) {
 		for (int j = 0; j < 3; j++) {
@@ -1785,60 +1785,60 @@ void CreateFrustrum2D(vec3_t Position)
 
 	if (gMapManager.WorldActive == WD_6STADIUM && (FindText(Hero->ID, "webzen") || FindText(Hero->ID, "webzen2")))
 	{
-		Width = (float)GetScreenWidth() / 640.f;
-		CameraViewFar = 8500.f;
+		Width = (float)GetScreenWidth() / 640.0f * 3.0f;
+		CameraViewFar = 8500.0f;
 		CameraViewNear = CameraViewFar * 0.05f;
 		CameraViewTarget = CameraViewFar * 0.47f;
-		WidthFar = 3000.f * Width;
-		WidthNear = 540.f * Width;
+		WidthFar = 3000.0f * Width;
+		WidthNear = 540.0f * Width;
 	}
     else
     {
 		if (gMapManager.InBattleCastle() && SceneFlag == MAIN_SCENE)
 		{
-			Width = (float)GetScreenWidth() / 640.f; // * 0.1f;
-			if (battleCastle::InBattleCastle2(Hero->Object.Position) && (Hero->Object.Position[0] < 17100.f || Hero->Object.Position[0] > 18300.f))
+			Width = (float)GetScreenWidth() / 640.0f * 0.1f;
+			if (battleCastle::InBattleCastle2(Hero->Object.Position) && (Hero->Object.Position[0] < 17100.0f || Hero->Object.Position[0] > 18300.0f))
 			{
-				CameraViewFar = 5100.f; // * 0.1f;
-				CameraViewNear = CameraViewFar * 0.19f; // 0.22
-				CameraViewTarget = CameraViewFar * 0.47f; // 0.47
-				WidthFar = 2250.f * Width; // 1140.f
-				WidthNear = 540.f * Width; // 540.f
+				CameraViewFar = 5100.0f * 0.1f;
+				CameraViewNear = CameraViewFar * 0.22f;
+				CameraViewTarget = CameraViewFar * 0.47f;
+				WidthFar = 2250.0f * Width;
+				WidthNear = 540.0f * Width;
 			}
 			else
 			{
-				CameraViewFar = 3300.f; // * 0.1f;
-				CameraViewNear = CameraViewFar * 0.19f; // 0.22
-				CameraViewTarget = CameraViewFar * 0.47f; // 0.47
-				WidthFar = 1300.f * Width; // 1140.f
-				WidthNear = 580.f * Width; // 540.f
+				CameraViewFar = 3300.0f * 0.1f;
+				CameraViewNear = CameraViewFar * 0.22f;
+				CameraViewTarget = CameraViewFar * 0.47f;
+				WidthFar = 1300.0f * Width;
+				WidthNear = 580.0f * Width;
 			}
 		}
 		else if (gMapManager.WorldActive == WD_62SANTA_TOWN)
 		{
-			Width = (float)GetScreenWidth() / 640.f * 1.0f;
-			CameraViewFar = 2400.f;
+			Width = (float)GetScreenWidth() / 640.0f * 1.0f;
+			CameraViewFar = 2400.0f;
 			CameraViewNear = CameraViewFar * 0.19f;
 			CameraViewTarget = CameraViewFar * 0.47f;
-			WidthFar = 1250.f * Width;
-			WidthNear = 540.f * Width;
+			WidthFar = 1250.0f * Width;
+			WidthNear = 540.0f * Width;
 		}
 		else if (gMapManager.IsPKField() || IsDoppelGanger2())
 		{
-			Width = (float)GetScreenWidth() / 640.f;
+			Width = (float)GetScreenWidth() / 640.0f;
 			CameraViewFar = 1700.0f;
 			CameraViewNear = 55.0f;
 			CameraViewTarget = 830.0f;
-			CameraViewFar = 3300.f;
-			WidthFar = 1900.f * Width;
-			WidthNear = 600.f * Width;
+			CameraViewFar = 3300.0f;
+			WidthFar = 1900.0f * Width;
+			WidthNear = 600.0f * Width;
 		}
-        else
-        {
-            static  int CameraLevel;
+		else
+		{
+			static int CameraLevel;
 
-            if((int)CameraDistanceTarget >= (int)CameraDistance )
-                CameraLevel = g_shCameraLevel;
+			if ((int)CameraDistanceTarget >= (int)CameraDistance)
+				CameraLevel = g_shCameraLevel;
 
 			switch (CameraLevel)
 			{
@@ -1848,15 +1848,15 @@ void CreateFrustrum2D(vec3_t Position)
 				}
 				else if (SceneFlag == CHARACTER_SCENE)
 				{
-					Width = (float)GetScreenWidth() / 640.f * 9.1f * 0.404998f;
+					Width = (float)GetScreenWidth() / 640.0f * 9.1f * 0.404998f;
 				}
 				else if (g_Direction.m_CKanturu.IsMayaScene())
 				{
-					Width = (float)GetScreenWidth() / 640.f * 10.0f * 0.115f;
+					Width = (float)GetScreenWidth() / 640.0f * 10.0f * 0.115f;
 				}
 				else
 				{
-					Width = (float)GetScreenWidth() / 640.f;
+					Width = (float)GetScreenWidth() / 640.0f;
 				}
 
 				if (SceneFlag == LOG_IN_SCENE)
@@ -1877,8 +1877,8 @@ void CreateFrustrum2D(vec3_t Position)
 
 				CameraViewNear = CameraViewFar * 0.19f;
 				CameraViewTarget = CameraViewFar * 0.47f;
-				WidthFar = 1190.f * Width;
-				WidthNear = 540.f * Width;
+				WidthFar = 2000.f * Width;
+				WidthNear = 640.f * Width;
 				break;
 			case 1:
 				Width = (float)GetScreenWidth() / 640.f + 0.1f;
@@ -1918,38 +1918,40 @@ void CreateFrustrum2D(vec3_t Position)
     }
 
 	vec3_t p[4];
-	Vector(-WidthFar ,CameraViewFar -CameraViewTarget,0.f,p[0]);
-	Vector( WidthFar ,CameraViewFar -CameraViewTarget,0.f,p[1]);
-	Vector( WidthNear,CameraViewNear-CameraViewTarget,0.f,p[2]);
-	Vector(-WidthNear,CameraViewNear-CameraViewTarget,0.f,p[3]);
-	vec3_t Angle;
-	float Matrix[3][4];
 
-    if ( gMapManager.WorldActive==WD_6STADIUM && ( FindText( Hero->ID, "webzen" ) || FindText( Hero->ID, "webzen2" ) )  )
-    {
-	    Vector ( 0.f, 0.f, -CameraAngle[2], Angle );
-    }
-    else
-	if (gMapManager.WorldActive == WD_73NEW_LOGIN_SCENE)
-    {
+	Vector(-WidthFar, CameraViewFar - CameraViewTarget, 0.0f, p[0]);
+	Vector(WidthFar, CameraViewFar - CameraViewTarget, 0.0f, p[1]);
+	Vector(WidthNear, CameraViewNear - CameraViewTarget, 0.0f, p[2]);
+	Vector(-WidthNear, CameraViewNear - CameraViewTarget, 0.0f, p[3]);
+
+	vec3_t Angle;
+
+	float Matrix[4][4];
+
+	if (gMapManager.WorldActive == WD_6STADIUM && (FindText(Hero->ID, "webzen") || FindText(Hero->ID, "webzen2")))
+	{
+		Vector(0.0f, 0.0f, -CameraAngle[2], Angle);
+	}
+	else if (gMapManager.WorldActive == WD_73NEW_LOGIN_SCENE)
+	{
 		VectorScale(CameraAngle, -1.0f, Angle);
 		CCameraMove::GetInstancePtr()->SetFrustumAngle(89.5f);
-		vec3_t _Temp = { CCameraMove::GetInstancePtr()->GetFrustumAngle(), 0.0f, 0.0f};
-		VectorAdd(Angle,_Temp,Angle);
+		vec3_t _Temp = { CCameraMove::GetInstancePtr()->GetFrustumAngle(), 0.0f, 0.0f };
+		VectorAdd(Angle, _Temp, Angle);
 	}
 	else
 	{
-		Vector(0.f,0.f,45.f,Angle);
+		Vector(0.0f, 0.0f, 45.0f, Angle);
 	}
 
 	AngleMatrix(Angle,Matrix);
     vec3_t Frustrum[4];
-	for(int i=0;i<4;i++)
+	for (int i = 0; i < 4; i++)
 	{
-		VectorRotate(p[i],Matrix,Frustrum[i]);
-		VectorAdd(Frustrum[i],Position,Frustrum[i]);
-		FrustrumX[i] = Frustrum[i][0]*0.01f;
-		FrustrumY[i] = Frustrum[i][1]*0.01f;
+		VectorRotate(p[i], Matrix, Frustrum[i]);
+		VectorAdd(Frustrum[i], Position, Frustrum[i]);
+		FrustrumX[i] = Frustrum[i][0] * 0.01f;
+		FrustrumY[i] = Frustrum[i][1] * 0.01f;
 	}
 }
 

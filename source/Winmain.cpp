@@ -223,44 +223,47 @@ GLvoid KillGLWindow(GLvoid)
 #endif	//WINDOWMODE(#else)
 }
 
-
-BOOL GetFileNameOfFilePath( char *lpszFile, char *lpszPath)
+BOOL GetFileNameOfFilePath(char* lpszFile, char* lpszPath)
 {
-	int iFind = ( int)'\\';
-	char *lpFound = lpszPath;
-	char *lpOld = lpFound;
-	while ( lpFound)
+	if (lpszPath == 0)
+		return FALSE;
+
+	int iFind = (int)'\\';
+	char* lpFound = lpszPath;
+	char* lpOld = lpFound;
+	while (lpFound)
 	{
 		lpOld = lpFound;
-		lpFound = strchr( lpFound + 1, iFind);
+		lpFound = strchr(lpFound + 1, iFind);
 	}
 
-	if ( strchr( lpszPath, iFind))
+	if (strchr(lpszPath, iFind))
 	{
-		strcpy( lpszFile, lpOld + 1);
+		strcpy(lpszFile, lpOld + 1);
 	}
 	else
 	{
-		strcpy( lpszFile, lpOld);
+		strcpy(lpszFile, lpOld);
 	}
 
 	BOOL bCheck = TRUE;
-	for ( char *lpTemp = lpszFile; bCheck; ++lpTemp)
+	for (char* lpTemp = lpszFile; bCheck; ++lpTemp)
 	{
-		switch ( *lpTemp)
+		switch (*lpTemp)
 		{
 		case '\"':
 		case '\\':
 		case '/':
 		case ' ':
 			*lpTemp = '\0';
-		case '\0':
+		case '\0': // end of string
 			bCheck = FALSE;
 			break;
+			// fallthrough
 		}
 	}
 
-	return ( TRUE);
+	return (TRUE);
 }
 
 HANDLE g_hMainExe = INVALID_HANDLE_VALUE;
@@ -322,64 +325,67 @@ DWORD GenerateCheckSum( BYTE *pbyBuffer, DWORD dwSize, WORD wKey)
 	return ( dwResult);
 }
 
-DWORD GetCheckSum( WORD wKey)
+DWORD GetCheckSum(WORD wKey)
 {
-	wKey = DecryptCheckSumKey( wKey);
+	wKey = DecryptCheckSumKey(wKey);
 
 	char lpszFile[MAX_PATH];
 
-	strcpy( lpszFile, "data\\local\\Gameguard.csr");
+	strcpy(lpszFile, "data\\local\\Gameguard.csr");
 
-	HANDLE hFile = CreateFile( ( char*)lpszFile, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
-	if ( INVALID_HANDLE_VALUE == hFile)
+	HANDLE hFile = CreateFile((char*)lpszFile, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+	if (INVALID_HANDLE_VALUE == hFile)
 	{
-		return ( 0);
+		return (0);
 	}
-	
-	DWORD dwSize = GetFileSize( hFile, NULL);
-	BYTE *pbyBuffer = new BYTE [dwSize];
+
+	DWORD dwSize = GetFileSize(hFile, NULL);
+	BYTE* pbyBuffer = new BYTE[dwSize];
 	DWORD dwNumber;
-	ReadFile( hFile, pbyBuffer, dwSize, &dwNumber, 0);
-	CloseHandle( hFile);
-	
+	if (!ReadFile(hFile, pbyBuffer, dwSize, &dwNumber, 0))
+	{
+		delete[] pbyBuffer;
+		return (0);
+	}
+	CloseHandle(hFile);
+
 	DWORD dwCheckSum = GenerateCheckSum(pbyBuffer, dwSize, wKey);
-	delete [] pbyBuffer;
-	
+	delete[] pbyBuffer;
+
 	return (dwCheckSum);
 }
 
-
-BOOL GetFileVersion( char *lpszFileName, WORD *pwVersion)
+BOOL GetFileVersion(char* lpszFileName, WORD* pwVersion)
 {
 	DWORD dwHandle;
-	DWORD dwLen = GetFileVersionInfoSize( lpszFileName, &dwHandle);
-	if ( dwLen <= 0)
+	DWORD dwLen = GetFileVersionInfoSize(lpszFileName, &dwHandle);
+	if (dwHandle == 0)
 	{
-		return ( FALSE);
+		return (FALSE);
 	}
 
-	BYTE *pbyData = new BYTE [dwLen];
-	if ( !GetFileVersionInfo( lpszFileName, dwHandle, dwLen, pbyData))
+	BYTE* pbyData = new BYTE[dwLen];
+	if (!GetFileVersionInfo(lpszFileName, dwHandle, dwLen, pbyData))
 	{
-		delete [] pbyData;
-		return ( FALSE);
+		delete[] pbyData;
+		return (FALSE);
 	}
 
-	VS_FIXEDFILEINFO *pffi;
+	VS_FIXEDFILEINFO* pffi;
 	UINT uLen;
-	if ( !VerQueryValue( pbyData, "\\", ( LPVOID*)&pffi, &uLen))
+	if (!VerQueryValue(pbyData, "\\", (LPVOID*)&pffi, &uLen))
 	{
-		delete [] pbyData;
-		return ( FALSE);
+		delete[] pbyData;
+		return (FALSE);
 	}
 
-	pwVersion[0] = HIWORD( pffi->dwFileVersionMS);
-	pwVersion[1] = LOWORD( pffi->dwFileVersionMS);
-	pwVersion[2] = HIWORD( pffi->dwFileVersionLS);
-	pwVersion[3] = LOWORD( pffi->dwFileVersionLS);
+	pwVersion[0] = HIWORD(pffi->dwFileVersionMS);
+	pwVersion[1] = LOWORD(pffi->dwFileVersionMS);
+	pwVersion[2] = HIWORD(pffi->dwFileVersionLS);
+	pwVersion[3] = LOWORD(pffi->dwFileVersionLS);
 
-	delete [] pbyData;
-	return ( TRUE);
+	delete[] pbyData;
+	return (TRUE);
 }
 
 extern PATH     *path;
@@ -537,7 +543,6 @@ LONG FAR PASCAL WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam)
 			{
 				MouseLButton = false;
 				MouseLButtonPop = false;
-				//MouseLButtonPush = false;
 				MouseRButton = false;
 				MouseRButtonPop = false;
 				MouseRButtonPush = false;
@@ -556,14 +561,13 @@ LONG FAR PASCAL WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam)
 		break;
 	case WM_TIMER :
 		//MessageBox(NULL,GlobalText[16],"Error",MB_OK);
-		switch( wParam )
-		{
+		switch (wParam) {
 		case HACK_TIMER:
 			// PKD_ADD_BINARY_PROTECTION
 			VM_START
-			CheckHack();
+				CheckHack();
 			VM_END
-			break;
+				break;
 		case WINDOWMINIMIZED_TIMER:
 			PostMessage(g_hWnd, WM_CLOSE, 0, 0);
 			break;
@@ -571,47 +575,44 @@ LONG FAR PASCAL WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam)
 			g_pFriendMenu->SendChatRoomConnectCheck();
 			break;
 		case SLIDEHELP_TIMER:
-			if(g_bWndActive)
-			{
-				if(g_pSlideHelpMgr)
+			if (g_bWndActive) {
+				if (g_pSlideHelpMgr) {
 					g_pSlideHelpMgr->CreateSlideText();
+				}
 			}
 			break;
 		}
 		break;
 	case WM_USER_MEMORYHACK:
-		//SetTimer( g_hWnd, WINDOWMINIMIZED_TIMER, 1*1000, NULL);
 		KillGLWindow();
 		break;
 	case WM_NPROTECT_EXIT_TWO:
-		SendHackingChecked( 0x04, 0);
-		SetTimer( g_hWnd, WINDOWMINIMIZED_TIMER, 1*1000, NULL);
-		MessageBox(NULL,GlobalText[16],"Error",MB_OK);
+		SendHackingChecked(0x04, 0);
+		SetTimer(g_hWnd, WINDOWMINIMIZED_TIMER, 1 * 1000, NULL);
+		MessageBox(NULL, GlobalText[16], "Error", MB_OK);
 		break;
 	case WM_ASYNCSELECTMSG :
-		switch( WSAGETSELECTEVENT( lParam ) )
-		{
-		case FD_CONNECT :
+		switch (WSAGETSELECTEVENT(lParam)) {
+		case FD_CONNECT:
 			break;
-		case FD_READ :
+		case FD_READ:
 			SocketClient.nRecv();
 			break;
-		case FD_WRITE :
+		case FD_WRITE:
 			SocketClient.FDWriteSend();
 			break;
-		case FD_CLOSE :
+		case FD_CLOSE:
 			g_pChatListBox->AddText("", GlobalText[3], SEASON3B::TYPE_SYSTEM_MESSAGE);
 #ifdef CONSOLE_DEBUG
-			switch(WSAGETSELECTERROR(lParam))
-			{
+			switch (WSAGETSELECTERROR(lParam)) {
 			case WSAECONNRESET:
 				g_ConsoleDebug->Write(MCD_ERROR, "The connection was reset by the remote side.");
-				g_ErrorReport.Write("The connection was reset by the remote side.\r\n");
+				g_ErrorReport.Write("The connection was reset by the remote side.\n");
 				g_ErrorReport.WriteCurrentTime();
 				break;
 			case WSAECONNABORTED:
 				g_ConsoleDebug->Write(MCD_ERROR, "The connection was terminated due to a time-out or other failure.");
-				g_ErrorReport.Write("The connection was terminated due to a time-out or other failure.\r\n");
+				g_ErrorReport.Write("The connection was terminated due to a time-out or other failure.\n");
 				g_ErrorReport.WriteCurrentTime();
 				break;
 			}
@@ -652,7 +653,6 @@ LONG FAR PASCAL WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam)
 			#endif	
 
 			DestroySound();
-			//DestroyWindow();
 			KillGLWindow();	
 			CloseMainExe();
 			PostQuitMessage(0);
@@ -844,59 +844,59 @@ LONG FAR PASCAL WndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam)
 
 bool CreateOpenglWindow()
 {
-    PIXELFORMATDESCRIPTOR pfd;
+	PIXELFORMATDESCRIPTOR pfd;
 
-    memset(&pfd, 0, sizeof(pfd));
-    pfd.nSize        = sizeof(pfd);
-    pfd.nVersion     = 1;
-    pfd.dwFlags      = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-    pfd.iPixelType   = PFD_TYPE_RGBA;
-    pfd.cColorBits   = 16;
-	pfd.cDepthBits   = 16;
+	memset(&pfd, 0, sizeof(pfd));
+	pfd.nSize = sizeof(pfd);
+	pfd.nVersion = 1;
+	pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
+	pfd.iPixelType = PFD_TYPE_RGBA;
+	pfd.cColorBits = 16;
+	pfd.cDepthBits = 16;
 
-	if (!(g_hDC=GetDC(g_hWnd)))
+	if (!(g_hDC = GetDC(g_hWnd)))
 	{
-		g_ErrorReport.Write( "OpenGL Get DC Error - ErrorCode : %d\r\n", GetLastError());
+		g_ErrorReport.Write("OpenGL Get DC Error - ErrorCode : %d\r\n", GetLastError());
 		KillGLWindow();
-		MessageBox(NULL,GlobalText[4],"OpenGL Get DC Error.",MB_OK|MB_ICONEXCLAMATION);
+		MessageBox(NULL, GlobalText[4], "OpenGL Get DC Error.", MB_OK | MB_ICONEXCLAMATION);
 		return FALSE;
 	}
 
 	GLuint PixelFormat;
 
-	if (!(PixelFormat=ChoosePixelFormat(g_hDC,&pfd)))
+	if (!(PixelFormat = ChoosePixelFormat(g_hDC, &pfd)))
 	{
-		g_ErrorReport.Write( "OpenGL Choose Pixel Format Error - ErrorCode : %d\r\n", GetLastError());
+		g_ErrorReport.Write("OpenGL Choose Pixel Format Error - ErrorCode : %d\r\n", GetLastError());
 		KillGLWindow();
-		MessageBox(NULL,GlobalText[4],"OpenGL Choose Pixel Format Error.",MB_OK|MB_ICONEXCLAMATION);
+		MessageBox(NULL, GlobalText[4], "OpenGL Choose Pixel Format Error.", MB_OK | MB_ICONEXCLAMATION);
 		return FALSE;
 	}
 
-	if(!SetPixelFormat(g_hDC,PixelFormat,&pfd))
+	if (!SetPixelFormat(g_hDC, PixelFormat, &pfd))
 	{
-		g_ErrorReport.Write( "OpenGL Set Pixel Format Error - ErrorCode : %d\r\n", GetLastError());
+		g_ErrorReport.Write("OpenGL Set Pixel Format Error - ErrorCode : %d\r\n", GetLastError());
 		KillGLWindow();
-		MessageBox(NULL,GlobalText[4],"OpenGL Set Pixel Format Error.",MB_OK|MB_ICONEXCLAMATION);
+		MessageBox(NULL, GlobalText[4], "OpenGL Set Pixel Format Error.", MB_OK | MB_ICONEXCLAMATION);
 		return FALSE;
 	}
 
-	if (!(g_hRC=wglCreateContext(g_hDC)))
+	if (!(g_hRC = wglCreateContext(g_hDC)))
 	{
-		g_ErrorReport.Write( "OpenGL Create Context Error - ErrorCode : %d\r\n", GetLastError());
+		g_ErrorReport.Write("OpenGL Create Context Error - ErrorCode : %d\r\n", GetLastError());
 		KillGLWindow();
-		MessageBox(NULL,GlobalText[4],"OpenGL Create Context Error.",MB_OK|MB_ICONEXCLAMATION);
+		MessageBox(NULL, GlobalText[4], "OpenGL Create Context Error.", MB_OK | MB_ICONEXCLAMATION);
 		return FALSE;
 	}
 
-	if(!wglMakeCurrent(g_hDC,g_hRC))
+	if (!wglMakeCurrent(g_hDC, g_hRC))
 	{
-		g_ErrorReport.Write( "OpenGL Make Current Error - ErrorCode : %d\r\n", GetLastError());
+		g_ErrorReport.Write("OpenGL Make Current Error - ErrorCode : %d\r\n", GetLastError());
 		KillGLWindow();
-		MessageBox(NULL,GlobalText[4],"OpenGL Make Current Error.",MB_OK|MB_ICONEXCLAMATION);
+		MessageBox(NULL, GlobalText[4], "OpenGL Make Current Error.", MB_OK | MB_ICONEXCLAMATION);
 		return FALSE;
 	}
 
-	ShowWindow(g_hWnd,SW_SHOW);
+	ShowWindow(g_hWnd, SW_SHOW);
 	SetForegroundWindow(g_hWnd);
 	SetFocus(g_hWnd);
 	return true;
@@ -917,9 +917,7 @@ HWND StartWindow(HINSTANCE hInstance, int nCmdShow)
 
 	sprintf(windowTitle, "MU (%s)", updateVersion.c_str());
 
-	WNDCLASS wndClass;
-	HWND hWnd;
-
+	WNDCLASS wndClass = {};
 	wndClass.style = CS_HREDRAW | CS_VREDRAW;
 	wndClass.lpfnWndProc = WndProc;
 	wndClass.cbClsExtra = 0;
@@ -936,6 +934,8 @@ HWND StartWindow(HINSTANCE hInstance, int nCmdShow)
 		MessageBox(NULL, "Windows aplication error!", "Aplication Error", MB_ICONERROR);
 		return 0;
 	}
+
+	HWND hWnd;
 
 	if (g_bUseWindowMode == TRUE)
 	{
@@ -1349,7 +1349,6 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
 	g_ErrorReport.WriteSystemInfo( &si);
 	g_ErrorReport.AddSeparator();
 
-	// PKD_ADD_BINARY_PROTECTION
 	VM_START
 	WORD wPortNumber;	
 	if ( GetConnectServerInfo( lpCmdLine, g_lpszCmdURL, &wPortNumber))
@@ -1364,7 +1363,6 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
 		return false;
 	}
 
-	// PKD_ADD_BINARY_PROTECTION
 	VM_START
 	g_SimpleModulusCS.LoadEncryptionKey( "Data\\Enc1.dat");
 	g_SimpleModulusSC.LoadDecryptionKey( "Data\\Dec2.dat");
@@ -1405,10 +1403,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
 		}
 	}
 
-#ifdef ENABLE_FULLSCREEN
-#if defined USER_WINDOW_MODE || (defined WINDOWMODE)
 	if (g_bUseWindowMode == FALSE)
-#endif	// USER_WINDOW_MODE
 	{
 		for(int n2=0; n2<nModes; n2++)
 		{
@@ -1420,7 +1415,6 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
 			}
 		}
 	}
-#endif //ENABLE_FULLSCREEN
 
 	delete [] pDevmodes;
 
@@ -1437,14 +1431,12 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
 
 	g_ErrorReport.Write( "> OpenGL init success.\r\n");
 	g_ErrorReport.AddSeparator();
-	//g_ErrorReport.WriteOpenGLInfo();
 	g_ErrorReport.AddSeparator();
 	g_ErrorReport.WriteSoundCardInfo(); 
 
     ShowWindow(g_hWnd, nCmdShow);
     UpdateWindow(g_hWnd);
 
-	//g_ErrorReport.WriteImeInfo( g_hWnd);
 	g_ErrorReport.AddSeparator();
 	
 	switch (WindowWidth)
@@ -1472,11 +1464,6 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
 	g_hFontBold = CreateFont(iFontSize, 0, 0, 0, FW_BOLD, 0, 0, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Tahoma");
 	g_hFontBig = CreateFont(iFontSize * 2, 0, 0, 0, FW_BOLD, 0, 0, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Tahoma");
 	g_hFixFont = CreateFont(nFixFontSize, 0, 0, 0, FW_NORMAL, 0, 0, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Tahoma");
-
-	//g_hFont		= CreateFont(iFontSize,0,0,0,FW_NORMAL,0,0,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,NONANTIALIASED_QUALITY,DEFAULT_PITCH|FF_DONTCARE,GlobalText[0][0] ? GlobalText[0] : NULL); //Gulim
-	//g_hFontBold = CreateFont(iFontSize,0,0,0,FW_BOLD,0,0,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,NONANTIALIASED_QUALITY,DEFAULT_PITCH|FF_DONTCARE,GlobalText[0][0] ? GlobalText[0] : NULL);
-	//g_hFontBig	= CreateFont(iFontSize*2,0,0,0,FW_BOLD,0,0,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,NONANTIALIASED_QUALITY,DEFAULT_PITCH|FF_DONTCARE,GlobalText[0][0] ? GlobalText[0] : NULL);
-	//g_hFixFont	= CreateFont(nFixFontSize,0,0,0,FW_NORMAL,0,0,0,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,NONANTIALIASED_QUALITY,DEFAULT_PITCH | FF_DONTCARE,GlobalText[18][0] ? GlobalText[18] : NULL);
 
 	setlocale( LC_ALL, "english");
 
@@ -1508,32 +1495,30 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
 		SetEffectVolumeLevel(g_pOption->GetVolumeLevel());
 	}
 
-	SetTimer(g_hWnd, HACK_TIMER, 20*1000, NULL);
+	SetTimer(g_hWnd, HACK_TIMER, 20 * 1000, NULL);
 
 	srand((unsigned)time(NULL));
-	for(int i=0;i<100;i++)
-		RandomTable[i] = rand()%360;
+	for (int i = 0; i < 100; i++)
+	{
+		RandomTable[i] = rand() % 360;
+	}
 
-	//memorydump[0]
-	RendomMemoryDump = new BYTE [rand()%100+1];
+	RendomMemoryDump = new BYTE[rand() % 100 + 1];
 
+	GateAttribute = new GATE_ATTRIBUTE[MAX_GATES];
+	SkillAttribute = new SKILL_ATTRIBUTE[MAX_SKILLS];
 
-	GateAttribute				= new GATE_ATTRIBUTE [MAX_GATES];
-	SkillAttribute				= new SKILL_ATTRIBUTE[MAX_SKILLS];
+	ItemAttRibuteMemoryDump = new ITEM_ATTRIBUTE[MAX_ITEM + 1024];
+	ItemAttribute = ((ITEM_ATTRIBUTE*)ItemAttRibuteMemoryDump) + rand() % 1024;
 
-	//memorydump[1]
-	ItemAttRibuteMemoryDump		= new ITEM_ATTRIBUTE [MAX_ITEM+1024];
-	ItemAttribute				= ((ITEM_ATTRIBUTE*)ItemAttRibuteMemoryDump)+rand()%1024;
+	CharacterMemoryDump = new CHARACTER[MAX_CHARACTERS_CLIENT + 1 + 128];
+	CharactersClient = ((CHARACTER*)CharacterMemoryDump) + rand() % 128;
+	CharacterMachine = new CHARACTER_MACHINE;
 
-	//memorydump[2]
-	CharacterMemoryDump			= new CHARACTER      [MAX_CHARACTERS_CLIENT+1+128];
-	CharactersClient			= ((CHARACTER*)CharacterMemoryDump)+rand()%128;
-	CharacterMachine			= new CHARACTER_MACHINE;
-
-	memset(GateAttribute       ,0,sizeof(GATE_ATTRIBUTE   )*(MAX_GATES              ));
-	memset(ItemAttribute       ,0,sizeof(ITEM_ATTRIBUTE   )*(MAX_ITEM               ));
-	memset(SkillAttribute      ,0,sizeof(SKILL_ATTRIBUTE  )*(MAX_SKILLS             ));
-	memset(CharacterMachine    ,0,sizeof(CHARACTER_MACHINE));
+	memset(GateAttribute, 0, sizeof(GATE_ATTRIBUTE) * MAX_GATES);
+	memset(ItemAttribute, 0, sizeof(ITEM_ATTRIBUTE) * MAX_ITEM);
+	memset(SkillAttribute, 0, sizeof(SKILL_ATTRIBUTE) * MAX_SKILLS);
+	memset(CharacterMachine, 0, sizeof(CHARACTER_MACHINE));
 
     CharacterAttribute   = &CharacterMachine->Character;
     CharacterMachine->Init();
