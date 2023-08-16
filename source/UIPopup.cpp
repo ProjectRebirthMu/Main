@@ -17,51 +17,51 @@ extern float g_fScreenRate_y;
 CUIPopup::CUIPopup()
 {
 	int nButtonID = 0;
-	m_OkButton.Init( nButtonID++, GlobalText[228] );
-	m_OkButton.SetParentUIID( 0 );
-	m_OkButton.SetSize( 50, 18 );
-	m_CancelButton.Init( nButtonID++, GlobalText[229] );
-	m_CancelButton.SetParentUIID( 0 );
-	m_CancelButton.SetSize( 50, 18 );
-	m_YesButton.Init( nButtonID++, GlobalText[1037] );
-	m_YesButton.SetParentUIID( 0 );
-	m_YesButton.SetSize( 50, 18 );
-	m_NoButton.Init( nButtonID++, GlobalText[1038] );
-	m_NoButton.SetParentUIID( 0 );
-	m_NoButton.SetSize( 50, 18 );
+	m_OkButton.Init(nButtonID++, GlobalText[228]);
+	m_OkButton.SetParentUIID(0);
+	m_OkButton.SetSize(50, 18);
+	m_CancelButton.Init(nButtonID++, GlobalText[229]);
+	m_CancelButton.SetParentUIID(0);
+	m_CancelButton.SetSize(50, 18);
+	m_YesButton.Init(nButtonID++, GlobalText[1037]);
+	m_YesButton.SetParentUIID(0);
+	m_YesButton.SetSize(50, 18);
+	m_NoButton.Init(nButtonID++, GlobalText[1038]);
+	m_NoButton.SetParentUIID(0);
+	m_NoButton.SetSize(50, 18);
 
-	m_dwPopupStartTime	= 0;
-	m_dwPopupEndTime	= 0;
-	m_dwPopupElapseTime	= 5000;
+	m_dwPopupStartTime = 0;
+	m_dwPopupEndTime = 0;
+	m_dwPopupElapseTime = 5000;
 
 	Init();
 }
 
 CUIPopup::~CUIPopup()
-{
-}
+{}
 
 void CUIPopup::Init()
 {
-	PopupResultFuncPointer			= NULL;
-	PopupUpdateInputFuncPointer		= NULL;
-	PopupRenderFuncPointer			= NULL;
+	PopupResultFuncPointer = nullptr;
+	PopupUpdateInputFuncPointer = nullptr;
+	PopupRenderFuncPointer = nullptr;
 
-	m_dwPopupID			= 0;
-	m_nPopupTextCount	= 0;
-	m_PopupType			= 0;
-	ZeroMemory( m_szPopupText, sizeof(char)*MAX_POPUP_TEXTLINE*MAX_POPUP_TEXTLENGTH );
-	ZeroMemory( m_szInputText, sizeof(char)*1024 );
+	m_dwPopupID = 0;
+	m_nPopupTextCount = 0;
+	m_PopupType = 0;
+	ZeroMemory(m_szPopupText, sizeof(char) * MAX_POPUP_TEXTLINE * MAX_POPUP_TEXTLENGTH);
+	ZeroMemory(m_szInputText, sizeof(char) * 1024);
 }
 
-DWORD CUIPopup::SetPopup( const char* pszText, int nLineCount, int nBufferSize, int Type, int (*ResultFunc)( POPUP_RESULT Result ), POPUP_ALIGN Align )
+DWORD CUIPopup::SetPopup(const char* pszText, int nLineCount, int nBufferSize, int Type, int (*ResultFunc)(POPUP_RESULT Result), POPUP_ALIGN Align)
 {
-	if( nLineCount > MAX_POPUP_TEXTLINE )
+	if (nLineCount > MAX_POPUP_TEXTLINE)
 	{
 		__TraceF(TEXT("CUIPopup::SetPopup\n"));
 		return 0;
 	}
-	if( m_dwPopupID != 0 )
+
+	if (m_dwPopupID != 0)
 	{
 		__TraceF(TEXT("CUIPopup::SetPopup\n"));
 		g_pChatListBox->AddText("", "SetPopup", SEASON3B::TYPE_SYSTEM_MESSAGE);
@@ -72,11 +72,11 @@ DWORD CUIPopup::SetPopup( const char* pszText, int nLineCount, int nBufferSize, 
 	m_Align = Align;
 	m_sizePopup.cy = 0;
 	SIZE sizeText;
-	for( int i=0 ; i<nLineCount ; ++i )
+	for (int i = 0; i < nLineCount; ++i)
 	{
-		if( pszText[i*nBufferSize] )
+		if (pszText[i * nBufferSize])
 		{
-			strcpy( m_szPopupText[i], &pszText[i*nBufferSize] );
+			strcpy(m_szPopupText[i], &pszText[i * nBufferSize]);
 			g_pMultiLanguage->_GetTextExtentPoint32(g_pRenderText->GetFontDC(), m_szPopupText[i], strlen(m_szPopupText[i]), &sizeText);
 			m_sizePopup.cy += sizeText.cy + 2;
 		}
@@ -87,11 +87,11 @@ DWORD CUIPopup::SetPopup( const char* pszText, int nLineCount, int nBufferSize, 
 
 	m_sizePopup.cx = 213;
 	m_sizePopup.cy += 43;
-	if( m_PopupType & POPUP_OK || m_PopupType & POPUP_OKCANCEL || m_PopupType & POPUP_YESNO )
+	if (m_PopupType & POPUP_OK || m_PopupType & POPUP_OKCANCEL || m_PopupType & POPUP_YESNO)
 		m_sizePopup.cy += 20;
-	if( m_PopupType & POPUP_INPUT )
+	if (m_PopupType & POPUP_INPUT)
 		m_sizePopup.cy += 17;
-	if( m_PopupType & POPUP_TIMEOUT )
+	if (m_PopupType & POPUP_TIMEOUT)
 		m_sizePopup.cy += 17;
 
 	m_dwPopupStartTime = GetTickCount();

@@ -7,9 +7,8 @@
 #include "Input.h"
 #include "Button.h"
 
-CWin::CWin() : m_psprBg(NULL)
+CWin::CWin() : m_psprBg(nullptr)
 {
-
 }
 
 CWin::~CWin()
@@ -21,11 +20,11 @@ void CWin::Create(int nWidth, int nHeight, int nTexID, bool bTile)
 {
 	Release();
 
-	if (-2 < nTexID)
+	if (nTexID > -2)
 	{
 		m_psprBg = new CSprite;
-		m_psprBg->Create(nWidth, nHeight, nTexID, 0, NULL, 0, 0, bTile);
-		if (-1 == nTexID)
+		m_psprBg->Create(nWidth, nHeight, nTexID, 0, nullptr, 0, 0, bTile);
+		if (nTexID == -1)
 		{
 			m_psprBg->SetAlpha(128);
 			m_psprBg->SetColor(0, 0, 0);
@@ -64,9 +63,9 @@ void CWin::SetPosition(int nXCoord, int nYCoord)
 
 void CWin::SetSize(int nWidth, int nHeight, CHANGE_PRAM eChangedPram)
 {
-	if (eChangedPram & X)
+	if (eChangedPram & CHANGE_PRAM::X)
 		m_Size.cx = nWidth;
-	if (eChangedPram & Y)
+	if (eChangedPram & CHANGE_PRAM::Y)
 		m_Size.cy = nHeight;
 
 	if (m_psprBg)
@@ -186,9 +185,11 @@ void CWin::Render()
 {
 	if (m_bShow)
 	{
+		// Render background
 		if (m_psprBg)
 			m_psprBg->Render();
 
+		// Render controls
 		RenderControls();
 	}
 }

@@ -324,65 +324,63 @@ void MovieScene(HDC hDC)
 bool EnableMainRender = false;
 extern int HeroKey;
 
-void WebzenScene(HDC hDC)
-{
+void WebzenScene(HDC hDC) {
 	CUIMng& rUIMng = CUIMng::Instance();
 
 	OpenFont();
 	ClearInput();
 
 	LoadBitmap("Interface\\New_lo_back_01.jpg", BITMAP_TITLE, GL_LINEAR);
-	LoadBitmap("Interface\\New_lo_back_02.jpg", BITMAP_TITLE+1, GL_LINEAR);
-	LoadBitmap("Interface\\MU_TITLE.tga", BITMAP_TITLE+2, GL_LINEAR);
-	LoadBitmap("Interface\\lo_121518.tga", BITMAP_TITLE+3, GL_LINEAR);
-	LoadBitmap("Interface\\New_lo_webzen_logo.tga", BITMAP_TITLE+4, GL_LINEAR);
-	LoadBitmap("Interface\\lo_lo.jpg", BITMAP_TITLE+5, GL_LINEAR, GL_REPEAT);
-	LoadBitmap("Interface\\lo_back_s5_03.jpg", BITMAP_TITLE+6, GL_LINEAR);
-	LoadBitmap("Interface\\lo_back_s5_04.jpg", BITMAP_TITLE+7, GL_LINEAR);
-	if(rand()%100 <= 70)
-	{
-		LoadBitmap("Interface\\lo_back_im01.jpg", BITMAP_TITLE+8, GL_LINEAR);
-		LoadBitmap("Interface\\lo_back_im02.jpg", BITMAP_TITLE+9, GL_LINEAR);	
-		LoadBitmap("Interface\\lo_back_im03.jpg", BITMAP_TITLE+10, GL_LINEAR);
-		LoadBitmap("Interface\\lo_back_im04.jpg", BITMAP_TITLE+11, GL_LINEAR);
-		LoadBitmap("Interface\\lo_back_im05.jpg", BITMAP_TITLE+12, GL_LINEAR);
-		LoadBitmap("Interface\\lo_back_im06.jpg", BITMAP_TITLE+13, GL_LINEAR);
+	LoadBitmap("Interface\\New_lo_back_02.jpg", BITMAP_TITLE + 1, GL_LINEAR);
+	LoadBitmap("Interface\\MU_TITLE.tga", BITMAP_TITLE + 2, GL_LINEAR);
+	LoadBitmap("Interface\\lo_121518.tga", BITMAP_TITLE + 3, GL_LINEAR);
+	LoadBitmap("Interface\\New_lo_webzen_logo.tga", BITMAP_TITLE + 4, GL_LINEAR);
+	LoadBitmap("Interface\\lo_lo.jpg", BITMAP_TITLE + 5, GL_LINEAR, GL_REPEAT);
+	LoadBitmap("Interface\\lo_back_s5_03.jpg", BITMAP_TITLE + 6, GL_LINEAR);
+	LoadBitmap("Interface\\lo_back_s5_04.jpg", BITMAP_TITLE + 7, GL_LINEAR);
+	if (rand() % 100 <= 70) {
+		LoadBitmap("Interface\\lo_back_im01.jpg", BITMAP_TITLE + 8, GL_LINEAR);
+		LoadBitmap("Interface\\lo_back_im02.jpg", BITMAP_TITLE + 9, GL_LINEAR);
+		LoadBitmap("Interface\\lo_back_im03.jpg", BITMAP_TITLE + 10, GL_LINEAR);
+		LoadBitmap("Interface\\lo_back_im04.jpg", BITMAP_TITLE + 11, GL_LINEAR);
+		LoadBitmap("Interface\\lo_back_im05.jpg", BITMAP_TITLE + 12, GL_LINEAR);
+		LoadBitmap("Interface\\lo_back_im06.jpg", BITMAP_TITLE + 13, GL_LINEAR);
 	}
-	else
-	{
-		LoadBitmap("Interface\\lo_back_s5_im01.jpg", BITMAP_TITLE+8, GL_LINEAR);
-		LoadBitmap("Interface\\lo_back_s5_im02.jpg", BITMAP_TITLE+9, GL_LINEAR);	
-		LoadBitmap("Interface\\lo_back_s5_im03.jpg", BITMAP_TITLE+10, GL_LINEAR);
-		LoadBitmap("Interface\\lo_back_s5_im04.jpg", BITMAP_TITLE+11, GL_LINEAR);
-		LoadBitmap("Interface\\lo_back_s5_im05.jpg", BITMAP_TITLE+12, GL_LINEAR);
-		LoadBitmap("Interface\\lo_back_s5_im06.jpg", BITMAP_TITLE+13, GL_LINEAR);
+	else {
+		LoadBitmap("Interface\\lo_back_s5_im01.jpg", BITMAP_TITLE + 8, GL_LINEAR);
+		LoadBitmap("Interface\\lo_back_s5_im02.jpg", BITMAP_TITLE + 9, GL_LINEAR);
+		LoadBitmap("Interface\\lo_back_s5_im03.jpg", BITMAP_TITLE + 10, GL_LINEAR);
+		LoadBitmap("Interface\\lo_back_s5_im04.jpg", BITMAP_TITLE + 11, GL_LINEAR);
+		LoadBitmap("Interface\\lo_back_s5_im05.jpg", BITMAP_TITLE + 12, GL_LINEAR);
+		LoadBitmap("Interface\\lo_back_s5_im06.jpg", BITMAP_TITLE + 13, GL_LINEAR);
 	}
 
 	rUIMng.CreateTitleSceneUI();
-	
+
 	FogEnable = false;
-	
-	::EnableAlphaTest();
+
+	EnableAlphaTest();
 	OpenBasicData(hDC);
 
 	g_pNewUISystem->LoadMainSceneInterface();
 
-	CUIMng::Instance().RenderTitleSceneUI(hDC, 11, 11);
+	rUIMng.RenderTitleSceneUI(hDC, 11, 11);
 
 	rUIMng.ReleaseTitleSceneUI();
-		DeleteBitmap(BITMAP_TITLE);
-   	DeleteBitmap(BITMAP_TITLE+1);
-	DeleteBitmap(BITMAP_TITLE+2);
-   	DeleteBitmap(BITMAP_TITLE+3);
-	DeleteBitmap(BITMAP_TITLE+4);
-   	DeleteBitmap(BITMAP_TITLE+5);
+	DeleteBitmap(BITMAP_TITLE);
+	DeleteBitmap(BITMAP_TITLE + 1);
+	DeleteBitmap(BITMAP_TITLE + 2);
+	DeleteBitmap(BITMAP_TITLE + 3);
+	DeleteBitmap(BITMAP_TITLE + 4);
+	DeleteBitmap(BITMAP_TITLE + 5);
 
-	for(int i=6; i<14; ++i)
-		DeleteBitmap(BITMAP_TITLE+i);
+	for (int i = 6; i < 14; ++i) {
+		DeleteBitmap(BITMAP_TITLE + i);
+	}
 
-	g_ErrorReport.Write( "> Loading ok.\r\n");
+	g_ErrorReport.Write("> Loading ok.\r\n");
 
-	SceneFlag = LOG_IN_SCENE;	//
+	SceneFlag = LOG_IN_SCENE;
 }
 
 int MenuStateCurrent = MENU_SERVER_LIST;
@@ -575,7 +573,7 @@ void RenderInfomation3D()
 		glPopMatrix();
 		glMatrixMode(GL_PROJECTION);
 		glPopMatrix();
-		UpdateMousePosition();
+		UpdateMousePositionn();
     }
 }
 
@@ -850,22 +848,19 @@ extern BOOL g_bIMEBlock;
 int SelectedHero = -1;
 bool MoveMainCamera();
 
-void StartGame()
-{
-	{
-		if (CTLCODE_01BLOCKCHAR & CharactersClient[SelectedHero].CtlCode)
-			CUIMng::Instance().PopUpMsgWin(MESSAGE_BLOCKED_CHARACTER);
-		else
-		{
-			CharacterAttribute->Level = CharactersClient[SelectedHero].Level;
-			CharacterAttribute->Class = CharactersClient[SelectedHero].Class;
-			CharacterAttribute->Skin  = CharactersClient[SelectedHero].Skin;
-			::strcpy(CharacterAttribute->Name, CharactersClient[SelectedHero].ID);
+void StartGame() {
+	if (CTLCODE_01BLOCKCHAR & CharactersClient[SelectedHero].CtlCode) {
+		CUIMng::Instance().PopUpMsgWin(MESSAGE_BLOCKED_CHARACTER);
+	}
+	else {
+		CharacterAttribute->Level = CharactersClient[SelectedHero].Level;
+		CharacterAttribute->Class = CharactersClient[SelectedHero].Class;
+		CharacterAttribute->Skin = CharactersClient[SelectedHero].Skin;
+		strcpy(CharacterAttribute->Name, CharactersClient[SelectedHero].ID);
 
-			::ReleaseCharacterSceneData();
-			InitLoading = false;
-			SceneFlag = LOADING_SCENE;
-		}
+		ReleaseCharacterSceneData();
+		InitLoading = false;
+		SceneFlag = LOADING_SCENE;
 	}
 }
 
@@ -1173,6 +1168,7 @@ bool NewRenderCharacterScene(HDC hDC)
 void CreateLogInScene()
 {
 	EnableMainRender = true;
+
 #ifdef PJH_NEW_SERVER_SELECT_MAP
 	gMapManager.WorldActive = WD_73NEW_LOGIN_SCENE;
 #else
@@ -1185,56 +1181,59 @@ void CreateLogInScene()
 	CUIMng::Instance().CreateLoginScene();
 
 	CurrentProtocolState = REQUEST_JOIN_SERVER;
-    CreateSocket(szServerIpAddress,g_ServerPort);
-    EnableSocket = true;
+	CreateSocket(szServerIpAddress, g_ServerPort);
+	EnableSocket = true;
 
 	GuildInputEnable = false;
-	TabInputEnable   = false;
-	GoldInputEnable  = false;
-	InputEnable      = true;
+	TabInputEnable = false;
+	GoldInputEnable = false;
+	InputEnable = true;
 	ClearInput();
 
 	if (g_iChatInputType == 0)
 	{
-		strcpy(InputText[0],m_ID);
+		strcpy(InputText[0], m_ID);
 		InputLength[0] = strlen(InputText[0]);
 		InputTextMax[0] = MAX_ID_SIZE;
-		if(InputLength[0] == 0)	InputIndex = 0;
-		else InputIndex = 1;
+		if (InputLength[0] == 0)
+			InputIndex = 0;
+		else
+			InputIndex = 1;
 	}
 	InputNumber = 2;
-    InputTextHide[1] = 1;
+	InputTextHide[1] = 1;
 
 	CCameraMove::GetInstancePtr()->PlayCameraWalk(Hero->Object.Position, 1000);
 #ifdef PJH_NEW_SERVER_SELECT_MAP
-	CCameraMove::GetInstancePtr()->SetTourMode(TRUE, FALSE, 1);
+	CCameraMove::GetInstancePtr()->SetTourMode(true, false, 1);
 #else //PJH_NEW_SERVER_SELECT_MAP
-	CCameraMove::GetInstancePtr()->SetTourMode(TRUE, TRUE);
+	CCameraMove::GetInstancePtr()->SetTourMode(true, true);
 #endif //PJH_NEW_SERVER_SELECT_MAP
-	
+
 	MoveMainCamera();
 
 	g_fMULogoAlpha = 0;
-	
-	::PlayMp3(g_lpszMp3[MUSIC_LOGIN_THEME]);
 
-	g_ErrorReport.Write( "> Login Scene init success.\r\n");
+	PlayMp3(g_lpszMp3[MUSIC_LOGIN_THEME]);
+
+	g_ErrorReport.Write("> Login Scene init success.\r\n");
 }
 
 void NewMoveLogInScene()
 {
-	if(!InitLogIn)
+	if (!InitLogIn)
 	{
 		InitLogIn = true;
 		CreateLogInScene();
 	}
 
 #ifdef MOVIE_DIRECTSHOW
-	if(CUIMng::Instance().IsMoving() == true)
+	if (CUIMng::Instance().IsMoving())
 	{
 		return;
 	}
 #endif // MOVIE_DIRECTSHOW
+
 	if (!CUIMng::Instance().m_CreditWin.IsShow())
 	{
 		InitTerrainLight();
@@ -1260,25 +1259,26 @@ void NewMoveLogInScene()
 			&& rUIMng.m_LoginMainWin.IsShow() && rUIMng.m_ServerSelWin.IsShow()
 			&& rUIMng.IsSysMenuWinShow())
 		{
-			::PlayBuffer(SOUND_CLICK01);
+			PlayBuffer(SOUND_CLICK01);
 			rUIMng.ShowWin(&rUIMng.m_SysMenuWin);
 		}
 	}
+
 	if (RECEIVE_LOG_IN_SUCCESS == CurrentProtocolState)
 	{
-		g_ErrorReport.Write( "> Request Character list\r\n");
+		g_ErrorReport.Write("> Request Character list\r\n");
 
 		CCameraMove::GetInstancePtr()->SetTourMode(FALSE);
 
 		SceneFlag = CHARACTER_SCENE;
 
-		#ifdef NEW_PROTOCOL_SYSTEM
-			gProtocolSend.SendRequestCharactersListNew();
-		#else
-			SendRequestCharactersList(g_pMultiLanguage->GetLanguage());
-		#endif
+#ifdef NEW_PROTOCOL_SYSTEM
+		gProtocolSend.SendRequestCharactersListNew();
+#else
+		SendRequestCharactersList(g_pMultiLanguage->GetLanguage());
+#endif
 
-        ReleaseLogoSceneData();
+		ReleaseLogoSceneData();
 
 		ClearCharacters();
 	}
@@ -1462,25 +1462,53 @@ bool NewRenderLogInScene(HDC hDC)
 
 void RenderInterfaceEdge()
 {
-	int Width,Height;
-	int WindowX,WindowY;
-   	EnableAlphaTest();
-	glColor3f(1.f,1.f,1.f);
-	//interface edge
-	Width = 192;Height = 37;WindowX = 448;WindowY = 0;
-	RenderBitmap(BITMAP_LOG_IN,(float)WindowX,(float)WindowY,(float)Width,(float)Height,0.f,0.f,Width/256.f,Height/64.f);
-	Width = 192;Height = 37;WindowX = 0;WindowY = 0;
-	RenderBitmap(BITMAP_LOG_IN,(float)WindowX,(float)WindowY,(float)Width,(float)Height,Width/256.f,0.f,-Width/256.f,Height/64.f);
-	Width = 106;Height = 256;WindowX = 534;WindowY = 3;
-	RenderBitmap(BITMAP_LOG_IN+1,(float)WindowX,(float)WindowY,(float)Width,(float)Height,0.f,0.f,Width/128.f,Height/256.f);
-	Width = 106;Height = 256;WindowX = 0;WindowY = 3;
-	RenderBitmap(BITMAP_LOG_IN+1,(float)WindowX,(float)WindowY,(float)Width,(float)Height,Width/128.f,0.f,-Width/128.f,Height/256.f);
-	Width = 106;Height = 222;WindowX = 534;WindowY = 259;
-	RenderBitmap(BITMAP_LOG_IN+2,(float)WindowX,(float)WindowY,(float)Width,(float)Height,0.f,0.f,Width/128.f,Height/256.f);
-	Width = 106;Height = 222;WindowX = 0;WindowY = 259;
-	RenderBitmap(BITMAP_LOG_IN+2,(float)WindowX,(float)WindowY,(float)Width,(float)Height,Width/128.f,0.f,-Width/128.f,Height/256.f);
-	Width = 256;Height = 70;WindowX = 192;WindowY = 0;
-	RenderBitmap(BITMAP_LOG_IN+3,(float)WindowX,(float)WindowY,(float)Width,(float)Height,0.f,0.f,Width/256.f,Height/128.f);
+	int Width, Height;
+	int WindowX, WindowY;
+
+	EnableAlphaTest();
+	glColor3f(1.f, 1.f, 1.f);
+
+	Width = 192;
+	Height = 37;
+	WindowX = 448;
+	WindowY = 0;
+	RenderBitmap(BITMAP_LOG_IN, (float)WindowX, (float)WindowY, (float)Width, (float)Height, 0.f, 0.f, Width / 256.f, Height / 64.f);
+
+	Width = 192;
+	Height = 37;
+	WindowX = 0;
+	WindowY = 0;
+	RenderBitmap(BITMAP_LOG_IN, (float)WindowX, (float)WindowY, (float)Width, (float)Height, Width / 256.f, 0.f, -Width / 256.f, Height / 64.f);
+
+	Width = 106;
+	Height = 256;
+	WindowX = 534;
+	WindowY = 3;
+	RenderBitmap(BITMAP_LOG_IN + 1, (float)WindowX, (float)WindowY, (float)Width, (float)Height, 0.f, 0.f, Width / 128.f, Height / 256.f);
+
+	Width = 106;
+	Height = 256;
+	WindowX = 0;
+	WindowY = 3;
+	RenderBitmap(BITMAP_LOG_IN + 1, (float)WindowX, (float)WindowY, (float)Width, (float)Height, Width / 128.f, 0.f, -Width / 128.f, Height / 256.f);
+
+	Width = 106;
+	Height = 222;
+	WindowX = 534;
+	WindowY = 259;
+	RenderBitmap(BITMAP_LOG_IN + 2, (float)WindowX, (float)WindowY, (float)Width, (float)Height, 0.f, 0.f, Width / 128.f, Height / 256.f);
+
+	Width = 106;
+	Height = 222;
+	WindowX = 0;
+	WindowY = 259;
+	RenderBitmap(BITMAP_LOG_IN + 2, (float)WindowX, (float)WindowY, (float)Width, (float)Height, Width / 128.f, 0.f, -Width / 128.f, Height / 256.f);
+
+	Width = 256;
+	Height = 70;
+	WindowX = 192;
+	WindowY = 0;
+	RenderBitmap(BITMAP_LOG_IN + 3, (float)WindowX, (float)WindowY, (float)Width, (float)Height, 0.f, 0.f, Width / 256.f, Height / 128.f);
 }
 
 void LoadingScene(HDC hDC)
@@ -1493,37 +1521,37 @@ void LoadingScene(HDC hDC)
 		LoadingWorld = 9999999;
 
 		InitLoading = true;
-		
-		LoadBitmap("Interface\\LSBg01.JPG", BITMAP_TITLE, GL_LINEAR);
-		LoadBitmap("Interface\\LSBg02.JPG", BITMAP_TITLE+1, GL_LINEAR);
-		LoadBitmap("Interface\\LSBg03.JPG", BITMAP_TITLE+2, GL_LINEAR);
-		LoadBitmap("Interface\\LSBg04.JPG", BITMAP_TITLE+3, GL_LINEAR);
 
-		::StopMp3(g_lpszMp3[MUSIC_LOGIN_THEME]);
+		LoadBitmap("Interface\\LSBg01.JPG", BITMAP_TITLE, GL_LINEAR);
+		LoadBitmap("Interface\\LSBg02.JPG", BITMAP_TITLE + 1, GL_LINEAR);
+		LoadBitmap("Interface\\LSBg03.JPG", BITMAP_TITLE + 2, GL_LINEAR);
+		LoadBitmap("Interface\\LSBg04.JPG", BITMAP_TITLE + 3, GL_LINEAR);
+
+		StopMp3(g_lpszMp3[MUSIC_LOGIN_THEME]);
 
 		rUIMng.m_pLoadingScene = new CLoadingScene;
 		rUIMng.m_pLoadingScene->Create();
 	}
 
-    FogEnable = false;
-	::BeginOpengl();
-	::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	::BeginBitmap();
+	FogEnable = false;
+	BeginOpengl();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	BeginBitmap();
 
 	rUIMng.m_pLoadingScene->Render();
 
-	::EndBitmap();
-	::EndOpengl();
-	::glFlush();
-	::SwapBuffers(hDC);
+	EndBitmap();
+	EndOpengl();
+	glFlush();
+	SwapBuffers(hDC);
 
 	SAFE_DELETE(rUIMng.m_pLoadingScene);
 
 	SceneFlag = MAIN_SCENE;
 	for (int i = 0; i < 4; ++i)
-		::DeleteBitmap(BITMAP_TITLE+i);
+		DeleteBitmap(BITMAP_TITLE + i);
 
-	::ClearInput();
+	ClearInput();
 
 	g_ConsoleDebug->Write(MCD_NORMAL, "LoadingScene_End");
 }
@@ -1642,7 +1670,6 @@ bool MoveMainCamera()
 	if(CameraTopViewEnable)
 	{
 		CameraViewFar = 3200.f;
-		//CameraViewFar = 60000.f;
 		CameraPosition[0] = Hero->Object.Position[0];
 		CameraPosition[1] = Hero->Object.Position[1];
 		CameraPosition[2] = CameraViewFar;
@@ -2296,14 +2323,14 @@ void MainScene(HDC hDC)
 	
 	int32_t Remain = 0;
 
-	for (Remain = TimeRemain; Remain >= 40; Remain -= 40)
+	for (int Remain = TimeRemain; Remain >= 40; Remain -= 40)
 	{
 		g_pNewKeyInput->ScanAsyncKeyState();
 
 		if (LOG_IN_SCENE == SceneFlag || CHARACTER_SCENE == SceneFlag)
 		{
 			double dDeltaTick = g_pTimer->GetTimeElapsed();
-			dDeltaTick = MIN(dDeltaTick, 200.0);
+			dDeltaTick = min(dDeltaTick, 200.0);
 			g_pTimer->ResetTimer();
 
 			CInput::Instance().Update();
@@ -2326,27 +2353,27 @@ void MainScene(HDC hDC)
 			MoveMainScene();
 			break;
 		}
-		
-		for ( int iCount = 0; iCount < 5; ++iCount)
+
+		for (int iCount = 0; iCount < 5; ++iCount)
 		{
 			g_PhysicsManager.Move(0.005f);
 		}
 
-        MoveNotices();
+		MoveNotices();
 
-		if(PressKey(VK_SNAPSHOT))
+		if (PressKey(VK_SNAPSHOT))
 		{
-			if(GrabEnable)
+			if (GrabEnable)
 				GrabEnable = false;
 			else
 				GrabEnable = true;
 		}
-        if(ChatTime > 0) ChatTime--;
-		if(MacroTime > 0) MacroTime--;
+		if (ChatTime > 0) ChatTime--;
+		if (MacroTime > 0) MacroTime--;
 		WaterTextureNumber++;
-		WaterTextureNumber%=32;
+		WaterTextureNumber %= 32;
 		MoveSceneFrame++;
-	} 
+	}
 
 	if (Destroy) {
 		return;
@@ -2487,13 +2514,12 @@ void MainScene(HDC hDC)
 	if (DifTimer < 40)
 	{
 		int32_t dwMilliseconds = 40 - DifTimer;
-		//std::this_thread::sleep_for(std::chrono::milliseconds(dwMilliseconds)); 
 		Sleep(dwMilliseconds);
 		TimePrior += dwMilliseconds;
 		DifTimer = 40;
 	}
 
-	DifTimer = DifTimer + Remain;
+	DifTimer += Remain;
 
 	if(EnableSocket && SceneFlag==MAIN_SCENE)
 	{
@@ -2549,7 +2575,6 @@ void MainScene(HDC hDC)
 			PlayBuffer(SOUND_TOWER01,NULL,true);
 			break;
 		case WD_5UNKNOWN:
-			//PlayBuffer(SOUND_BOSS01,NULL,true);
 			break;
 		case WD_7ATLANSE:
 			PlayBuffer(SOUND_WATER01,NULL,true);
@@ -2794,11 +2819,10 @@ float g_Luminosity;
 extern int g_iNoMouseTime;
 extern GLvoid KillGLWindow(GLvoid);
 
-
 void Scene(HDC hDC)
 {
-	g_Luminosity = sinf(WorldTime*0.004f)*0.15f+0.6f;
-	switch(SceneFlag)
+	g_Luminosity = sinf(WorldTime * 0.004f) * 0.15f + 0.6f;
+	switch (SceneFlag)
 	{
 #ifdef MOVIE_DIRECTSHOW
 	case MOVIE_SCENE:
@@ -2806,10 +2830,10 @@ void Scene(HDC hDC)
 		break;
 #endif // MOVIE_DIRECTSHOW
 	case WEBZEN_SCENE:
-        WebzenScene(hDC);
+		WebzenScene(hDC);
 		break;
 	case LOADING_SCENE:
-      	LoadingScene(hDC);
+		LoadingScene(hDC);
 		break;
 	case LOG_IN_SCENE:
 	case CHARACTER_SCENE:
@@ -2818,7 +2842,7 @@ void Scene(HDC hDC)
 		break;
 	}
 
-	if ( g_iNoMouseTime > 31)
+	if (g_iNoMouseTime > 31)
 	{
 		KillGLWindow();
 	}
@@ -2827,17 +2851,17 @@ void Scene(HDC hDC)
 bool GetTimeCheck(int DelayTime)
 {
 	int PresentTime = timeGetTime();
-	
-	if(g_bTimeCheck)
+
+	if (g_bTimeCheck)
 	{
 		g_iBackupTime = PresentTime;
 		g_bTimeCheck = false;
 	}
 
-	if(g_iBackupTime+DelayTime <= PresentTime)
+	if (g_iBackupTime + DelayTime <= PresentTime)
 	{
 		g_bTimeCheck = true;
 		return true;
 	}
-	return false;	
+	return false;
 }

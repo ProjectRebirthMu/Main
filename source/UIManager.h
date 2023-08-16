@@ -77,6 +77,7 @@ public:
 	void UpdateInput();
 	void Render();
 	void CloseAll();
+	void CloseAllInterfaces(const std::vector<DWORD>& close_interfaces, DWORD dwExtraData);
 	bool IsOpen( DWORD dwInterface );
 	bool Open( DWORD dwInterface, DWORD dwExtraData=0 );
 	bool Close( DWORD dwInterface, DWORD dwExtraData=0 );

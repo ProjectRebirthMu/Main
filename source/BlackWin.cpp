@@ -1,5 +1,4 @@
 // BlackWin.cpp: implementation of the CBlackWin class.
-// Revised: 10/07/23
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -10,10 +9,14 @@
 #define BLW_FADE_TIME	1000.0
 
 CBlackWin::CBlackWin()
-{}
+{
+
+}
 
 CBlackWin::~CBlackWin()
-{}
+{
+
+}
 
 void CBlackWin::Create()
 {
@@ -30,19 +33,20 @@ bool CBlackWin::CursorInWin(int nArea)
 	{
 	case WA_MOVE:
 		return false;
-	default:
-		return CWin::CursorInWin(nArea);
 	}
+
+	return CWin::CursorInWin(nArea);
 }
 
 void CBlackWin::UpdateWhileActive(double dDeltaTick)
 {
-	short nAlpha = static_cast<short>(CWin::GetBgAlpha());
-	nAlpha -= static_cast<short>(255.0 * dDeltaTick / BLW_FADE_TIME);
-	if (nAlpha <= 0)
+	short nAlpha;
+	nAlpha = short(CWin::GetBgAlpha());
+	nAlpha -= short(255.0 * dDeltaTick / BLW_FADE_TIME);
+	if (0 >= nAlpha)
 	{
 		nAlpha = 0;
 		CUIMng::Instance().HideWin(this);
 	}
-	CWin::SetBgAlpha(static_cast<BYTE>(nAlpha));
+	CWin::SetBgAlpha((BYTE)nAlpha);
 }

@@ -13,7 +13,6 @@
 
 CSlider::CSlider() : m_pGaugeBar(NULL), m_psprBack(NULL)
 {
-
 }
 
 CSlider::~CSlider()
@@ -22,20 +21,17 @@ CSlider::~CSlider()
 	SAFE_DELETE(m_psprBack);
 }
 
-void CSlider::Create(SImgInfo* piiThumb, SImgInfo* piiBack, SImgInfo* piiGauge,RECT* prcGauge, bool bVertical)
-{
+void CSlider::Create(SImgInfo* piiThumb, SImgInfo* piiBack, SImgInfo* piiGauge, RECT* prcGauge, bool bVertical) {
 	m_btnThumb.Create(piiThumb->nWidth, piiThumb->nHeight, piiThumb->nTexID);
 
 	SAFE_DELETE(m_pGaugeBar);
 	SAFE_DELETE(m_psprBack);
 
-	if (piiGauge)
-	{
+	if (piiGauge) {
 		m_pGaugeBar = new CGaugeBar;
-		m_pGaugeBar->Create(piiGauge->nWidth, piiGauge->nHeight, piiGauge->nTexID, prcGauge,piiBack->nWidth, piiBack->nHeight, piiBack->nTexID);
+		m_pGaugeBar->Create(piiGauge->nWidth, piiGauge->nHeight, piiGauge->nTexID, prcGauge, piiBack->nWidth, piiBack->nHeight, piiBack->nTexID);
 	}
-	else if (-1 < piiBack->nTexID)
-	{
+	else if (piiBack->nTexID > -1) {
 		m_psprBack->Create(piiBack);
 	}
 
@@ -47,16 +43,14 @@ void CSlider::Create(SImgInfo* piiThumb, SImgInfo* piiBack, SImgInfo* piiGauge,R
 	m_ptPos.y = 0;
 	m_dThumbMoveTime = 0.0;
 
-	int nThumbRange;
-	if (m_bVertical)
-	{
+	int nThumbRange = 0;
+	if (m_bVertical) {
 		nThumbRange = piiBack->nHeight - m_btnThumb.GetHeight();
 
 		m_Size.cx = m_btnThumb.GetWidth();
 		m_Size.cy = piiBack->nHeight;
 	}
-	else
-	{
+	else {
 		nThumbRange = piiBack->nWidth - m_btnThumb.GetWidth();
 
 		m_Size.cx = piiBack->nWidth;

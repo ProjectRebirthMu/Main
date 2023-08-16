@@ -289,7 +289,7 @@ void CMsgWin::SetMsg(MSG_WIN_TYPE eType, LPCTSTR lpszMsg, LPCTSTR lpszMsg2)
 	}
 }
 
-void CMsgWin::PopUp(int nMsgCode, const char* pszMsg)
+void CMsgWin::PopUp(int nMsgCode, char* pszMsg)
 {
 	CUIMng& rUIMng = CUIMng::Instance();
 	LPCTSTR lpszMsg = NULL, lpszMsg2 = NULL;

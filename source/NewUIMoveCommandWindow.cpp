@@ -17,51 +17,68 @@
 
 using namespace SEASON3B;
 
-namespace 
+namespace
 {
-	const int MapNameCount = 6;
-
-	const std::string MapName[MapNameCount] = 
+	class MapNameSingleton
 	{
-		"Lorencia",
-		"Noria",
-		"Elbeland",
-		"Dungeon",
-		"Devias",
-		"LostTower",
+	private:
+		static MapNameSingleton* _instance;
+		std::vector<std::string> _mapNames;
+
+	public:
+		static MapNameSingleton* getInstance()
+		{
+			if (_instance == nullptr) {
+				_instance = new MapNameSingleton();
+			}
+
+			return _instance;
+		}
+
+		const std::vector<std::string>& getMapNames() const
+		{
+			return _mapNames;
+		}
+
+	private:
+		MapNameSingleton()
+		{
+			_mapNames = {
+			  "Lorencia",
+			  "Noria",
+			  "Elbeland",
+			  "Dungeon",
+			  "Devias",
+			  "LostTower"
+			};
+		}
 	};
 
-	const bool IsLuckySeal( const std::string& name )
-	{
-		if( name.size() != 0 ) {
-			for( int i = 0; i < MapNameCount; ++i)  {
-				if( name == MapName[i]) 
-				{
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-};
+	MapNameSingleton* MapNameSingleton::_instance = nullptr;
+}
+
+const std::vector<std::string>& getMapNames()
+{
+	return MapNameSingleton::getInstance()->getMapNames();
+}
 
 CNewUIMoveCommandWindow::CNewUIMoveCommandWindow()
 {
-	m_pNewUIMng = NULL;
+	m_pNewUIMng = nullptr;
 	m_Pos.x = m_Pos.y = 0;
 
-	memset( &m_StartUISubjectName, 0, sizeof(POINT) );
-	memset( &m_StartMapNamePos, 0, sizeof(POINT) );
-	memset( &m_MapNameUISize, 0, sizeof(POINT) );
-	memset(&m_StrifePos, 0, sizeof(POINT));
-	memset( &m_MapNamePos, 0, sizeof(POINT) );
-	memset( &m_ReqLevelPos, 0, sizeof(POINT) );
-	memset( &m_ReqZenPos, 0, sizeof(POINT) );
+	m_StartUISubjectName = { 0, 0 };
+	m_StartMapNamePos = { 0, 0 };
+	m_MapNameUISize = { 0, 0 };
+	m_StrifePos = { 0, 0 };
+	m_MapNamePos = { 0, 0 };
+	m_ReqLevelPos = { 0, 0 };
+	m_ReqZenPos = { 0, 0 };
 	m_iSelectedMapName = -1;
 
-	memset( &m_ScrollBarPos, 0, sizeof(POINT) );
-	memset( &m_ScrollBtnStartPos, 0, sizeof(POINT) );
-	memset( &m_ScrollBtnPos, 0, sizeof(POINT) );
+	m_ScrollBarPos = { 0, 0 };
+	m_ScrollBtnStartPos = { 0, 0 };
+	m_ScrollBtnPos = { 0, 0 };
 	m_iScrollBarHeightPixel = 0;
 	m_iRenderStartTextIndex = 0;
 	m_iSelectedTextIndex = -1;
@@ -82,29 +99,29 @@ CNewUIMoveCommandWindow::~CNewUIMoveCommandWindow()
 
 bool SEASON3B::CNewUIMoveCommandWindow::Create(CNewUIManager* pNewUIMng, int x, int y)
 {
-	if( NULL == pNewUIMng )
+	if (pNewUIMng == nullptr) {
 		return false;
+	}
 
 	m_pNewUIMng = pNewUIMng;
-	m_pNewUIMng->AddUIObj( SEASON3B::INTERFACE_MOVEMAP, this );
+	m_pNewUIMng->AddUIObj(SEASON3B::INTERFACE_MOVEMAP, this);
 
 	SetPos(x, y);
-	
+
 	LoadImages();
-	
-	Show( false );
-	
+
+	Show(false);
+
 	return true;
 }
 
 void SEASON3B::CNewUIMoveCommandWindow::Release()
 {
 	UnloadImages();
-	
-	if(m_pNewUIMng)
-	{
-		m_pNewUIMng->RemoveUIObj( this );
-		m_pNewUIMng = NULL;
+
+	if (m_pNewUIMng != nullptr) {
+		m_pNewUIMng->RemoveUIObj(this);
+		m_pNewUIMng = nullptr;
 	}
 }
 
@@ -254,9 +271,6 @@ bool SEASON3B::CNewUIMoveCommandWindow::IsMapMove( const std::string& src )
 			std::list<CMoveCommandData::MOVEINFODATA*>::iterator li = m_listMoveInfoData.begin();
 			for( int i=0; i<m_iRenderEndTextIndex ; i++, li++ ) {
 				if(!strcmp( lpszStr2, (*li)->_ReqInfo.szMainMapName )) {
-					if((*li)->_bCanMove == true ){
-						return IsLuckySeal( (*li)->_ReqInfo.szSubMapName );
-					}
 				}
 			}
 			return false;
@@ -272,15 +286,9 @@ bool SEASON3B::CNewUIMoveCommandWindow::IsMapMove( const std::string& src )
 			std::list<CMoveCommandData::MOVEINFODATA*>::iterator li = m_listMoveInfoData.begin();
 			for( int i=0; i<m_iRenderEndTextIndex ; i++, li++ ) {
 				if(!stricmp( lpszStr2, (*li)->_ReqInfo.szMainMapName )) {
-					if((*li)->_bCanMove == true ){
-						return IsLuckySeal( (*li)->_ReqInfo.szSubMapName );
-					}
 				}
 			}
 			return false;
-		}
-		else {
-			return IsLuckySeal( src );
 		}
 	}
 	return true;

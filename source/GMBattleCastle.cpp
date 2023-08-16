@@ -1271,7 +1271,7 @@ namespace battleCastle
             c->Object.LifeTime = 0;
 		    c->Weapon[0].Type = -1;
 		    c->Weapon[1].Type = -1;
- 			strcpy( c->ID, "¿Õ°ü" );
+ 			strcpy( c->ID, " Õ° " );
             break;
 
         case 216:
@@ -1281,7 +1281,7 @@ namespace battleCastle
             c->Object.m_bRenderShadow = false;
 		    c->Weapon[0].Type = -1;
 		    c->Weapon[1].Type = -1;
- 			strcpy( c->ID, "¿Õ°ü" );
+ 			strcpy( c->ID, " Õ° " );
             break;
 
         case 217:
@@ -1290,7 +1290,7 @@ namespace battleCastle
             c->m_bFixForm = true;
 		    c->Weapon[0].Type = -1;
 		    c->Weapon[1].Type = -1;
- 			strcpy( c->ID, "¿Õ°ü ¹ßÆÇ2" );
+ 			strcpy( c->ID, " Õ°      2" );
             c->Object.Velocity = c->Object.Position[2];
             if ( IsBattleCastleStart()==false )
                 c->Object.Position[2] -= 100.f;
@@ -1302,7 +1302,7 @@ namespace battleCastle
             c->m_bFixForm = true;
 		    c->Weapon[0].Type = -1;
 		    c->Weapon[1].Type = -1;
- 			strcpy( c->ID, "¿Õ°ü ¹ßÆÇ1" );
+ 			strcpy( c->ID, " Õ°      1" );
             c->Object.Velocity = c->Object.Position[2];
             if ( IsBattleCastleStart()==false )
                 c->Object.Position[2] -= 100.f;
@@ -1315,7 +1315,7 @@ namespace battleCastle
 		    c->Object.Scale = 1.1f;
 		    c->Weapon[0].Type = -1;
 		    c->Weapon[1].Type = -1;
- 			strcpy( c->ID, "¼º¹® ½ºÀ§Ä¡" );
+ 			strcpy( c->ID, "         Ä¡" );
             break;
 
         case 220:
@@ -1325,7 +1325,7 @@ namespace battleCastle
 		    c->Object.Scale = 1.1f;
 		    c->Weapon[0].Type = -1;
 		    c->Weapon[1].Type = -1;
- 			strcpy( c->ID, "»ç³ÉÅÍ ¹®Áö±â" );
+ 			strcpy( c->ID, "            " );
             break;
 
         case 221:
@@ -1357,7 +1357,7 @@ namespace battleCastle
 		    c->Object.Scale = 1.1f;
 		    c->Weapon[0].Type = -1;
 		    c->Weapon[1].Type = -1;
- 			strcpy( c->ID, "¿ø·Î¿ø" );
+ 			strcpy( c->ID, "   Î¿ " );
             break;
 
         case 224:
@@ -1368,7 +1368,7 @@ namespace battleCastle
             c->Object.SubType = rand()%2+10;
 		    c->Weapon[0].Type = -1;
 		    c->Weapon[1].Type = -1;
-			strcpy( c->ID, "±À§º´" );
+			strcpy( c->ID, "     " );
             break;
     
         case 277:
@@ -2077,6 +2077,5 @@ namespace battleCastle
             break;
         }
     }
-
 }
 

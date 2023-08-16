@@ -1,6 +1,5 @@
 //*****************************************************************************
 // File: UIMng.cpp
-// Revised: 10/07/2023
 //*****************************************************************************
 
 #include "stdafx.h"
@@ -17,36 +16,40 @@
 #include "GameCensorship.h"
 #include "UIControls.h"
 #include "ServerListManager.h"
-#include <glm/glm.hpp>
 
-#define DOCK_EXTENT 10
-#define UIM_TS_BACK0 0
-#define UIM_TS_BACK1 1
-#define UIM_TS_MU 2
-#define UIM_TS_121518 3
-#define UIM_TS_WEBZEN 4
-#define UIM_TS_BACK2 5
-#define UIM_TS_BACK3 6
-#define UIM_TS_BACK4 7
-#define UIM_TS_BACK5 8
-#define UIM_TS_BACK6 9
-#define UIM_TS_BACK7 10
-#define UIM_TS_BACK8 11
-#define UIM_TS_BACK9 12
-#define UIM_TS_MAX 13
+#define	DOCK_EXTENT		10
+
+//#define	UIM_TS_BG_BLACK		0
+#define	UIM_TS_BACK0		0
+#define	UIM_TS_BACK1		1
+#define	UIM_TS_MU			2
+#define	UIM_TS_121518		3
+#define	UIM_TS_WEBZEN		4
+	#define UIM_TS_BACK2		5
+	#define UIM_TS_BACK3		6
+	#define UIM_TS_BACK4		7
+	#define UIM_TS_BACK5		8
+	#define UIM_TS_BACK6		9
+	#define UIM_TS_BACK7		10
+	#define UIM_TS_BACK8		11
+	#define UIM_TS_BACK9		12
+	#define	UIM_TS_MAX			13
 
 CUIMng::CUIMng()
-	: m_asprTitle(nullptr),
-	m_pgbLoding(nullptr),
-	m_pLoadingScene(nullptr)
 {
+	m_asprTitle = NULL;
+	m_pgbLoding = NULL;
+	m_pLoadingScene = NULL;
+	
 #ifdef MOVIE_DIRECTSHOW
 	m_bMoving = false;
 #endif // MOVIE_DIRECTSHOW
 }
 
 CUIMng::~CUIMng()
-{}
+{
+
+}
 
 CUIMng& CUIMng::Instance()
 {
@@ -62,85 +65,82 @@ void CUIMng::CreateTitleSceneUI()
 	g_GameCensorship->SetState(SEASON3A::CGameCensorship::STATE_LOADING);
 
 	CInput& rInput = CInput::Instance();
-	float fScaleX = static_cast<float>(rInput.GetScreenWidth()) / 800.0f;
-	float fScaleY = static_cast<float>(rInput.GetScreenHeight()) / 600.0f;
+	float fScaleX = (float)rInput.GetScreenWidth() / 800.0f;
+	float fScaleY = (float)rInput.GetScreenHeight() / 600.0f;
 
 	m_asprTitle = new CSprite[UIM_TS_MAX];
 
-	float _fScaleXTemp = static_cast<float>(rInput.GetScreenWidth()) / 1280.0f;
-	float _fScaleYTemp = static_cast<float>(rInput.GetScreenHeight()) / 1024.0f;
+	float _fScaleXTemp = (float)rInput.GetScreenWidth()/1280.0f;
+	float _fScaleYTemp = (float)rInput.GetScreenHeight()/1024.0f;
 
-	m_asprTitle[UIM_TS_BACK0].Create(400, 69, BITMAP_TITLE, 0, nullptr, 0, 0,
+	m_asprTitle[UIM_TS_BACK0].Create(400, 69, BITMAP_TITLE, 0, NULL, 0, 0,
 		false, SPR_SIZING_DATUMS_LT, fScaleX, fScaleY);
 	m_asprTitle[UIM_TS_BACK0].SetPosition(0, 0);
 
-	m_asprTitle[UIM_TS_BACK1].Create(400, 69, BITMAP_TITLE + 1, 0, nullptr, 0, 0,
+	m_asprTitle[UIM_TS_BACK1].Create(400, 69, BITMAP_TITLE+1, 0, NULL, 0, 0,
 		false, SPR_SIZING_DATUMS_LT, fScaleX, fScaleY);
 	m_asprTitle[UIM_TS_BACK1].SetPosition(400, 0);
 
-	m_asprTitle[UIM_TS_BACK2].Create(400, 100, BITMAP_TITLE + 6, 0, nullptr, 0, 0,
+	m_asprTitle[UIM_TS_BACK2].Create(400, 100, BITMAP_TITLE+6, 0, NULL, 0, 0,
 		false, SPR_SIZING_DATUMS_LT, fScaleX, fScaleY);
 	m_asprTitle[UIM_TS_BACK2].SetPosition(0, 500);
 
-	m_asprTitle[UIM_TS_BACK3].Create(400, 100, BITMAP_TITLE + 7, 0, nullptr, 0, 0,
+	m_asprTitle[UIM_TS_BACK3].Create(400, 100, BITMAP_TITLE+7, 0, NULL, 0, 0,
 		false, SPR_SIZING_DATUMS_LT, fScaleX, fScaleY);
 	m_asprTitle[UIM_TS_BACK3].SetPosition(400, 500);
 
-	m_asprTitle[UIM_TS_BACK4].Create(512, 512, BITMAP_TITLE + 8, 0, nullptr, 0, 0,
+	m_asprTitle[UIM_TS_BACK4].Create(512, 512, BITMAP_TITLE+8, 0, NULL, 0, 0,
 		false, SPR_SIZING_DATUMS_LT, _fScaleXTemp, _fScaleYTemp);
 	m_asprTitle[UIM_TS_BACK4].SetPosition(0, 119);
 
-	m_asprTitle[UIM_TS_BACK5].Create(512, 512, BITMAP_TITLE + 9, 0, nullptr, 0, 0,
+	m_asprTitle[UIM_TS_BACK5].Create(512, 512, BITMAP_TITLE+9, 0, NULL, 0, 0,
 		false, SPR_SIZING_DATUMS_LT, _fScaleXTemp, _fScaleYTemp);
 	m_asprTitle[UIM_TS_BACK5].SetPosition(512, 119);
 
-	m_asprTitle[UIM_TS_BACK6].Create(256, 512, BITMAP_TITLE + 10, 0, nullptr, 0, 0,
+	m_asprTitle[UIM_TS_BACK6].Create(256, 512, BITMAP_TITLE+10, 0, NULL, 0, 0,
 		false, SPR_SIZING_DATUMS_LT, _fScaleXTemp, _fScaleYTemp);
 	m_asprTitle[UIM_TS_BACK6].SetPosition(1024, 119);
 
-	m_asprTitle[UIM_TS_BACK7].Create(512, 223, BITMAP_TITLE + 11, 0, nullptr, 0, 0,
+	m_asprTitle[UIM_TS_BACK7].Create(512, 223, BITMAP_TITLE+11, 0, NULL, 0, 0,
 		false, SPR_SIZING_DATUMS_LT, _fScaleXTemp, _fScaleYTemp);
-	m_asprTitle[UIM_TS_BACK7].SetPosition(0, 512 + 119);
+	m_asprTitle[UIM_TS_BACK7].SetPosition(0, 512+119);
 
-	m_asprTitle[UIM_TS_BACK8].Create(512, 223, BITMAP_TITLE + 12, 0, nullptr, 0, 0,
+	m_asprTitle[UIM_TS_BACK8].Create(512, 223, BITMAP_TITLE+12, 0, NULL, 0, 0,
 		false, SPR_SIZING_DATUMS_LT, _fScaleXTemp, _fScaleYTemp);
-	m_asprTitle[UIM_TS_BACK8].SetPosition(512, 512 + 119);
+	m_asprTitle[UIM_TS_BACK8].SetPosition(512, 512+119);
 
-	m_asprTitle[UIM_TS_BACK9].Create(256, 223, BITMAP_TITLE + 13, 0, nullptr, 0, 0,
+	m_asprTitle[UIM_TS_BACK9].Create(256, 223, BITMAP_TITLE+13, 0, NULL, 0, 0,
 		false, SPR_SIZING_DATUMS_LT, _fScaleXTemp, _fScaleYTemp);
-	m_asprTitle[UIM_TS_BACK9].SetPosition(1024, 512 + 119);
+	m_asprTitle[UIM_TS_BACK9].SetPosition(1024, 512+119);
 
-	m_asprTitle[UIM_TS_MU].Create(216, 138, BITMAP_TITLE + 2, 0, nullptr, 0, 0,
+
+ 	m_asprTitle[UIM_TS_MU].Create(216, 138, BITMAP_TITLE+2, 0, NULL, 0, 0,
 		false, SPR_SIZING_DATUMS_LT, _fScaleXTemp, _fScaleXTemp);
 
-	if (static_cast<float>(rInput.GetScreenWidth()) == 1280)
-		m_asprTitle[UIM_TS_MU].SetPosition(640 - 108, 663 + 53);
+	if((float)rInput.GetScreenWidth() == 1280)
+		m_asprTitle[UIM_TS_MU].SetPosition(640-108, 663+53);
 	else
-		m_asprTitle[UIM_TS_MU].SetPosition(640 - 108, 663);
-
-	m_asprTitle[UIM_TS_121518].Create(256, 206, BITMAP_TITLE + 3, 0, nullptr, 0, 0,
+		m_asprTitle[UIM_TS_MU].SetPosition(640-108, 663);
+	
+	m_asprTitle[UIM_TS_121518].Create(256, 206, BITMAP_TITLE+3, 0, NULL, 0, 0,
 		false, SPR_SIZING_DATUMS_LT, fScaleX, fScaleY);
 	m_asprTitle[UIM_TS_121518].SetPosition(544, 60);
-
-	m_asprTitle[UIM_TS_WEBZEN].Create(187, 151, BITMAP_TITLE + 4, 0, nullptr, 0, 0,
+	m_asprTitle[UIM_TS_WEBZEN].Create(187, 151, BITMAP_TITLE+4, 0, NULL, 0, 0,
 		false, SPR_SIZING_DATUMS_LT, fScaleX, fScaleY);
 	m_asprTitle[UIM_TS_WEBZEN].SetPosition(307, 225);
 
 	m_pgbLoding = new CGaugeBar;
-
+	
 	RECT rc = { 0, 0, 656, 15 };
-	m_pgbLoding->Create(4, 15, BITMAP_TITLE + 5, &rc, 0, 0, -1, true, fScaleX, fScaleY);
+	m_pgbLoding->Create(4, 15, BITMAP_TITLE+5, &rc, 0, 0, -1, true, fScaleX, fScaleY);
 
 	m_pgbLoding->SetPosition(72, 540);
-
 	for (int i = 0; i < UIM_TS_MAX; ++i)
 	{
 		m_asprTitle[i].Show();
 	}
-
 	m_pgbLoding->Show();
 	m_asprTitle[UIM_TS_121518].Show(false);
-
 	m_nScene = UIM_SCENE_TITLE;
 }
 
@@ -148,29 +148,21 @@ void CUIMng::ReleaseTitleSceneUI()
 {
 	g_GameCensorship->SetVisible(false);
 
-	delete[] m_asprTitle;
-	m_asprTitle = nullptr;
-
-	delete m_pgbLoding;
-	m_pgbLoding = nullptr;
+	SAFE_DELETE_ARRAY(m_asprTitle);
+	SAFE_DELETE(m_pgbLoding);
 
 	m_nScene = UIM_SCENE_NONE;
 }
 
 void CUIMng::RenderTitleSceneUI(HDC hDC, DWORD dwNow, DWORD dwTotal)
 {
-	// Begin OpenGL rendering
 	::BeginOpengl();
-
-	// Clear the color and depth buffers
 	::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	// Begin rendering bitmaps
 	::BeginBitmap();
 
 	for (int i = 0; i < UIM_TS_MAX; ++i)
 	{
-		if (i == 2)
+		if(i==2)
 			continue;
 		m_asprTitle[i].Render();
 	}
@@ -179,16 +171,9 @@ void CUIMng::RenderTitleSceneUI(HDC hDC, DWORD dwNow, DWORD dwTotal)
 	m_pgbLoding->SetValue(dwNow, dwTotal);
 	m_pgbLoding->Render();
 
-	// End rendering bitmaps
 	::EndBitmap();
-
-	// End OpenGL rendering
 	::EndOpengl();
-
-	// Flush OpenGL commands
 	::glFlush();
-
-	// Swap the front and back buffers
 	::SwapBuffers(hDC);
 }
 
@@ -198,14 +183,16 @@ void CUIMng::Create()
 	m_bBlockCharMove = false;
 	m_bWinActive = false;
 	m_nScene = UIM_SCENE_NONE;
+
+	return;
 }
 
 void CUIMng::RemoveWinList()
 {
 	CWin* pWin;
-	while (m_WinList.GetCount() > 0)
+	while (m_WinList.GetCount())
 	{
-		pWin = static_cast<CWin*>(m_WinList.RemoveHead());
+		pWin = (CWin*)m_WinList.RemoveHead();
 		pWin->Release();
 	}
 }
@@ -222,13 +209,13 @@ void CUIMng::Release()
 void CUIMng::CreateLoginScene()
 {
 	g_GameCensorship->SetVisible(false);
-
+	
 	RemoveWinList();
 
 	m_CharInfoBalloonMng.Release();
 
 	CInput& rInput = CInput::Instance();
-
+	
 	m_MsgWin.Create();
 	m_WinList.AddHead(&m_MsgWin);
 	m_MsgWin.SetPosition((rInput.GetScreenWidth() - 352) / 2,
@@ -243,8 +230,8 @@ void CUIMng::CreateLoginScene()
 	m_LoginMainWin.Create();
 	m_WinList.AddHead(&m_LoginMainWin);
 
-	int nBaseY = static_cast<int>(567.0f / 600.0f * static_cast<float>(rInput.GetScreenHeight()));
-	m_LoginMainWin.SetPosition(30, nBaseY - m_LoginMainWin.GetHeight() - 11);
+	int nBaseY = int(567.0f / 600.0f * (float)rInput.GetScreenHeight());
+	m_LoginMainWin.SetPosition(30,  nBaseY - m_LoginMainWin.GetHeight() - 11);
 
 	m_ServerSelWin.Create();
 	m_WinList.AddHead(&m_ServerSelWin);
@@ -260,14 +247,15 @@ void CUIMng::CreateLoginScene()
 
 	m_CreditWin.Create();
 	m_WinList.AddHead(&m_CreditWin);
-
+	
 	m_bSysMenuWinShow = false;
 	m_nScene = UIM_SCENE_LOGIN;
 }
 
 void CUIMng::CreateCharacterScene()
 {
-	g_GameCensorship->SetState(g_ServerListManager->GetCensorshipIndex());
+
+	g_GameCensorship->SetState( g_ServerListManager->GetCensorshipIndex() );
 
 	RemoveWinList();
 
@@ -282,7 +270,7 @@ void CUIMng::CreateCharacterScene()
 
 	m_ServerMsgWin.Create();
 	m_WinList.AddHead(&m_ServerMsgWin);
-	int nBaseY = static_cast<int>(31.0f / 600.0f * static_cast<float>(rInput.GetScreenHeight()));
+	int nBaseY = int(31.0f / 600.0f * (float)rInput.GetScreenHeight());
 	m_ServerMsgWin.SetPosition(10, nBaseY + 10);
 
 	m_SysMenuWin.Create();
@@ -293,11 +281,12 @@ void CUIMng::CreateCharacterScene()
 
 	m_CharSelMainWin.Create();
 	m_WinList.AddHead(&m_CharSelMainWin);
-	nBaseY = static_cast<int>(567.0f / 600.0f * static_cast<float>(rInput.GetScreenHeight()));
-	m_CharSelMainWin.SetPosition(22, nBaseY - m_CharSelMainWin.GetHeight() - 11);
+	nBaseY = int(567.0f / 600.0f * (float)rInput.GetScreenHeight());
+	m_CharSelMainWin.SetPosition(22,  nBaseY - m_CharSelMainWin.GetHeight() - 11);
 
 	m_CharMakeWin.Create();
 	m_WinList.AddHead(&m_CharMakeWin);
+
 	m_CharMakeWin.SetPosition((rInput.GetScreenWidth() - 454) / 2,
 		(rInput.GetScreenHeight() - 406) / 2);
 
@@ -321,20 +310,20 @@ void CUIMng::CreateMainScene()
 
 CWin* CUIMng::SetActiveWin(CWin* pWin)
 {
-	CWin* pBeforeActWin = static_cast<CWin*>(m_WinList.GetHead());
+	CWin* pBeforeActWin = (CWin*)m_WinList.GetHead();
 
-	if (pBeforeActWin == nullptr)
-		return nullptr;
+	if (pBeforeActWin == NULL)
+		return NULL;
 
 	if (pBeforeActWin->IsActive())
 		pBeforeActWin->Active(FALSE);
 	else
-		pBeforeActWin = nullptr;
+		pBeforeActWin = NULL;
 
 	if (pWin->IsShow())
 	{
 		if (!m_WinList.RemoveAt(m_WinList.Find(pWin)))
-			return nullptr;
+			return NULL;
 
 		m_bWinActive = true;
 		m_WinList.AddHead(pWin);
@@ -345,7 +334,7 @@ CWin* CUIMng::SetActiveWin(CWin* pWin)
 
 void CUIMng::ShowWin(CWin* pWin)
 {
-	pWin->Show(true);
+	pWin->Show(TRUE);
 	SetActiveWin(pWin);
 }
 
@@ -354,36 +343,34 @@ void CUIMng::HideWin(CWin* pWin)
 	if (!m_WinList.RemoveAt(m_WinList.Find(pWin)))
 		return;
 
-	pWin->Show(false);
-	pWin->Active(false);
+	pWin->Show(FALSE);
+	pWin->Active(FALSE);
 	m_WinList.AddTail(pWin);
 
-	pWin = static_cast<CWin*>(m_WinList.GetHead());
+	pWin = (CWin*)m_WinList.GetHead();
 	if (pWin->IsShow())
 		m_bWinActive = true;
 }
 
 void CUIMng::CheckDockWin()
 {
-	auto position = m_WinList.GetHeadPosition();
-	if (nullptr == position)
+	NODE* position = m_WinList.GetHeadPosition();
+	if (NULL == position)
 		return;
 
-	CWin* pMovWin = static_cast<CWin*>(m_WinList.GetNext(position));
+	CWin* pMovWin = (CWin*)m_WinList.GetNext(position);
 
 	if (pMovWin->GetState() != WS_MOVE)
 		return;
 
 	pMovWin->SetDocking(false);
 
-	const RECT rcMovWin = {
-		pMovWin->GetTempXPos(),
-		pMovWin->GetTempYPos(),
+	RECT rcMovWin = { pMovWin->GetTempXPos(), pMovWin->GetTempYPos(),
 		pMovWin->GetTempXPos() + pMovWin->GetWidth(),
-		pMovWin->GetTempYPos() + pMovWin->GetHeight()
-	};
-
-	const RECT rcDock[4] = {
+		pMovWin->GetTempYPos() + pMovWin->GetHeight() };
+	
+	RECT rcDock[4] =
+	{
 		{ rcMovWin.left - DOCK_EXTENT, rcMovWin.top - DOCK_EXTENT,
 			rcMovWin.left + DOCK_EXTENT, rcMovWin.top + DOCK_EXTENT },
 		{ rcMovWin.right - DOCK_EXTENT, rcMovWin.top - DOCK_EXTENT,
@@ -442,13 +429,13 @@ void CUIMng::CheckDockWin()
 		pMovWin->SetDocking(true);
 	}
 
-	bool bEdgeDocking = false;
+	BOOL bEdgeDocking = FALSE;
 	int i, j, nXCoord, nYCoord;
 	CWin* pWin;
 
 	while (position)
 	{
-		pWin = static_cast<CWin*>(m_WinList.GetNext(position));
+		pWin = (CWin*)m_WinList.GetNext(position);
 		if (!pWin->IsShow())
 			continue;
 
@@ -467,7 +454,7 @@ void CUIMng::CheckDockWin()
 			{
 				if (i != j && ::PtInRect(&rcDock[i], pt[j]))
 				{
-					bEdgeDocking = true;
+					bEdgeDocking = TRUE;
 					goto DOCKING;
 				}
 			}
@@ -588,17 +575,14 @@ DOCKING:
 bool CUIMng::SetDockWinPosition(CWin* pMoveWin, int nDockX, int nDockY)
 {
 	CInput& rInput = CInput::Instance();
-	glm::ivec2 screenSize(rInput.GetScreenWidth(), rInput.GetScreenHeight());
-	glm::ivec2 moveWinSize(pMoveWin->GetWidth(), pMoveWin->GetHeight());
-	glm::ivec2 dockPosition(nDockX, nDockY);
-	glm::ivec2 dockSize = dockPosition + moveWinSize;
+	RECT rcDummy;
+	RECT rcScreen = { 0, 0, rInput.GetScreenWidth(), rInput.GetScreenHeight() };
+	RECT rcMoveWin = { nDockX, nDockY,
+		nDockX + pMoveWin->GetWidth(), nDockY + pMoveWin->GetHeight() };
 
-	glm::ivec2 intersectionMin = glm::max(dockPosition, glm::ivec2(0));
-	glm::ivec2 intersectionMax = glm::min(dockSize, screenSize);
-
-	if (intersectionMin.x < intersectionMax.x && intersectionMin.y < intersectionMax.y)
+	if (::IntersectRect(&rcDummy, &rcScreen, &rcMoveWin))
 	{
-		pMoveWin->SetPosition(dockPosition.x, dockPosition.y);
+		pMoveWin->SetPosition(nDockX, nDockY);
 		pMoveWin->SetDocking(true);
 		return true;
 	}
@@ -613,7 +597,7 @@ void CUIMng::Update(double dDeltaTick)
 
 	if (m_bWinActive)
 	{
-		CWin* pWin = static_cast<CWin*>(m_WinList.GetHead());
+		CWin* pWin = (CWin*)m_WinList.GetHead();
 		if (pWin->IsShow())
 		{
 			pWin->Active(true);
@@ -626,7 +610,7 @@ void CUIMng::Update(double dDeltaTick)
 	{
 		m_bSysMenuWinShow = !m_bSysMenuWinShow;
 	}
-
+	
 	CWin* pWin;
 	NODE* position;
 
@@ -638,7 +622,7 @@ void CUIMng::Update(double dDeltaTick)
 		position = m_WinList.GetHeadPosition();
 		while (position)
 		{
-			pWin = static_cast<CWin*>(m_WinList.GetNext(position));
+			pWin = (CWin*)m_WinList.GetNext(position);
 
 			if (pWin->CursorInWin(WA_ALL))
 			{
@@ -650,7 +634,7 @@ void CUIMng::Update(double dDeltaTick)
 
 		if (!bWinClick)
 		{
-			pWin = static_cast<CWin*>(m_WinList.GetHead());
+			pWin = (CWin*)m_WinList.GetHead();
 			pWin->Active(false);
 		}
 	}
@@ -658,41 +642,41 @@ void CUIMng::Update(double dDeltaTick)
 	{
 		m_bBlockCharMove = false;
 	}
-
-	int nList = m_WinList.GetCount();
-	CWin** apTempWin = new CWin * [nList];
-
+	int nlist = m_WinList.GetCount();
+	CWin** apTempWin = new (CWin*[nlist]);
+ 
 	position = m_WinList.GetHeadPosition();
-	for (int i = 0; i < nList; ++i)
+	for (int i = 0; i < nlist; ++i)
 	{
-		apTempWin[i] = static_cast<CWin*>(m_WinList.GetNext(position));
-		apTempWin[i]->ActiveBtns(false);
+		 apTempWin[i] = (CWin*)m_WinList.GetNext(position);
+		 apTempWin[i]->ActiveBtns(false);
 	}
 
 	position = m_WinList.GetHeadPosition();
 	while (position)
 	{
-		pWin = static_cast<CWin*>(m_WinList.GetNext(position));
+		pWin = (CWin*)m_WinList.GetNext(position);
 		if (pWin->CursorInWin(WA_ALL))
 		{
 			pWin->ActiveBtns(true);
 			break;
 		}
 	}
-
-	for (int i = 0; i < nList; ++i)
+ 
+	for(int i = 0; i < nlist; ++i)
 	{
 		apTempWin[i]->Update(dDeltaTick);
 	}
+ 
+	SAFE_DELETE_ARRAY(apTempWin);
 
-	delete[] apTempWin;
-
+//	CheckKey();
 	CheckDockWin();
 
 	position = m_WinList.GetHeadPosition();
 	while (position)
 	{
-		pWin = static_cast<CWin*>(m_WinList.GetNext(position));
+		pWin = (CWin*)m_WinList.GetNext(position);
 
 		switch (pWin->GetState())
 		{
@@ -701,14 +685,17 @@ void CUIMng::Update(double dDeltaTick)
 			break;
 
 		case WS_MOVE:
+//			eCursorActType = CURSOR_M;
 			m_bCursorOnUI = true;
 			break;
 
 		case WS_EXTEND_UP:
+//			eCursorActType = CURSOR_V;
 			m_bCursorOnUI = true;
 			break;
 
 		case WS_EXTEND_DN:
+//			eCursorActType = CURSOR_V;
 			m_bCursorOnUI = true;
 			break;
 		}
@@ -735,23 +722,22 @@ void CUIMng::Render()
 	NODE* position = m_WinList.GetTailPosition();
 	while (position)
 	{
-		pWin = static_cast<CWin*>(m_WinList.GetPrev(position));
+		pWin = (CWin*)m_WinList.GetPrev(position);
 		pWin->Render();
 	}
 }
 
-void CUIMng::PopUpMsgWin(int nMsgCode, const char* pszMsg)
+void CUIMng::PopUpMsgWin(int nMsgCode, char* pszMsg)
 {
 	if (UIM_SCENE_NONE == m_nScene || UIM_SCENE_TITLE == m_nScene || UIM_SCENE_LOADING == m_nScene)
 		return;
 
-	if (UIM_SCENE_MAIN == m_nScene)
-		return;
+	if (UIM_SCENE_MAIN == m_nScene)	return;
 
 	m_MsgWin.PopUp(nMsgCode, pszMsg);
 }
 
-void CUIMng::AddServerMsg(const char* pszMsg)
+void CUIMng::AddServerMsg(char* pszMsg)
 {
 	if (UIM_SCENE_CHARACTER != m_nScene)
 		return;

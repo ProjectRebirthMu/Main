@@ -30,7 +30,7 @@ protected:
 	short	m_nNumVertices;	// 점 개수
 	vec3_t	*m_pVertices;	// 점들
 protected:
-	bool GetReadyToCreate(vec3_t ppVertexTransformed[MAX_MESH][MAX_VERTICES], BMD* b, OBJECT* o, bool SkipTgae);	// 생성
+	BOOL GetReadyToCreate( vec3_t ppVertexTransformed[MAX_MESH][MAX_VERTICES], BMD *b, OBJECT *o, bool SkipTga=true);	// 생성
 public:
 	virtual void Create( vec3_t ppVertexTransformed[MAX_MESH][MAX_VERTICES], BMD *b, OBJECT *o, bool SkipTga=true);	// 생성
 	virtual void Destroy( void);	// 제거
@@ -42,7 +42,7 @@ protected:
 	vec3_t m_vLight;	// 빛
 	int m_iNumEdge;		// 가장자리 개수
 	St_Edges *m_pEdges;	// 가장자리
-	void DetermineSilhouette(short nMesh, vec3_t ppVertexTransformed[MAX_MESH][MAX_VERTICES], short nNumTriangles, Triangle_t* pTriangles, bool Tga);	// Mesh 별 가장자리 따기
+	void DeterminateSilhouette( short nMesh, vec3_t ppVertexTransformed[MAX_MESH][MAX_VERTICES], short nNumTriangles, Triangle_t *pTriangles, bool Tga);	// Mesh 별 가장자리 따기
 	void AddEdge( short nV1, short nV2, short nMesh);	// 가장자리 추가
 	void AddEdgeFast( short nV1, short nV2, short nMesh, int iTriangle, int Edge, Triangle_t *pTriangles);	// 가장자리 추가
 	void GenerateSidePolygon( vec3_t ppVertexTransformed[MAX_MESH][MAX_VERTICES]);	// 가장자리를 이용한 폴리곤 생성

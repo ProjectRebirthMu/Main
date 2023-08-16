@@ -44,26 +44,25 @@ void CMapManager::Load() // OK
 	int i;
 	bool Temp = true;
 	
-	LoadBitmap("Object8\\drop01.jpg" ,BITMAP_BUBBLE);
+	LoadBitmap("Object8\\drop01.jpg"     ,BITMAP_BUBBLE);
     
 	switch(gMapManager.WorldActive)
 	{
-		// Load the models for the different worlds.
-		case WD_0LORENCIA:
-			gLoadData.AccessModel(MODEL_BIRD01, "Data\\Object1\\", "Bird", 1);
-			gLoadData.OpenTexture(MODEL_BIRD01, "Object1\\");
-			gLoadData.AccessModel(MODEL_FISH01, "Data\\Object1\\", "Fish", 1);
-			gLoadData.OpenTexture(MODEL_FISH01, "Object1\\");
-			break;
-		case WD_1DUNGEON:
-		case WD_4LOSTTOWER:
-			gLoadData.AccessModel(MODEL_DUNGEON_STONE01, "Data\\Object2\\", "DungeonStone", 1);
-			gLoadData.OpenTexture(MODEL_DUNGEON_STONE01, "Object2\\");
-			gLoadData.AccessModel(MODEL_BAT01, "Data\\Object2\\", "Bat", 1);
-			gLoadData.OpenTexture(MODEL_BAT01, "Object2\\");
-			gLoadData.AccessModel(MODEL_RAT01, "Data\\Object2\\", "Rat", 1);
-			gLoadData.OpenTexture(MODEL_RAT01, "Object2\\");
-			break;
+	case WD_0LORENCIA:
+		gLoadData.AccessModel(MODEL_BIRD01		 ,"Data\\Object1\\","Bird",1);
+		gLoadData.OpenTexture(MODEL_BIRD01		 ,"Object1\\");
+		gLoadData.AccessModel(MODEL_FISH01		 ,"Data\\Object1\\","Fish",1);
+		gLoadData.OpenTexture(MODEL_FISH01		 ,"Object1\\");
+		break;
+	case WD_1DUNGEON:
+	case WD_4LOSTTOWER:
+		gLoadData.AccessModel(MODEL_DUNGEON_STONE01,"Data\\Object2\\","DungeonStone",1);
+		gLoadData.OpenTexture(MODEL_DUNGEON_STONE01,"Object2\\");
+		gLoadData.AccessModel(MODEL_BAT01          ,"Data\\Object2\\","Bat",1);
+		gLoadData.OpenTexture(MODEL_BAT01		     ,"Object2\\");
+		gLoadData.AccessModel(MODEL_RAT01          ,"Data\\Object2\\","Rat",1);
+		gLoadData.OpenTexture(MODEL_RAT01		     ,"Object2\\");
+		break;
 	case WD_2DEVIAS:
 		{
 			vec3_t Pos, Ang;

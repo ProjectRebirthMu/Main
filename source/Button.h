@@ -45,7 +45,7 @@ public:
 	void Update();
 	void Render();
 	void Show(bool bShow = true);
-	bool CursorInObject();
+	BOOL CursorInObject();
 	void SetEnable(bool bEnable = true) { m_bEnable = bEnable; }
 	bool IsEnable(){ return m_bEnable; }
 	void SetActive(bool bActive = true) { m_bActive = bActive; }

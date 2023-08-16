@@ -38,7 +38,7 @@ public:
 	void SetPosition(int nXCoord, int nYCoord);
 	void Show(bool bShow);
 	bool CursorInWin(int nArea);
-	void PopUp(int nMsgCode, const char* pszMsg = NULL);
+	void PopUp(int nMsgCode, char* pszMsg = NULL);
 
 protected:
 	void PreRelease();

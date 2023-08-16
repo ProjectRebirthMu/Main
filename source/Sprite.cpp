@@ -13,8 +13,8 @@
 
 CSprite::CSprite()
 {
-	m_aFrameTexCoord = NULL;
-	m_pTexture = NULL;
+	m_aFrameTexCoord = nullptr;
+	m_pTexture = nullptr;
 }
 
 CSprite::~CSprite()
@@ -71,8 +71,8 @@ void CSprite::Create(int nOrgWidth, int nOrgHeight, int nTexID, int nMaxFrame, S
 
 			for (int i = 0; i < m_nMaxFrame; ++i)
 			{
-				m_aFrameTexCoord[i].fTU = ((float)aFrameCoord[i].nX + 0.5f)	/ m_pTexture->Width;
-				m_aFrameTexCoord[i].fTV = ((float)aFrameCoord[i].nY + 0.5f)	/ m_pTexture->Height;
+				m_aFrameTexCoord[i].fTU = ((float)aFrameCoord[i].nX + 0.5f) / m_pTexture->Width;
+				m_aFrameTexCoord[i].fTV = ((float)aFrameCoord[i].nY + 0.5f) / m_pTexture->Height;
 			}
 
 			m_nStartFrame = m_nEndFrame = 0;
@@ -88,7 +88,7 @@ void CSprite::Create(int nOrgWidth, int nOrgHeight, int nTexID, int nMaxFrame, S
 	}
 	else
 	{
-		::memset(m_aTexCoord, 0, sizeof(STexCoord) * POS_MAX);
+		memset(m_aTexCoord, 0, sizeof(STexCoord) * POS_MAX);
 
 		m_nMaxFrame = 0;
 		m_nStartFrame = m_nEndFrame = -1;
@@ -109,10 +109,13 @@ void CSprite::Create(int nOrgWidth, int nOrgHeight, int nTexID, int nMaxFrame, S
 }
 
 void CSprite::Create(SImgInfo* pImgInfo, int nDatumX, int nDatumY, bool bTile,
-					 int nSizingDatums, float fScaleX, float fScaleY)
+	int nSizingDatums, float fScaleX, float fScaleY)
 {
 	if (pImgInfo->nX == 0 && pImgInfo->nY == 0)
-		Create(pImgInfo->nWidth, pImgInfo->nHeight, pImgInfo->nTexID, 0, NULL,nDatumX, nDatumY, bTile, nSizingDatums, fScaleX, fScaleY);
+	{
+		Create(pImgInfo->nWidth, pImgInfo->nHeight, pImgInfo->nTexID, 0, NULL,
+			nDatumX, nDatumY, bTile, nSizingDatums, fScaleX, fScaleY);
+	}
 	else
 	{
 		SFrameCoord frameCoord = { pImgInfo->nX, pImgInfo->nY };
@@ -245,13 +248,13 @@ void CSprite::SetNowFrame(int nFrame)
 	float fTUWidth = m_aTexCoord[RT].fTU - m_aTexCoord[LT].fTU;
 	float fTVHeight = m_aTexCoord[LB].fTV - m_aTexCoord[LT].fTV;
 
-	m_aTexCoord[LT] = m_aFrameTexCoord[m_nNowFrame];
+	m_aTexCoord[LT] = m_aFrameTexCoord[nFrame];
 
-	m_aTexCoord[RT].fTU = m_aFrameTexCoord[m_nNowFrame].fTU + fTUWidth;
-	m_aTexCoord[RT].fTV = m_aFrameTexCoord[m_nNowFrame].fTV;
+	m_aTexCoord[RT].fTU = m_aFrameTexCoord[nFrame].fTU + fTUWidth;
+	m_aTexCoord[RT].fTV = m_aFrameTexCoord[nFrame].fTV;
 
-	m_aTexCoord[LB].fTU = m_aFrameTexCoord[m_nNowFrame].fTU;
-	m_aTexCoord[LB].fTV = m_aFrameTexCoord[m_nNowFrame].fTV + fTVHeight;
+	m_aTexCoord[LB].fTU = m_aFrameTexCoord[nFrame].fTU;
+	m_aTexCoord[LB].fTV = m_aFrameTexCoord[nFrame].fTV + fTVHeight;
 
 	m_aTexCoord[RB].fTU = m_aTexCoord[RT].fTU;
 	m_aTexCoord[RB].fTV = m_aTexCoord[LB].fTV;
@@ -272,9 +275,13 @@ void CSprite::Update(double dDeltaTick)
 		int nFrame = m_nNowFrame;
 
 		if (m_bRepeat)
+		{
 			nFrame = ++nFrame > m_nEndFrame ? m_nStartFrame : nFrame;
+		}
 		else
+		{
 			nFrame = ++nFrame > m_nEndFrame ? m_nEndFrame : nFrame;
+		}
 
 		SetNowFrame(nFrame);
 
@@ -289,42 +296,42 @@ void CSprite::Render()
 
 	if (-1 < m_nTexID)
 	{
-		if (!TextureEnable) 
+		if (!TextureEnable)
 		{
 			TextureEnable = true;
-			::glEnable(GL_TEXTURE_2D);
+			glEnable(GL_TEXTURE_2D);
 		}
 
 		BindTexture(m_nTexID);
 
-		::glBegin(GL_TRIANGLE_FAN);
+		glBegin(GL_TRIANGLE_FAN);
 
-		::glColor4ub(m_byRed, m_byGreen, m_byBlue, m_byAlpha);
+		glColor4ub(m_byRed, m_byGreen, m_byBlue, m_byAlpha);
 
 		for (int i = LT; i < POS_MAX; ++i)
 		{
-			::glTexCoord2f(m_aTexCoord[i].fTU, m_aTexCoord[i].fTV);
-			::glVertex2f(m_aScrCoord[i].fX * m_fScaleX,
+			glTexCoord2f(m_aTexCoord[i].fTU, m_aTexCoord[i].fTV);
+			glVertex2f(m_aScrCoord[i].fX * m_fScaleX,
 				m_aScrCoord[i].fY * m_fScaleY);
 		}
 
-		::glEnd();
+		glEnd();
 	}
 	else
 	{
-		if (TextureEnable) 
+		if (TextureEnable)
 		{
 			TextureEnable = false;
-			::glDisable(GL_TEXTURE_2D);
+			glDisable(GL_TEXTURE_2D);
 		}
 
-		::glBegin(GL_TRIANGLE_FAN);
+		glBegin(GL_TRIANGLE_FAN);
 
-		::glColor4ub(m_byRed, m_byGreen, m_byBlue, m_byAlpha);
+		glColor4ub(m_byRed, m_byGreen, m_byBlue, m_byAlpha);
 		for (int i = LT; i < POS_MAX; ++i)
-			::glVertex2f(m_aScrCoord[i].fX * m_fScaleX,
+			glVertex2f(m_aScrCoord[i].fX * m_fScaleX,
 				m_aScrCoord[i].fY * m_fScaleY);
 
-		::glEnd();
+		glEnd();
 	}
 }

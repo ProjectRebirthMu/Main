@@ -77,8 +77,8 @@ public:
 	void HideWin(CWin* pWin);
 
 	bool IsCursorOnUI() { return m_bCursorOnUI; }
-	void PopUpMsgWin(int nMsgCode, const char* pszMsg = NULL);
-	void AddServerMsg(const char* pszMsg);
+	void PopUpMsgWin(int nMsgCode, char* pszMsg = NULL);
+	void AddServerMsg(char* pszMsg);
 	void CloseMsgWin() { HideWin(&m_MsgWin); }
 	void SetSysMenuWinShow(bool bShow) { m_bSysMenuWinShow = bShow; }
 	bool IsSysMenuWinShow() { return m_bSysMenuWinShow; };

@@ -12555,9 +12555,29 @@ bool ReceiveIGS_EventItemlist(BYTE* pReceiveBuffer)
 // (0xD2)(0x15)
 bool ReceiveIGS_UpdateBanner(BYTE* pReceiveBuffer)
 {
+#ifndef KWAK_FIX_COMPILE_LEVEL4_WARNING_EX
 	LPPMSG_CASHSHOP_BANNER_UPDATE Data = (LPPMSG_CASHSHOP_BANNER_UPDATE)pReceiveBuffer;
+#endif // KWAK_FIX_COMPILE_LEVEL4_WARNING_EX
 
+#ifdef KJH_MOD_SHOP_SCRIPT_DOWNLOAD
 	g_InGameShopSystem->SetBannerVersion(Data->wBannerZone, Data->wYear, Data->wYearIdentify);
+#else // KJH_MOD_SHOP_SCRIPT_DOWNLOAD
+	if( g_InGameShopSystem->IsShopOpen() == false )
+		return false;
+	
+#ifdef _DEBUG
+	g_InGameShopSystem->SetBannerVersion(583, 0, 0);
+#else // _DEBUG
+	g_InGameShopSystem->SetBannerVersion(Data->wBannerZone, Data->wYear, Data->wYearIdentify);
+#endif // _DEBUG
+
+	if( g_InGameShopSystem->BannerDownload() == false )
+	{
+		return false;
+	}
+
+	g_pInGameShop->InitBanner(g_InGameShopSystem->GetBannerFileName(), g_InGameShopSystem->GetBannerURL());
+#endif // KJH_MOD_SHOP_SCRIPT_DOWNLOAD
 
 	return true;
 }

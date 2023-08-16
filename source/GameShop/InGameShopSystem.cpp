@@ -2,6 +2,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#ifdef KJH_ADD_INGAMESHOP_UI_SYSTEM
 #include "InGameShopSystem.h"
 #include "WSclientinline.h"
 #include "ZzzInventory.h"
@@ -11,12 +12,12 @@
 	#include "./Utilities/Log/muConsoleDebug.h"
 #endif // CONSOLE_DEBUG
 
-CInGameShopSystem::CInGameShopSystem() // OK
+CInGameShopSystem::CInGameShopSystem()
 {
-	m_pCategoryList = nullptr;
-	m_pPackageList = nullptr;
-	m_pProductList = nullptr;
-	m_pBannerList = nullptr;
+	m_pCategoryList = NULL;
+	m_pPackageList = NULL;
+	m_pProductList = NULL;
+	m_pBannerList = NULL;
 
 	memset(&m_ScriptVerInfo, -1, sizeof(CListVersionInfo));
 	memset(&m_BannerVerInfo, -1, sizeof(CListVersionInfo));
@@ -24,9 +25,9 @@ CInGameShopSystem::CInGameShopSystem() // OK
 	memset(&m_CurrentBannerVerInfo, -1, sizeof(CListVersionInfo));
 
 	m_bIsShopOpenLock = true; //louis
-	m_bIsBanner = false;
+	m_bIsBanner	= false;
 	m_bIsRequestEventPackage = false;
-	m_plistSelectPackage = nullptr;
+	m_plistSelectPackage = NULL;
 	m_bFirstScriptDownloaded = false;
 	m_bFirstBannerDownloaded = false;
 }
@@ -42,7 +43,7 @@ CInGameShopSystem* CInGameShopSystem::GetInstance()
 	return &s_InGameShopSystem;
 }
 
-void CInGameShopSystem::Initialize() // OK
+void CInGameShopSystem::Initalize()
 {
 	m_mapZoneSeqIndex.clear();
 	m_listDisplayPackage.clear();
@@ -51,17 +52,17 @@ void CInGameShopSystem::Initialize() // OK
 	m_listZoneName.clear();
 	m_listCategoryName.clear();
 	m_plistSelectPackage = &m_listNormalPackage;
-	m_dTotalCash = 0;
-	m_dTotalPoint = 0;
-	m_dTotalMileage = 0;
-	m_dCashCreditCard = 0;
-	m_dCashPrepaid = 0;
-	m_iEventPackageCnt = 0;
+	m_dTotalCash	= 0;
+	m_dTotalPoint	= 0;
+	m_dTotalMileage	= 0;
+	m_dCashCreditCard	= 0; 
+	m_dCashPrepaid		= 0;	
+	m_iEventPackageCnt	= 0;
 	m_iSelectedPage = 1;
 	m_iTotalEventPackage = 0;
 	m_iCntSelectEventZone = 0;
 	m_bSelectEventCategory = false;
-	m_bIsRequestShopOpening = false;
+	m_bIsRequestShopOpenning = false;
 	m_bAbleRequestEventPackage = true;
 	InitZoneInfo();
 }
@@ -74,9 +75,9 @@ void CInGameShopSystem::Release()
 	m_listEventPackage.clear();
 	m_listZoneName.clear();
 	m_listCategoryName.clear();
-	m_pCategoryList = nullptr;
-	m_pPackageList = nullptr;
-	m_pProductList = nullptr;
+	m_pCategoryList = NULL;
+	m_pPackageList = NULL;
+	m_pProductList = NULL;
 }
 
 void CInGameShopSystem::SetScriptVersion(int iSalesZone, int iYear, int iYearId)
@@ -100,61 +101,62 @@ bool CInGameShopSystem::ScriptDownload()
 	::GetCurrentDirectory(255, m_szScriptLocalPath);
 
 	char szScriptRemotePathforDMZ[MAX_TEXT_LENGTH];
-	sprintf(m_szScriptLocalPath, "%s%s", m_szScriptLocalPath, "\\data\\CashShop\\Script");
-	strcpy(m_szScriptIPAddress, "image.webzen.com");
-	strcpy(m_szScriptRemotePath, "/Global/Payment/ProductTransfer");
-	strcpy(szScriptRemotePathforDMZ, "/Global/Payment/DevScriptGB/ProductTransfer");
+	sprintf(m_szScriptLocalPath, "%s%s", m_szScriptLocalPath, "\\data\\InGameShopScript");
+	strcpy(m_szScriptIPAddress,			"image.webzen.com");
+	strcpy(m_szScriptRemotePath,		"/Global/Payment/ProductTransfer");
+	strcpy(szScriptRemotePathforDMZ,	"/Global/Payment/DevScriptGB/ProductTransfer");
 
-	HANDLE hFile;
+#ifdef FOR_WORK
+	HANDLE hFile; 
 	hFile = CreateFile("dmz.ini",     // file to create
-		GENERIC_READ,                   // open for reading
-		0,                              // do not share
-		NULL,                           // default security
-		OPEN_EXISTING,                  // existing file only
-		FILE_ATTRIBUTE_NORMAL,          // normal file
-		NULL);                          // no template
-
+						GENERIC_READ,			// open for reading 
+						0,						// do not share 
+						NULL,                   // default security 
+						OPEN_EXISTING,          // existing file only 
+						FILE_ATTRIBUTE_NORMAL,  // normal file 
+						NULL);                  // no template 
+	
 	if (hFile != INVALID_HANDLE_VALUE)
 	{
-		strcpy(m_szScriptRemotePath, szScriptRemotePathforDMZ);
+		strcpy(m_szScriptRemotePath,	szScriptRemotePathforDMZ);
 	}
 	CloseHandle(hFile);
-
-	m_ShopManager.SetListManagerInfo(HTTP, m_szScriptIPAddress,
-		"",
-		"",
-		m_szScriptRemotePath,
-		m_szScriptLocalPath,
-		m_ScriptVerInfo,
-		10000);
-
+#endif // FOR_WORK
+	m_ShopManager.SetListManagerInfo(HTTP, m_szScriptIPAddress, 
+									"", 
+									"", 
+									m_szScriptRemotePath, 
+									m_szScriptLocalPath, 
+									m_ScriptVerInfo,
+									10000);
+								
 	WZResult res = m_ShopManager.LoadScriptList(false);
 
-	if (!res.IsSuccess())
+	if(!res.IsSuccess())
 	{
-		m_pCategoryList = nullptr;
-		m_pPackageList = nullptr;
-		m_pProductList = nullptr;
+		m_pCategoryList = NULL;
+		m_pPackageList = NULL;
+		m_pProductList = NULL;
 
 		ShopOpenLock();
 
-		unicode::t_char szText[MAX_TEXT_LENGTH] = { '\0' };
+		unicode::t_char szText[MAX_TEXT_LENGTH] = {'\0', };
 		sprintf(szText, GlobalText[3029], m_ScriptVerInfo.Zone, m_ScriptVerInfo.year, m_ScriptVerInfo.yearId, res.GetErrorMessage());
-		CMsgBoxIGSCommon* pMsgBox = nullptr;
+		CMsgBoxIGSCommon* pMsgBox = NULL;
 		CreateMessageBox(MSGBOX_LAYOUT_CLASS(CMsgBoxIGSCommonLayout), &pMsgBox);
-		pMsgBox->Initialize(GlobalText[3028], szText);
-		return false;
+ 		pMsgBox->Initialize(GlobalText[3028], szText);
+				return false;
 	}
 
 	m_CurrentScriptVerInfo = m_ScriptVerInfo;
 
-	g_ConsoleDebug->Write(MCD_NORMAL, "InGameShopStatue.Txt <IngameShop Script Download Success!!!>");
-	g_ConsoleDebug->Write(MCD_NORMAL, "InGameShopStatue.Txt - Ver %d.%d.%d", m_ScriptVerInfo.Zone, m_ScriptVerInfo.year, m_ScriptVerInfo.yearId);
+	g_ConsoleDebug->Write(MCD_NORMAL,"InGameShopStatue.Txt <IngameShop Script Download Success!!!>");
+	g_ConsoleDebug->Write(MCD_NORMAL,"InGameShopStatue.Txt - Ver %d.%d.%d", m_ScriptVerInfo.Zone, m_ScriptVerInfo.year, m_ScriptVerInfo.yearId);
 
 	ShopOpenUnLock();
 
 	CShopList* pShopList = m_ShopManager.GetListPtr();
-
+	
 	m_pCategoryList = pShopList->GetCategoryListPtr();
 	m_pPackageList = pShopList->GetPackageListPtr();
 	m_pProductList = pShopList->GetProductListPtr();
@@ -169,59 +171,70 @@ bool CInGameShopSystem::BannerDownload()
 	::GetCurrentDirectory(255, m_szBannerLocalPath);
 
 	char szBannerRemotePathforDMZ[MAX_TEXT_LENGTH];
-	sprintf(m_szBannerLocalPath, "%s%s", m_szBannerLocalPath, "\\data\\CashShop\\Banner");
+	sprintf(m_szBannerLocalPath, "%s%s", m_szBannerLocalPath, "\\data\\InGameShopBanner");
 
-	strcpy(m_szBannerIPAddress, "image.webzen.com");
-	strcpy(m_szBannerRemotePath, "/Global/Payment/BannerTransfer");
-	strcpy(szBannerRemotePathforDMZ, "/Global/Payment/DevScriptGB/BannerTransfer");
+	strcpy(m_szBannerIPAddress,			"image.webzen.com");
+	strcpy(m_szBannerRemotePath,		"/Global/Payment/BannerTransfer");
+	strcpy(szBannerRemotePathforDMZ,	"/Global/Payment/DevScriptGB/BannerTransfer");
 
-	HANDLE hFile;
+#ifdef FOR_WORK
+	HANDLE hFile; 
 	hFile = CreateFile("dmz.ini",     // file to create
-		GENERIC_READ,                   // open for reading
-		0,                              // do not share
-		NULL,                           // default security
-		OPEN_EXISTING,                  // existing file only
-		FILE_ATTRIBUTE_NORMAL,          // normal file
-		NULL);                          // no template
-
+						GENERIC_READ,			// open for reading 
+						0,						// do not share 
+						NULL,                   // default security 
+						OPEN_EXISTING,          // existing file only 
+						FILE_ATTRIBUTE_NORMAL,  // normal file 
+						NULL);                  // no template 
+	
 	if (hFile != INVALID_HANDLE_VALUE)
 	{
-		strcpy(m_szBannerRemotePath, szBannerRemotePathforDMZ);
+		strcpy(m_szBannerRemotePath,	szBannerRemotePathforDMZ);
 	}
 	CloseHandle(hFile);
-
-	m_BannerManager.SetListManagerInfo(HTTP, m_szBannerIPAddress,
-		"",
-		"",
-		m_szBannerRemotePath,
-		m_szBannerLocalPath,
-		m_BannerVerInfo,
-		4000);
+#endif // FOR_WORK
+	
+#ifdef KJH_MOD_SHOP_SCRIPT_DOWNLOAD
+	m_BannerManager.SetListManagerInfo(HTTP, m_szBannerIPAddress, 
+										"", 
+										"", 
+										m_szBannerRemotePath, 
+										m_szBannerLocalPath, 
+										m_BannerVerInfo,
+										4000);
+#else // KJH_MOD_SHOP_SCRIPT_DOWNLOAD
+	m_BannerManager.SetListManagerInfo(HTTP, m_szIPAddress, 
+										"", 
+										"", 
+										m_szBannerRemotePath, 
+										m_szBannerLocalPath, 
+										m_BannerVerInfo);
+#endif // KJH_MOD_SHOP_SCRIPT_DOWNLOAD									
 
 	// DownLoad & Load
 	WZResult res = m_BannerManager.LoadScriptList(false);
-
+	
 	// DownLoad & Load
-	if (!res.IsSuccess())
+	if(!res.IsSuccess())
 	{
-		m_pBannerList = nullptr;
+		m_pBannerList = NULL;
 		m_bIsBanner = false;
 
 		// MessageBox
-		unicode::t_char szText[MAX_TEXT_LENGTH] = { '\0' };
-		sprintf(szText, GlobalText[3030], m_BannerVerInfo.Zone, m_BannerVerInfo.year, m_BannerVerInfo.yearId, res.GetErrorMessage());
-		CMsgBoxIGSCommon* pMsgBox = nullptr;
+		unicode::t_char szText[MAX_TEXT_LENGTH] = {'\0', };
+		sprintf(szText, GlobalText[3030],m_BannerVerInfo.Zone, m_BannerVerInfo.year, m_BannerVerInfo.yearId, res.GetErrorMessage());
+		CMsgBoxIGSCommon* pMsgBox = NULL;
 		CreateMessageBox(MSGBOX_LAYOUT_CLASS(CMsgBoxIGSCommonLayout), &pMsgBox);
 		pMsgBox->Initialize(GlobalText[3028], szText);
-
+		
 		return false;
-}
-
+	}
+	
 	m_CurrentBannerVerInfo = m_BannerVerInfo;
 	m_pBannerList = m_BannerManager.GetListPtr();
 
 	m_pBannerList->SetFirst();
-	if (m_pBannerList->GetNext(m_BannerInfo) == false)
+	if( m_pBannerList->GetNext(m_BannerInfo) == false )
 		return false;
 
 	m_bIsBanner = true;
@@ -512,12 +525,12 @@ CShopPackage* CInGameShopSystem::GetDisplayPackage(int iIndex)
 
 void CInGameShopSystem::SetIsRequestShopOpenning(bool IsRequestShopOpenning)
 {
-	m_bIsRequestShopOpening = IsRequestShopOpenning;
+	m_bIsRequestShopOpenning = IsRequestShopOpenning;
 }
 
 bool CInGameShopSystem::GetIsRequestShopOpenning()
 {
-	return m_bIsRequestShopOpening;
+	return m_bIsRequestShopOpenning;
 }
 
 bool CInGameShopSystem::GetPackageInfo(int iPackageSeq, int iPackageAttrType, OUT int& iValue, OUT unicode::t_char* pszText)
@@ -889,3 +902,4 @@ CListVersionInfo CInGameShopSystem::GetCurrentBannerVer()
 	return m_CurrentBannerVerInfo;
 }
 #endif // KJH_MOD_SHOP_SCRIPT_DOWNLOAD
+#endif // KJH_ADD_INGAMESHOP_UI_SYSTEM

@@ -1,6 +1,5 @@
 //*****************************************************************************
 // File: LoginWin.cpp
-// Revised: 10/07/23
 //*****************************************************************************
 
 #include "stdafx.h"
@@ -31,13 +30,15 @@ extern float g_fScreenRate_y;
 extern int g_iChatInputType;
 
 CLoginWin::CLoginWin()
-	: m_pIDInputBox(nullptr), m_pPassInputBox(nullptr)
-{}
+{
+	m_pIDInputBox = NULL;
+	m_pPassInputBox = NULL;
+}
 
 CLoginWin::~CLoginWin()
 {
-	delete m_pIDInputBox;
-	delete m_pPassInputBox;
+	SAFE_DELETE(m_pIDInputBox);
+	SAFE_DELETE(m_pPassInputBox);
 }
 
 void CLoginWin::Create()
@@ -53,7 +54,8 @@ void CLoginWin::Create()
 		CWin::RegisterButton(&m_aBtn[i]);
 	}
 
-	delete m_pIDInputBox;
+	SAFE_DELETE(m_pIDInputBox);
+
 	m_pIDInputBox = new CUITextInputBox;
 	m_pIDInputBox->Init(g_hWnd, 140, 14, MAX_ID_SIZE);
 	m_pIDInputBox->SetBackColor(0, 0, 0, 255);
@@ -62,7 +64,8 @@ void CLoginWin::Create()
 	m_pIDInputBox->SetState(UISTATE_NORMAL);
 	m_pIDInputBox->SetText(m_ID);
 
-	delete m_pPassInputBox;
+	SAFE_DELETE(m_pPassInputBox);
+
 	m_pPassInputBox = new CUITextInputBox;
 	m_pPassInputBox->Init(g_hWnd, 140, 14, MAX_PASSWORD_SIZE, TRUE);
 	m_pPassInputBox->SetBackColor(0, 0, 0, 25);
@@ -72,7 +75,7 @@ void CLoginWin::Create()
 
 	m_pIDInputBox->SetTabTarget(m_pPassInputBox);
 	m_pPassInputBox->SetTabTarget(m_pIDInputBox);
-
+	
 	this->FirstLoad = 1;
 }
 
@@ -80,12 +83,6 @@ void CLoginWin::PreRelease()
 {
 	for (int i = 0; i < 2; ++i)
 		m_asprInputBox[i].Release();
-
-	delete m_pIDInputBox;
-	m_pIDInputBox = NULL;
-
-	delete m_pPassInputBox;
-	m_pPassInputBox = NULL;
 }
 
 void CLoginWin::SetPosition(int nXCoord, int nYCoord)
@@ -116,6 +113,8 @@ void CLoginWin::Show(bool bShow)
 	{
 		m_asprInputBox[i].Show(bShow);
 		m_aBtn[i].Show(bShow);
+
+
 	}
 }
 
@@ -124,10 +123,10 @@ bool CLoginWin::CursorInWin(int nArea)
 	if (!CWin::m_bShow)
 		return false;
 
-	if (g_iChatInputType == 1)
+	switch (nArea)
 	{
-		if (nArea == WA_MOVE)
-			return false;
+	case WA_MOVE:
+		return false;
 	}
 
 	return CWin::CursorInWin(nArea);
@@ -137,12 +136,16 @@ void CLoginWin::UpdateWhileActive(double dDeltaTick)
 {
 	CInput& rInput = CInput::Instance();
 
-	if (m_aBtn[LIW_OK].IsClick() || rInput.IsKeyDown(VK_RETURN))
+	if (m_aBtn[LIW_OK].IsClick())
+		RequestLogin();
+	else if (m_aBtn[LIW_CANCEL].IsClick())
+		CancelLogin();
+	else if (CInput::Instance().IsKeyDown(VK_RETURN))
 	{
 		::PlayBuffer(SOUND_CLICK01);
 		RequestLogin();
 	}
-	else if (m_aBtn[LIW_CANCEL].IsClick() || rInput.IsKeyDown(VK_ESCAPE))
+	else if (CInput::Instance().IsKeyDown(VK_ESCAPE))
 	{
 		::PlayBuffer(SOUND_CLICK01);
 		CancelLogin();
@@ -158,6 +161,7 @@ void CLoginWin::UpdateWhileShow(double dDeltaTick)
 
 void CLoginWin::RenderControls()
 {
+
 	if (this->FirstLoad == 1)
 	{
 		if (strlen(m_ID) > 0)
@@ -178,19 +182,20 @@ void CLoginWin::RenderControls()
 	g_pRenderText->SetFont(g_hFixFont);
 	g_pRenderText->SetBgColor(0);
 	g_pRenderText->SetTextColor(CLRDW_WHITE);
-	g_pRenderText->RenderText(static_cast<int>((CWin::GetXPos() + 30) / g_fScreenRate_x),
-		static_cast<int>((CWin::GetYPos() + 113) / g_fScreenRate_y), GlobalText[450]);
-	g_pRenderText->RenderText(static_cast<int>((CWin::GetXPos() + 30) / g_fScreenRate_x),
-		static_cast<int>((CWin::GetYPos() + 139) / g_fScreenRate_y), GlobalText[451]);
+	g_pRenderText->RenderText(int((CWin::GetXPos() + 30) / g_fScreenRate_x),
+		int((CWin::GetYPos() + 113) / g_fScreenRate_y), GlobalText[450]);
+	g_pRenderText->RenderText(int((CWin::GetXPos() + 30) / g_fScreenRate_x),
+		int((CWin::GetYPos() + 139) / g_fScreenRate_y), GlobalText[451]);	
 
 	unicode::t_char szServerName[MAX_TEXT_LENGTH];
 
-	const char* apszGlobalText[4] = { GlobalText[461], GlobalText[460], GlobalText[3130], GlobalText[3131] };
+	const char* apszGlobalText[4]
+		= { GlobalText[461], GlobalText[460], GlobalText[3130], GlobalText[3131] };
 	sprintf(szServerName, apszGlobalText[g_ServerListManager->GetNonPVPInfo()],
 		g_ServerListManager->GetSelectServerName(), g_ServerListManager->GetSelectServerIndex());
 
-	g_pRenderText->RenderText(static_cast<int>((CWin::GetXPos() + 111) / g_fScreenRate_x),
-		static_cast<int>((CWin::GetYPos() + 80) / g_fScreenRate_y), szServerName);
+	g_pRenderText->RenderText(int((CWin::GetXPos() + 111) / g_fScreenRate_x),
+		int((CWin::GetYPos() + 80) / g_fScreenRate_y), szServerName);
 }
 
 void CLoginWin::RequestLogin()
@@ -200,30 +205,31 @@ void CLoginWin::RequestLogin()
 
 	CUIMng::Instance().HideWin(this);
 
-	char szID[MAX_ID_SIZE + 1] = { 0 };
-	char szPass[MAX_PASSWORD_SIZE + 1] = { 0 };
-	m_pIDInputBox->GetText(szID, MAX_ID_SIZE + 1);
-	m_pPassInputBox->GetText(szPass, MAX_PASSWORD_SIZE + 1);
-
-	if (strlen(szID) <= 0)
+	char szID[MAX_ID_SIZE+1] = { 0, };
+	char szPass[MAX_PASSWORD_SIZE+1] = {0, };
+	m_pIDInputBox->GetText(szID, MAX_ID_SIZE+1);
+	m_pPassInputBox->GetText(szPass, MAX_PASSWORD_SIZE+1);
+	
+	if (unicode::_strlen(szID) <= 0)
 		CUIMng::Instance().PopUpMsgWin(MESSAGE_INPUT_ID);
-	else if (strlen(szPass) <= 0)
+	else if (unicode::_strlen(szPass) <= 0)
 		CUIMng::Instance().PopUpMsgWin(MESSAGE_INPUT_PASSWORD);
 	else
 	{
 		if (CurrentProtocolState == RECEIVE_JOIN_SERVER_SUCCESS)
 		{
-			g_ConsoleDebug->Write(MCD_NORMAL, "Login with the following account: %s", szID);
+			g_ConsoleDebug->Write( MCD_NORMAL, "Login with the following account: %s", szID);
 
 			g_ErrorReport.Write("> Login Request.\r\n");
 			g_ErrorReport.Write("> Try to Login \"%s\"\r\n", szID);
 			// SendRequestLogIn()
 
-#ifdef NEW_PROTOCOL_SYSTEM
-			gProtocolSend.SendRequestLogInNew(szID, szPass);
-#else
-			SendRequestLogIn(szID, szPass);
-#endif
+			#ifdef NEW_PROTOCOL_SYSTEM
+				gProtocolSend.SendRequestLogInNew(szID, szPass);
+			#else
+				SendRequestLogIn(szID, szPass);
+			#endif
+ 			
 		}
 	}
 }
@@ -236,11 +242,11 @@ void CLoginWin::CancelLogin()
 
 void CLoginWin::ConnectConnectionServer()
 {
-#ifdef NEW_PROTOCOL_SYSTEM
-	gProtocolSend.DisconnectServer();
-#endif
+	#ifdef NEW_PROTOCOL_SYSTEM
+		gProtocolSend.DisconnectServer();
+	#endif
 
 	LogIn = 0;
 	CurrentProtocolState = REQUEST_JOIN_SERVER;
-	CreateSocket(szServerIpAddress, g_ServerPort);
+    CreateSocket(szServerIpAddress, g_ServerPort);
 }

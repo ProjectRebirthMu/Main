@@ -1,9 +1,9 @@
 // muDebugHelper.cpp: implementation of the CmuConsoleDebug class.
+// Updated: - 15/08/23 - By: Qubit
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-
-#include "muConsoleDebug.h"	// self
+#include "muConsoleDebug.h"
 #include <iostream>
 #include "ZzzInterface.h"
 #include "ZzzOpenglUtil.h"
@@ -18,13 +18,13 @@
 CmuConsoleDebug::CmuConsoleDebug() : m_bInit(false)
 {
 #ifdef CSK_LH_DEBUG_CONSOLE
-	if(leaf::OpenConsoleWindow("Mu Debug Console Window"))
+	if (leaf::OpenConsoleWindow("Debugging console"))
 	{
 		leaf::ActivateCloseButton(false);
 		leaf::ShowConsole(true);
 		m_bInit = true;
-		
-		g_ErrorReport.Write("Mu Debug Console Window Init - completed(Handle:0x%00000008X)\r\n", leaf::GetConsoleWndHandle());
+
+		g_ErrorReport.Write("Debug Console Window Init - completed(Handle:0x%08X)\r\n", leaf::GetConsoleWndHandle());
 	}
 #endif
 }
@@ -32,7 +32,11 @@ CmuConsoleDebug::CmuConsoleDebug() : m_bInit(false)
 CmuConsoleDebug::~CmuConsoleDebug()
 {
 #ifdef CSK_LH_DEBUG_CONSOLE
-	leaf::CloseConsoleWindow();
+	if (m_bInit)
+	{
+		leaf::CloseConsoleWindow();
+		m_bInit = false;
+	}
 #endif
 }
 
@@ -42,18 +46,18 @@ CmuConsoleDebug* CmuConsoleDebug::GetInstance()
 	static CmuConsoleDebug sInstance;
 	return &sInstance;
 #else
-	return 0;
-#endif 
+	return nullptr;
+#endif
 }
 
 void CmuConsoleDebug::UpdateMainScene()
 {
 #ifdef CSK_LH_DEBUG_CONSOLE
-	if(m_bInit)
+	if (m_bInit)
 	{
-		if(SEASON3B::IsPress(VK_SHIFT) == TRUE)
+		if (SEASON3B::IsPress(VK_SHIFT) == true)
 		{
-			if(PressKey(VK_F7))
+			if (PressKey(VK_F7))
 			{
 				leaf::ShowConsole(!leaf::IsConsoleVisible());
 			}
@@ -65,58 +69,58 @@ void CmuConsoleDebug::UpdateMainScene()
 bool CmuConsoleDebug::CheckCommand(const std::string& strCommand)
 {
 #ifdef CSK_LH_DEBUG_CONSOLE
-	if(!m_bInit)
+	if (!m_bInit)
 		return false;
 
-	if(strCommand.compare("$open") == NULL)
+	if (strCommand == "$open")
 	{
 		leaf::ShowConsole(true);
 		return true;
 	}
-	else if(strCommand.compare("$close") == NULL)
+	else if (strCommand == "$close")
 	{
 		leaf::ShowConsole(false);
 		return true;
 	}
-	else if(strCommand.compare("$clear") == NULL)
+	else if (strCommand == "$clear")
 	{
 		leaf::SetConsoleTextColor();
 		leaf::ClearConsoleScreen();
 		return true;
 	}
 #ifdef CSK_DEBUG_MAP_ATTRIBUTE
-	else if(strCommand.compare("$mapatt on") == NULL)
+	else if (strCommand == "$mapatt on")
 	{
 		EditFlag = EDIT_WALL;
 		return true;
 	}
-	else if(strCommand.compare("$mapatt off") == NULL)
+	else if (strCommand == "$mapatt off")
 	{
 		EditFlag = EDIT_NONE;
 		return true;
 	}
 #endif // CSK_DEBUG_MAP_ATTRIBUTE
 #ifdef CSK_DEBUG_MAP_PATHFINDING
-	else if(strCommand.compare("$path on") == NULL)
+	else if (strCommand == "$path on")
 	{
 		g_bShowPath = true;
 	}
-	else if(strCommand.compare("$path off") == NULL)
+	else if (strCommand == "$path off")
 	{
-		g_bShowPath = false;	
+		g_bShowPath = false;
 	}
 #endif // CSK_DEBUG_MAP_PATHFINDING
 #ifdef CSK_DEBUG_RENDER_BOUNDINGBOX
-	else if(strCommand.compare("$bb on") == NULL)
+	else if (strCommand == "$bb on")
 	{
 		g_bRenderBoundingBox = true;
 	}
-	else if(strCommand.compare("$bb off") == NULL)
+	else if (strCommand == "$bb off")
 	{
-		g_bRenderBoundingBox = false;	
+		g_bRenderBoundingBox = false;
 	}
 #endif // CSK_DEBUG_RENDER_BOUNDINGBOX
-	else if(strCommand.compare("$type_test") == NULL)
+	else if (strCommand == "$type_test")
 	{
 		Write(MCD_SEND, "MCD_SEND");
 		Write(MCD_RECEIVE, "MCD_RECEIVE");
@@ -124,13 +128,13 @@ bool CmuConsoleDebug::CheckCommand(const std::string& strCommand)
 		Write(MCD_NORMAL, "MCD_NORMAL");
 		return true;
 	}
-	else if(strCommand.compare("$texture_info") == NULL)
+	else if (strCommand == "$texture_info")
 	{
 		Write(MCD_NORMAL, "Texture Number : %d", Bitmaps.GetNumberOfTexture());
-		Write(MCD_NORMAL, "Texture Memory : %dKB", Bitmaps.GetUsedTextureMemory()/1024);
+		Write(MCD_NORMAL, "Texture Memory : %dKB", Bitmaps.GetUsedTextureMemory() / 1024);
 		return true;
 	}
-	else if(strCommand.compare("$color_test") == NULL)
+	else if (strCommand == "$color_test")
 	{
 		leaf::SetConsoleTextColor(leaf::COLOR_DARKRED);
 		std::cout << "color test: dark red" << std::endl;
@@ -169,9 +173,9 @@ bool CmuConsoleDebug::CheckCommand(const std::string& strCommand)
 void CmuConsoleDebug::Write(int iType, const char* pStr, ...)
 {
 #ifdef CONSOLE_DEBUG
-	if(m_bInit)
+	if (m_bInit)
 	{
-		switch(iType)
+		switch (iType)
 		{
 		case MCD_SEND:
 			leaf::SetConsoleTextColor(leaf::COLOR_OLIVE);
@@ -184,16 +188,16 @@ void CmuConsoleDebug::Write(int iType, const char* pStr, ...)
 			break;
 		case MCD_NORMAL:
 			leaf::SetConsoleTextColor(leaf::COLOR_GRAY);
-			break;	
+			break;
 		}
-		
-		char szBuffer[256]="";
-		va_list	pArguments;
-		
+
+		char szBuffer[256] = "";
+		va_list pArguments;
+
 		va_start(pArguments, pStr);
 		vsprintf(szBuffer, pStr, pArguments);
 		va_end(pArguments);
-		
+
 		std::cout << szBuffer << std::endl;
 	}
 #endif
@@ -219,24 +223,22 @@ void CmuSimpleLog::setFilename(const char* strFilename)
 #endif
 }
 
-void CmuSimpleLog::log(char *str, ...)
+void CmuSimpleLog::log(char* str, ...)
 {
 #ifdef CSK_LH_DEBUG_CONSOLE
-	if(m_bLogfirst) 
-	{
+	if (m_bLogfirst) {
 		m_pFile = fopen(m_strFilename.c_str(), "a");
 		fclose(m_pFile);
 		m_bLogfirst = false;
 	}
-	
+
 	m_pFile = fopen(m_strFilename.c_str(), "a");
-	
+
 	va_list ap;
-	
-	va_start (ap, str);
-	vfprintf (m_pFile, str, ap);
-	va_end (ap);
-	
+	va_start(ap, str);
+	vfprintf(m_pFile, str, ap);
+	va_end(ap);
+
 	fclose(m_pFile);
 #endif
 }

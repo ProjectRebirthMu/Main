@@ -95,8 +95,6 @@ void COptionWin::SetPosition(int nXCoord, int nYCoord)
 
 	m_aBtn[OW_BTN_CLOSE].SetPosition(m_winBack.GetXPos() + (m_winBack.GetWidth() - m_aBtn[OW_BTN_CLOSE].GetWidth()) / 2, m_winBack.GetYPos() + 301);
 
-//	int nSldPosX = m_winBack.GetXPos()
-//		+ (m_winBack.GetWidth() - m_aSlider[0].GetWidth()) / 2;
 	int nSldGap = OW_SLD_GAP + m_aSlider[0].GetHeight();
 	int nSldPosBaseTop = m_aBtn[OW_BTN_SLIDE_HELP].GetYPos()
 		+ m_aBtn[0].GetHeight() + OW_SLD_GAP;

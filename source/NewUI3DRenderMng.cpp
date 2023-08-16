@@ -129,7 +129,7 @@ bool SEASON3B::CNewUI3DCamera::Render()
 			(*li)->Render3D();
 		}
 	}
-	UpdateMousePosition();
+	UpdateMousePositionn();
 
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();

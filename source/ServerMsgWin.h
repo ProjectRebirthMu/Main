@@ -25,7 +25,7 @@ public:
 	void Create();
 	bool CursorInWin(int nArea);
 
-	void AddMsg(const char* pszMsg);
+	void AddMsg(char* pszMsg);
 
 protected:
 	void RenderControls();
