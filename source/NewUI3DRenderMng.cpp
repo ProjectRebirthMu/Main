@@ -1,5 +1,5 @@
 // NewUI3DRenderMng.cpp: implementation of the CNewUI3DRenderMng class.
-//
+// Rev: 24/09/23 11:25 GMT-3
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -13,9 +13,7 @@ using namespace SEASON3B;
 //////////////////////////////////////////////////////////////////////
 
 SEASON3B::CNewUI3DCamera::CNewUI3DCamera() 
-{
-
-}
+{}
 
 SEASON3B::CNewUI3DCamera::~CNewUI3DCamera() 
 { 
@@ -55,8 +53,8 @@ void SEASON3B::CNewUI3DCamera::Add3DRenderObj(INewUI3DRenderObj* pObj)
 
 void SEASON3B::CNewUI3DCamera::Remove3DRenderObj(INewUI3DRenderObj* pObj)
 {
-	type_list_3dobj::iterator vi = std::find(m_list3DObjs.begin(), m_list3DObjs.end(), pObj);
-	if(vi != m_list3DObjs.end())
+	auto vi = std::find(m_list3DObjs.begin(), m_list3DObjs.end(), pObj);
+	if (vi != m_list3DObjs.end())
 	{
 		m_list3DObjs.erase(vi);
 	}
@@ -69,24 +67,21 @@ void SEASON3B::CNewUI3DCamera::RemoveAll3DRenderObjs()
 
 void SEASON3B::CNewUI3DCamera::RenderUI2DEffect(UI_2DEFFECT_CALLBACK pCallbackFunc, LPVOID pClass, DWORD dwParamA, DWORD dwParamB)
 {
-	UI_2DEFFECT_INFO UI2DEffectInfo;
-	UI2DEffectInfo.pCallbackFunc = pCallbackFunc;
-	UI2DEffectInfo.pClass = pClass;
-	UI2DEffectInfo.dwParamA = dwParamA;
-	UI2DEffectInfo.dwParamB = dwParamB;
-
-	m_deque2DEffects.push_back(UI2DEffectInfo);
+	m_deque2DEffects.emplace_back(UI_2DEFFECT_INFO{ pCallbackFunc, pClass, dwParamA, dwParamB });
 }
 
 void SEASON3B::CNewUI3DCamera::DeleteUI2DEffectObject(UI_2DEFFECT_CALLBACK pCallbackFunc)
 {
-	type_deque_2deffect::iterator di = m_deque2DEffects.begin();
-	for(; di != m_deque2DEffects.end(); di++)
+	for (auto di = m_deque2DEffects.begin(); di != m_deque2DEffects.end(); )
 	{
-		if((*di).pCallbackFunc == pCallbackFunc)
+		if ((*di).pCallbackFunc == pCallbackFunc)
 		{
-			m_deque2DEffects.erase(di);
+			di = m_deque2DEffects.erase(di);
 			break;
+		}
+		else
+		{
+			++di;
 		}
 	}
 }
@@ -98,33 +93,31 @@ int SEASON3B::CNewUI3DCamera::GetCameraIndex() const
 
 float SEASON3B::CNewUI3DCamera::GetLayerDepth()
 {
-	//. fZOrder == fLayerDepth
 	return m_fZOrder;
 }
 
 bool SEASON3B::CNewUI3DCamera::Render()
 {
-	if(m_list3DObjs.empty())
+	if (m_list3DObjs.empty())
 		return true;
 
 	EndBitmap();
 	glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadIdentity();
-    glViewport2(0,0,m_uiWidth,m_uiHeight);
-    gluPerspective2(1.f, (float)(m_uiWidth)/(float)(m_uiHeight), RENDER_ITEMVIEW_NEAR, RENDER_ITEMVIEW_FAR);
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
+	glPushMatrix();
+	glLoadIdentity();
+	glViewport2(0, 0, m_uiWidth, m_uiHeight);
+	gluPerspective2(1.f, static_cast<float>(m_uiWidth) / static_cast<float>(m_uiHeight), RENDER_ITEMVIEW_NEAR, RENDER_ITEMVIEW_FAR);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
 	GetOpenGLMatrix(CameraMatrix);
-    EnableDepthTest();
-    EnableDepthMask();
+	EnableDepthTest();
+	EnableDepthMask();
 	glClear(GL_DEPTH_BUFFER_BIT);
-	
-	type_list_3dobj::iterator li = m_list3DObjs.begin();
-	for(; li != m_list3DObjs.end(); li++)
+
+	for (auto li = m_list3DObjs.begin(); li != m_list3DObjs.end(); ++li)
 	{
-		if((*li)->IsVisible())
+		if ((*li)->IsVisible())
 		{
 			(*li)->Render3D();
 		}
@@ -137,10 +130,10 @@ bool SEASON3B::CNewUI3DCamera::Render()
 	glPopMatrix();
 	BeginBitmap();
 
-	while(!m_deque2DEffects.empty())
+	while (!m_deque2DEffects.empty())
 	{
 		UI_2DEFFECT_INFO& UI2DEffectInfo = m_deque2DEffects.front();
-		if(UI2DEffectInfo.pCallbackFunc)
+		if (UI2DEffectInfo.pCallbackFunc)
 		{
 			(*UI2DEffectInfo.pCallbackFunc)(UI2DEffectInfo.pClass, UI2DEffectInfo.dwParamA, UI2DEffectInfo.dwParamB);
 		}
@@ -169,9 +162,7 @@ bool SEASON3B::CNewUI3DCamera::UpdateKeyEvent()
 }
 
 SEASON3B::CNewUI3DRenderMng::CNewUI3DRenderMng() 
-{
-
-}
+{}
 
 SEASON3B::CNewUI3DRenderMng::~CNewUI3DRenderMng() 
 { 
@@ -189,13 +180,13 @@ void SEASON3B::CNewUI3DRenderMng::Release()
 	RemoveAll3DRenderObjs(); 
 }
 
-void SEASON3B::CNewUI3DRenderMng::Add3DRenderObj(INewUI3DRenderObj* pObj, float fZOrder/* = INFORMATION_CAMERA_Z_ORDER*/)
+void SEASON3B::CNewUI3DRenderMng::Add3DRenderObj(INewUI3DRenderObj* pObj, float fZOrder)
 {
 	CNewUI3DCamera* pCamera = FindCamera(fZOrder);
-	if(NULL == pCamera)
+	if (nullptr == pCamera)
 	{
 		int iAvailableCameraIndex = FindAvailableCameraIndex();
-		if(-1 != iAvailableCameraIndex)
+		if (-1 != iAvailableCameraIndex)
 		{
 			pCamera = new CNewUI3DCamera;
 			pCamera->Create(iAvailableCameraIndex, WindowWidth, WindowHeight, fZOrder);
@@ -213,28 +204,30 @@ void SEASON3B::CNewUI3DRenderMng::Add3DRenderObj(INewUI3DRenderObj* pObj, float 
 	else
 	{
 		pCamera->Add3DRenderObj(pObj);
-	}	
+	}
 }
+
 void SEASON3B::CNewUI3DRenderMng::Remove3DRenderObj(INewUI3DRenderObj* pObj)
 {
-	type_list_camera::iterator li = m_listCamera.begin();
-	for(; li != m_listCamera.end(); li++)
+	for (auto li = m_listCamera.begin(); li != m_listCamera.end(); )
 	{
 		(*li)->Remove3DRenderObj(pObj);
-		if((*li)->IsEmpty())
+		if ((*li)->IsEmpty())
 		{
 			m_pNewUIMng->RemoveUIObj(*li);
 			delete (*li);
-			m_listCamera.erase(li);
-			break;
+			li = m_listCamera.erase(li);
+		}
+		else
+		{
+			++li;
 		}
 	}
 }
 
 void SEASON3B::CNewUI3DRenderMng::RemoveAll3DRenderObjs()
 {
-	type_list_camera::iterator li = m_listCamera.begin();
-	for(; li != m_listCamera.end(); li++)
+	for (auto li = m_listCamera.begin(); li != m_listCamera.end(); ++li)
 	{
 		delete (*li);
 		m_pNewUIMng->RemoveUIObj(*li);
@@ -245,38 +238,49 @@ void SEASON3B::CNewUI3DRenderMng::RemoveAll3DRenderObjs()
 void SEASON3B::CNewUI3DRenderMng::RenderUI2DEffect(float fZOrder, UI_2DEFFECT_CALLBACK pCallbackFunc, LPVOID pClass, DWORD dwParamA, DWORD dwParamB)
 {
 	CNewUI3DCamera* pCamera = FindCamera(fZOrder);
-	if(pCamera)
+	if (pCamera)
+	{
 		pCamera->RenderUI2DEffect(pCallbackFunc, pClass, dwParamA, dwParamB);
+	}
 }
 
 void SEASON3B::CNewUI3DRenderMng::DeleteUI2DEffectObject(UI_2DEFFECT_CALLBACK pCallbackFunc)
 {
-	type_list_camera::iterator li = m_listCamera.begin();
-	for(; li != m_listCamera.end(); li++)
+	for (auto li = m_listCamera.begin(); li != m_listCamera.end(); ++li)
+	{
 		(*li)->DeleteUI2DEffectObject(pCallbackFunc);
+	}
 }
 
 CNewUI3DCamera* SEASON3B::CNewUI3DRenderMng::FindCamera(float fZOrder)
 {
-	type_list_camera::iterator li = m_listCamera.begin();
-	for(; li != m_listCamera.end(); li++)
-		if((*li)->GetLayerDepth() == fZOrder)
+	for (auto li = m_listCamera.begin(); li != m_listCamera.end(); ++li)
+	{
+		if ((*li)->GetLayerDepth() == fZOrder)
+		{
 			return (*li);
-	return NULL;
+		}
+	}
+	return nullptr;
 }
 
 int SEASON3B::CNewUI3DRenderMng::FindAvailableCameraIndex()
 {
-	for(int iIndex=INTERFACE_3DRENDERING_CAMERA_BEGIN; iIndex<INTERFACE_3DRENDERING_CAMERA_END; iIndex++)
+	for (int iIndex = INTERFACE_3DRENDERING_CAMERA_BEGIN; iIndex < INTERFACE_3DRENDERING_CAMERA_END; ++iIndex)
 	{
-		type_list_camera::iterator li = m_listCamera.begin();
-		for(; li != m_listCamera.end(); li++)
+		bool found = false;
+		for (auto li = m_listCamera.begin(); li != m_listCamera.end(); ++li)
 		{
-			if((*li)->GetCameraIndex() == iIndex)
+			if ((*li)->GetCameraIndex() == iIndex)
+			{
+				found = true;
 				break;
+			}
 		}
-		if(li == m_listCamera.end())
+		if (!found)
+		{
 			return iIndex;
+		}
 	}
 	return -1;
 }

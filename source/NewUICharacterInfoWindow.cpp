@@ -20,10 +20,9 @@
 
 using namespace SEASON3B;
 
-SEASON3B::CNewUICharacterInfoWindow::CNewUICharacterInfoWindow() 
+SEASON3B::CNewUICharacterInfoWindow::CNewUICharacterInfoWindow()
+	: m_pNewUIMng(nullptr), m_Pos({ 0, 0 })
 {
-	m_pNewUIMng = NULL;
-	m_Pos.x = m_Pos.y = 0;
 }
 
 SEASON3B::CNewUICharacterInfoWindow::~CNewUICharacterInfoWindow() 
@@ -33,18 +32,15 @@ SEASON3B::CNewUICharacterInfoWindow::~CNewUICharacterInfoWindow()
 
 bool SEASON3B::CNewUICharacterInfoWindow::Create(CNewUIManager* pNewUIMng, int x, int y)
 {
-	if(NULL == pNewUIMng)
+	if (pNewUIMng == nullptr)
 		return false;
 
 	m_pNewUIMng = pNewUIMng;
 	m_pNewUIMng->AddUIObj(SEASON3B::INTERFACE_CHARACTER, this);
 
 	SetPos(x, y);
-
 	LoadImages();
-
 	SetButtonInfo();
-
 	Show(false);
 
 	return true;
@@ -55,45 +51,49 @@ void SEASON3B::CNewUICharacterInfoWindow::SetButtonInfo()
 	unicode::t_char strText[256];
 
 	m_BtnStat[STAT_STRENGTH].ChangeButtonImgState(true, IMAGE_CHAINFO_BTN_STAT, false);
-	m_BtnStat[STAT_STRENGTH].ChangeButtonInfo( m_Pos.x + 160, m_Pos.y + HEIGHT_STRENGTH+2, 16, 15 );
+	m_BtnStat[STAT_STRENGTH].ChangeButtonInfo(m_Pos.x + 160, m_Pos.y + HEIGHT_STRENGTH + 2, 16, 15);
 
 	m_BtnStat[STAT_DEXTERITY].ChangeButtonImgState(true, IMAGE_CHAINFO_BTN_STAT, false);
-	m_BtnStat[STAT_DEXTERITY].ChangeButtonInfo( m_Pos.x + 160, m_Pos.y + HEIGHT_DEXTERITY+2, 16, 15 );
+	m_BtnStat[STAT_DEXTERITY].ChangeButtonInfo(m_Pos.x + 160, m_Pos.y + HEIGHT_DEXTERITY + 2, 16, 15);
 
 	m_BtnStat[STAT_VITALITY].ChangeButtonImgState(true, IMAGE_CHAINFO_BTN_STAT, false);
-	m_BtnStat[STAT_VITALITY].ChangeButtonInfo( m_Pos.x + 160, m_Pos.y + HEIGHT_VITALITY+2, 16, 15 );
+	m_BtnStat[STAT_VITALITY].ChangeButtonInfo(m_Pos.x + 160, m_Pos.y + HEIGHT_VITALITY + 2, 16, 15);
 
 	m_BtnStat[STAT_ENERGY].ChangeButtonImgState(true, IMAGE_CHAINFO_BTN_STAT, false);
-	m_BtnStat[STAT_ENERGY].ChangeButtonInfo( m_Pos.x + 160, m_Pos.y + HEIGHT_ENERGY+2, 16, 15 );
+	m_BtnStat[STAT_ENERGY].ChangeButtonInfo(m_Pos.x + 160, m_Pos.y + HEIGHT_ENERGY + 2, 16, 15);
 
 	m_BtnStat[STAT_CHARISMA].ChangeButtonImgState(true, IMAGE_CHAINFO_BTN_STAT, false);
-	m_BtnStat[STAT_CHARISMA].ChangeButtonInfo( m_Pos.x + 160, m_Pos.y + HEIGHT_CHARISMA+2, 16, 15 );
+	m_BtnStat[STAT_CHARISMA].ChangeButtonInfo(m_Pos.x + 160, m_Pos.y + HEIGHT_CHARISMA + 2, 16, 15);
 
 	m_BtnExit.ChangeButtonImgState(true, IMAGE_CHAINFO_BTN_EXIT, false);
-	m_BtnExit.ChangeButtonInfo( m_Pos.x + 13, m_Pos.y + 392, 36, 29 );
+	m_BtnExit.ChangeButtonInfo(m_Pos.x + 13, m_Pos.y + 392, 36, 29);
 	unicode::_sprintf(strText, GlobalText[927], "C");
 	m_BtnExit.ChangeToolTipText(strText, true);
+
 	m_BtnQuest.ChangeButtonImgState(true, IMAGE_CHAINFO_BTN_QUEST, false);
-	m_BtnQuest.ChangeButtonInfo( m_Pos.x + 50, m_Pos.y + 392, 36, 29 );
+	m_BtnQuest.ChangeButtonInfo(m_Pos.x + 50, m_Pos.y + 392, 36, 29);
 	unicode::_sprintf(strText, "%s(%s)", GlobalText[1140], "T");
 	m_BtnQuest.ChangeToolTipText(strText, true);
+
 	m_BtnPet.ChangeButtonImgState(true, IMAGE_CHAINFO_BTN_PET, false);
-	m_BtnPet.ChangeButtonInfo( m_Pos.x + 87, m_Pos.y + 392, 36, 29 );
+	m_BtnPet.ChangeButtonInfo(m_Pos.x + 87, m_Pos.y + 392, 36, 29);
 	m_BtnPet.ChangeToolTipText(GlobalText[1217], true);
 
+#ifdef ENABLE_MASTERLEVELSKILLTREE
 	m_BtnMasterLevel.ChangeButtonImgState(true, IMAGE_CHAINFO_BTN_MASTERLEVEL, false);
-	m_BtnMasterLevel.ChangeButtonInfo( m_Pos.x + 124, m_Pos.y + 392, 36, 29 );
+	m_BtnMasterLevel.ChangeButtonInfo(m_Pos.x + 124, m_Pos.y + 392, 36, 29);
 	m_BtnMasterLevel.ChangeToolTipText(GlobalText[1749], true);
+#endif
 }
 
 void SEASON3B::CNewUICharacterInfoWindow::Release()
 {
 	UnloadImages();
 
-	if(m_pNewUIMng)
+	if (m_pNewUIMng)
 	{
 		m_pNewUIMng->RemoveUIObj(this);
-		m_pNewUIMng = NULL;
+		m_pNewUIMng = nullptr;
 	}
 }
 
@@ -105,12 +105,12 @@ void SEASON3B::CNewUICharacterInfoWindow::SetPos(int x, int y)
 
 bool SEASON3B::CNewUICharacterInfoWindow::UpdateMouseEvent()
 {
-	if(BtnProcess() == true)
+	if (BtnProcess())
 	{
 		return false;
 	}
 
-	if(CheckMouseIn(m_Pos.x, m_Pos.y, CHAINFO_WINDOW_WIDTH, CHAINFO_WINDOW_HEIGHT))
+	if (CheckMouseIn(m_Pos.x, m_Pos.y, CHAINFO_WINDOW_WIDTH, CHAINFO_WINDOW_HEIGHT))
 	{
 		return false;
 	}
@@ -120,81 +120,74 @@ bool SEASON3B::CNewUICharacterInfoWindow::UpdateMouseEvent()
 
 bool SEASON3B::CNewUICharacterInfoWindow::BtnProcess()
 {
-	POINT ptExitBtn1 = { m_Pos.x+169, m_Pos.y+7 };
+	POINT ptExitBtn1 = { m_Pos.x + 169, m_Pos.y + 7 };
 
-	if(SEASON3B::IsPress(VK_LBUTTON) && CheckMouseIn(ptExitBtn1.x, ptExitBtn1.y, 13, 12))
+	if (SEASON3B::IsPress(VK_LBUTTON) && CheckMouseIn(ptExitBtn1.x, ptExitBtn1.y, 13, 12))
 	{
 		g_pNewUISystem->Hide(SEASON3B::INTERFACE_CHARACTER);
 		return true;
 	}
 
-	if(CharacterAttribute->LevelUpPoint > 0)
+	if (CharacterAttribute->LevelUpPoint > 0)
 	{
 		int iBaseClass = gCharacterManager.GetBaseClass(Hero->Class);
-		int iCount = 0;
-		if(iBaseClass == CLASS_DARK_LORD)
+		int iCount = (iBaseClass == CLASS_DARK_LORD) ? 5 : 4;
+
+		for (int i = 0; i < iCount; ++i)
 		{
-			iCount = 5;
-		}
-		else
-		{
-			iCount = 4;
-		}
-		for(int i=0; i<iCount; ++i)
-		{
-			if(m_BtnStat[i].UpdateMouseEvent() == true)
+			if (m_BtnStat[i].UpdateMouseEvent())
 			{
-				SendRequestAddPoint ( i );
+				SendRequestAddPoint(i);
 				return true;
 			}
 		}
 	}
 
-	
-	if(m_BtnExit.UpdateMouseEvent() == true)
+	if (m_BtnExit.UpdateMouseEvent())
 	{
 		g_pNewUISystem->Hide(SEASON3B::INTERFACE_CHARACTER);
 		return true;
 	}
 
-	if(m_BtnQuest.UpdateMouseEvent() == true)
+	if (m_BtnQuest.UpdateMouseEvent())
 	{
 		g_pNewUISystem->Toggle(SEASON3B::INTERFACE_MYQUEST);
 		return true;
 	}
 
-	if(m_BtnPet.UpdateMouseEvent() == true)
+	if (m_BtnPet.UpdateMouseEvent())
 	{
 		g_pNewUISystem->Toggle(SEASON3B::INTERFACE_PET);
 		return true;
 	}
 
-	if(m_BtnMasterLevel.UpdateMouseEvent() == true)
+#ifdef ENABLE_MASTERLEVELSKILLTREE
+	if (m_BtnMasterLevel.UpdateMouseEvent() && gCharacterManager.IsMasterLevel(Hero->Class))
 	{
-		if(gCharacterManager.IsMasterLevel( Hero->Class ) == true 
 #ifdef PBG_ADD_NEWCHAR_MONK
-			&& gCharacterManager.GetCharacterClass(Hero->Class) != CLASS_TEMPLENIGHT
-#endif //PBG_ADD_NEWCHAR_MONK
-			)
+		if (gCharacterManager.GetCharacterClass(Hero->Class) != CLASS_TEMPLENIGHT)
+#endif // PBG_ADD_NEWCHAR_MONK
+		{
 			g_pNewUISystem->Toggle(SEASON3B::INTERFACE_MASTER_LEVEL);
+		}
 		return true;
 	}
+#endif //ENABLE_MASTERLEVELSKILLTREE
+
 	return false;
 }
 
 bool SEASON3B::CNewUICharacterInfoWindow::UpdateKeyEvent()
 {
-	if(g_pNewUISystem->IsVisible(SEASON3B::INTERFACE_CHARACTER) == true)
+	if (g_pNewUISystem->IsVisible(SEASON3B::INTERFACE_CHARACTER))
 	{
-		if(SEASON3B::IsPress(VK_ESCAPE) == true)
+		if (SEASON3B::IsPress(VK_ESCAPE))
 		{
 			g_pNewUISystem->Hide(SEASON3B::INTERFACE_CHARACTER);
 			PlayBuffer(SOUND_CLICK01);
-	
 			return false;
 		}
 	}
-
 	return true;
 }
 
@@ -207,42 +200,42 @@ void SEASON3B::CNewUICharacterInfoWindow::RenderFrame()
 {
 	RenderImage(IMAGE_CHAINFO_BACK, m_Pos.x, m_Pos.y, 190.f, 429.f);
 	RenderImage(IMAGE_CHAINFO_TOP, m_Pos.x, m_Pos.y, 190.f, 64.f);
-	RenderImage(IMAGE_CHAINFO_LEFT, m_Pos.x, m_Pos.y+64, 21.f, 320.f);
-	RenderImage(IMAGE_CHAINFO_RIGHT, m_Pos.x+190-21, m_Pos.y+64, 21.f, 320.f);
-	RenderImage(IMAGE_CHAINFO_BOTTOM, m_Pos.x, m_Pos.y+429-45, 190.f, 45.f);
+	RenderImage(IMAGE_CHAINFO_LEFT, m_Pos.x, m_Pos.y + 64, 21.f, 320.f);
+	RenderImage(IMAGE_CHAINFO_RIGHT, m_Pos.x + 190 - 21, m_Pos.y + 64, 21.f, 320.f);
+	RenderImage(IMAGE_CHAINFO_BOTTOM, m_Pos.x, m_Pos.y + 429 - 45, 190.f, 45.f);
 
 	glColor4f(0.0f, 0.0f, 0.0f, 0.3f);
-	RenderColor(m_Pos.x+12, m_Pos.y+48, 160, 66);
+	RenderColor(m_Pos.x + 12, m_Pos.y + 48, 160, 66);
 	EndRenderColor();
-	RenderImage(IMAGE_CHAINFO_TABLE_TOP_LEFT, m_Pos.x+12, m_Pos.y+48, 14, 14);
-	RenderImage(IMAGE_CHAINFO_TABLE_TOP_RIGHT, m_Pos.x+12+165-14, m_Pos.y+48, 14, 14);
-	RenderImage(IMAGE_CHAINFO_TABLE_BOTTOM_LEFT, m_Pos.x+12, m_Pos.y+119-14, 14, 14);
-	RenderImage(IMAGE_CHAINFO_TABLE_BOTTOM_RIGHT, m_Pos.x+12+165-14, m_Pos.y+119-14, 14, 14);
-	
-	for(int x=m_Pos.x+12+14; x<m_Pos.x+12+165-14; ++x)
+	RenderImage(IMAGE_CHAINFO_TABLE_TOP_LEFT, m_Pos.x + 12, m_Pos.y + 48, 14, 14);
+	RenderImage(IMAGE_CHAINFO_TABLE_TOP_RIGHT, m_Pos.x + 12 + 165 - 14, m_Pos.y + 48, 14, 14);
+	RenderImage(IMAGE_CHAINFO_TABLE_BOTTOM_LEFT, m_Pos.x + 12, m_Pos.y + 119 - 14, 14, 14);
+	RenderImage(IMAGE_CHAINFO_TABLE_BOTTOM_RIGHT, m_Pos.x + 12 + 165 - 14, m_Pos.y + 119 - 14, 14, 14);
+
+	for (int x = m_Pos.x + 12 + 14; x < m_Pos.x + 12 + 165 - 14; ++x)
 	{
-		RenderImage(IMAGE_CHAINFO_TABLE_TOP_PIXEL, x, m_Pos.y+48, 1, 14);
-		RenderImage(IMAGE_CHAINFO_TABLE_BOTTOM_PIXEL, x, m_Pos.y+119-14, 1, 14);
+		RenderImage(IMAGE_CHAINFO_TABLE_TOP_PIXEL, x, m_Pos.y + 48, 1, 14);
+		RenderImage(IMAGE_CHAINFO_TABLE_BOTTOM_PIXEL, x, m_Pos.y + 119 - 14, 1, 14);
 	}
 
-	for(int x=m_Pos.x+14; x<m_Pos.x+12+165-4; ++x)
+	for (int x = m_Pos.x + 14; x < m_Pos.x + 12 + 165 - 4; ++x)
 	{
-		RenderImage(IMAGE_CHAINFO_TABLE_BOTTOM_PIXEL, x, m_Pos.y+48+12, 1, 14);
+		RenderImage(IMAGE_CHAINFO_TABLE_BOTTOM_PIXEL, x, m_Pos.y + 48 + 12, 1, 14);
 	}
 
-	for(int y=m_Pos.y+48+14; y<m_Pos.y+119-14; y++)
+	for (int y = m_Pos.y + 48 + 14; y < m_Pos.y + 119 - 14; y++)
 	{
-		RenderImage(IMAGE_CHAINFO_TABLE_LEFT_PIXEL, m_Pos.x+12, y, 14, 1);
-		RenderImage(IMAGE_CHAINFO_TABLE_RIGHT_PIXEL, m_Pos.x+12+165-14, y, 14, 1);
+		RenderImage(IMAGE_CHAINFO_TABLE_LEFT_PIXEL, m_Pos.x + 12, y, 14, 1);
+		RenderImage(IMAGE_CHAINFO_TABLE_RIGHT_PIXEL, m_Pos.x + 12 + 165 - 14, y, 14, 1);
 	}
 
-	RenderImage(IMAGE_CHAINFO_TEXTBOX, m_Pos.x+11, m_Pos.y+HEIGHT_STRENGTH, 170.f, 21.f);
-	RenderImage(IMAGE_CHAINFO_TEXTBOX, m_Pos.x+11, m_Pos.y+HEIGHT_DEXTERITY, 170.f, 21.f);
-	RenderImage(IMAGE_CHAINFO_TEXTBOX, m_Pos.x+11, m_Pos.y+HEIGHT_VITALITY, 170.f, 21.f);
-	RenderImage(IMAGE_CHAINFO_TEXTBOX, m_Pos.x+11, m_Pos.y+HEIGHT_ENERGY, 170.f, 21.f);
-	if(gCharacterManager.GetBaseClass(Hero->Class) == CLASS_DARK_LORD)
+	RenderImage(IMAGE_CHAINFO_TEXTBOX, m_Pos.x + 11, m_Pos.y + HEIGHT_STRENGTH, 170.f, 21.f);
+	RenderImage(IMAGE_CHAINFO_TEXTBOX, m_Pos.x + 11, m_Pos.y + HEIGHT_DEXTERITY, 170.f, 21.f);
+	RenderImage(IMAGE_CHAINFO_TEXTBOX, m_Pos.x + 11, m_Pos.y + HEIGHT_VITALITY, 170.f, 21.f);
+	RenderImage(IMAGE_CHAINFO_TEXTBOX, m_Pos.x + 11, m_Pos.y + HEIGHT_ENERGY, 170.f, 21.f);
+	if (gCharacterManager.GetBaseClass(Hero->Class) == CLASS_DARK_LORD)
 	{
-		RenderImage(IMAGE_CHAINFO_TEXTBOX, m_Pos.x+11, m_Pos.y+HEIGHT_CHARISMA, 170.f, 21.f);
+		RenderImage(IMAGE_CHAINFO_TEXTBOX, m_Pos.x + 11, m_Pos.y + HEIGHT_CHARISMA, 170.f, 21.f);
 	}
 }
 
@@ -267,27 +260,25 @@ void SEASON3B::CNewUICharacterInfoWindow::RenderTexts()
 void SEASON3B::CNewUICharacterInfoWindow::RenderSubjectTexts()
 {
 	char strID[256];
-	sprintf(strID, "%s", CharacterAttribute->Name);
+	sprintf_s(strID, "%s", CharacterAttribute->Name);
 	unicode::t_char strClassName[256];
 	unicode::_sprintf(strClassName, "(%s) %d", gCharacterManager.GetCharacterClassText(CharacterAttribute->Class), CharacterAttribute->Class);
-	
+
 	g_pRenderText->SetFont(g_hFontBold);
 	g_pRenderText->SetBgColor(20, 20, 20, 20);
 	SetPlayerColor(Hero->PK);
-	g_pRenderText->RenderText(m_Pos.x, m_Pos.y+12, strID, 190, 0, RT3_SORT_CENTER);
+	g_pRenderText->RenderText(m_Pos.x, m_Pos.y + 12, strID, 190, 0, RT3_SORT_CENTER);
 
 	unicode::t_char strServerName[MAX_TEXT_LENGTH];
 
-	const char* apszGlobalText[4]
-		= { GlobalText[461], GlobalText[460], GlobalText[3130], GlobalText[3131] };
-	sprintf(strServerName, apszGlobalText[g_ServerListManager->GetNonPVPInfo()],
-		g_ServerListManager->GetSelectServerName(), g_ServerListManager->GetSelectServerIndex());
-		
-    float fAlpha = sinf(WorldTime * 0.001f) + 1.f;
-	g_pRenderText->SetTextColor(255, 255, 255, 127*(2.f-fAlpha));
-    g_pRenderText->RenderText(m_Pos.x, m_Pos.y+27, strClassName, 190, 0, RT3_SORT_CENTER);
-	g_pRenderText->SetTextColor(255, 255, 255, 127*fAlpha);
-    g_pRenderText->RenderText(m_Pos.x, m_Pos.y+27, strServerName, 190, 0, RT3_SORT_CENTER);
+	const char* apszGlobalText[4] = { GlobalText[461], GlobalText[460], GlobalText[3130], GlobalText[3131] };
+	sprintf_s(strServerName, apszGlobalText[g_ServerListManager->GetNonPVPInfo()], g_ServerListManager->GetSelectServerName(), g_ServerListManager->GetSelectServerIndex());
+
+	float fAlpha = sinf(WorldTime * 0.001f) + 1.f;
+	g_pRenderText->SetTextColor(255, 255, 255, static_cast<unsigned char>(127 * (2.f - fAlpha)));
+	g_pRenderText->RenderText(m_Pos.x, m_Pos.y + 27, strClassName, 190, 0, RT3_SORT_CENTER);
+	g_pRenderText->SetTextColor(255, 255, 255, static_cast<unsigned char>(127 * fAlpha));
+	g_pRenderText->RenderText(m_Pos.x, m_Pos.y + 27, strServerName, 190, 0, RT3_SORT_CENTER);
 }
 
 void SEASON3B::CNewUICharacterInfoWindow::RenderTableTexts()
@@ -296,13 +287,8 @@ void SEASON3B::CNewUICharacterInfoWindow::RenderTableTexts()
 	unicode::t_char strExp[128];
 	unicode::t_char strPoint[128];
 
-	if(gCharacterManager.IsMasterLevel(CharacterAttribute->Class) == true)
+	if (gCharacterManager.IsMasterLevel(CharacterAttribute->Class) == true)
 	{
-		//Original
-		//unicode::_sprintf(strLevel, GlobalText[1745]);
-		//unicode::_sprintf(strExp, "----------");
-
-		//Reset
 		unicode::_sprintf(strLevel, GlobalText[200], CharacterAttribute->Level); // Level: %d
 		unicode::_sprintf(strExp, GlobalText[201], CharacterAttribute->Experience, CharacterAttribute->NextExperince); // Exp : %u/%u
 	}
@@ -311,10 +297,11 @@ void SEASON3B::CNewUICharacterInfoWindow::RenderTableTexts()
 		unicode::_sprintf(strLevel, GlobalText[200], CharacterAttribute->Level); // Level: %d
 		unicode::_sprintf(strExp, GlobalText[201], CharacterAttribute->Experience, CharacterAttribute->NextExperince); // Exp : %u/%u
 	}
-	if(CharacterAttribute->Level > 9)
+
+	if (CharacterAttribute->Level > 9)
 	{
 		int iMinus, iMaxMinus;
-		if(CharacterAttribute->wMinusPoint == 0)
+		if (CharacterAttribute->wMinusPoint == 0)
 		{
 			iMinus = 0;
 		}
@@ -325,25 +312,25 @@ void SEASON3B::CNewUICharacterInfoWindow::RenderTableTexts()
 
 		iMaxMinus = -CharacterAttribute->wMaxMinusPoint;
 
-		unicode::_sprintf(strPoint, "%s %d/%d | %s %d/%d", 
-			GlobalText[1412], CharacterAttribute->AddPoint, CharacterAttribute->MaxAddPoint, 
+		unicode::_sprintf(strPoint, "%s %d/%d | %s %d/%d",
+			GlobalText[1412], CharacterAttribute->AddPoint, CharacterAttribute->MaxAddPoint,
 			GlobalText[1903], iMinus, iMaxMinus);
 	}
-	else 
+	else
 	{
-		wsprintf(strPoint, "%s %d/%d | %s %d/%d", GlobalText[1412], 0, 0, GlobalText[1903], 0, 0);
+		unicode::_sprintf(strPoint, "%s %d/%d | %s %d/%d", GlobalText[1412], 0, 0, GlobalText[1903], 0, 0);
 	}
 	
 	g_pRenderText->SetFont(g_hFontBold);
 	g_pRenderText->SetTextColor(230, 230, 0, 255);
 	g_pRenderText->SetBgColor(0, 0, 0, 0);
-	g_pRenderText->RenderText(m_Pos.x+18, m_Pos.y+58, strLevel);
+	g_pRenderText->RenderText(m_Pos.x + 18, m_Pos.y + 58, strLevel);
 
-	if(CharacterAttribute->LevelUpPoint > 0)
+	if (CharacterAttribute->LevelUpPoint > 0)
 	{
 		unicode::t_char strLevelUpPoint[128];
 
-		if(gCharacterManager.IsMasterLevel(CharacterAttribute->Class) == false || CharacterAttribute->LevelUpPoint > 0)
+		if (gCharacterManager.IsMasterLevel(CharacterAttribute->Class) == false || CharacterAttribute->LevelUpPoint > 0)
 		{
 			unicode::_sprintf(strLevelUpPoint, GlobalText[217], CharacterAttribute->LevelUpPoint);
 		}
@@ -352,55 +339,55 @@ void SEASON3B::CNewUICharacterInfoWindow::RenderTableTexts()
 		g_pRenderText->SetFont(g_hFontBold);
 		g_pRenderText->SetTextColor(255, 138, 0, 255);
 		g_pRenderText->SetBgColor(0, 0, 0, 0);
-		g_pRenderText->RenderText(m_Pos.x+110, m_Pos.y+58, strLevelUpPoint);
+		g_pRenderText->RenderText(m_Pos.x + 110, m_Pos.y + 58, strLevelUpPoint);
 	}
 	
 	g_pRenderText->SetFont(g_hFont);
 	g_pRenderText->SetTextColor(255, 255, 255, 255);
 	g_pRenderText->SetBgColor(0, 0, 0, 0);
-	g_pRenderText->RenderText(m_Pos.x+18, m_Pos.y+75, strExp);
+	g_pRenderText->RenderText(m_Pos.x + 18, m_Pos.y + 75, strExp);
 
 	int iAddPoint, iMinusPoint;
 
-	if(CharacterAttribute->AddPoint <= 10)
+	if (CharacterAttribute->AddPoint <= 10)
 	{
 		iAddPoint = 100;
 	}
 	else
 	{
 		int iTemp = 0;
-		if(CharacterAttribute->MaxAddPoint != 0)
+		if (CharacterAttribute->MaxAddPoint != 0)
 		{
-			iTemp = (CharacterAttribute->AddPoint*100)/CharacterAttribute->MaxAddPoint;
+			iTemp = (CharacterAttribute->AddPoint * 100) / CharacterAttribute->MaxAddPoint;
 		}
-		if(iTemp <= 10)
+		if (iTemp <= 10)
 		{
 			iAddPoint = 70;
 		}
-		else if(iTemp > 10 && iTemp <= 30)
+		else if (iTemp > 10 && iTemp <= 30)
 		{
 			iAddPoint = 60;
 		}
-		else if(iTemp > 30 && iTemp <= 50)
+		else if (iTemp > 30 && iTemp <= 50)
 		{
 			iAddPoint = 50;
 		}
-		else if(iTemp > 50)
+		else if (iTemp > 50)
 		{
 			iAddPoint = 40;
 		}
 	}
 
-	if(CharacterAttribute->wMinusPoint <= 10)
+	if (CharacterAttribute->wMinusPoint <= 10)
 	{
 		iMinusPoint = 100;
 	}
 	else
 	{
 		int iTemp = 0;
-		if(CharacterAttribute->wMaxMinusPoint != 0)
+		if (CharacterAttribute->wMaxMinusPoint != 0)
 		{
-			iTemp = (CharacterAttribute->wMinusPoint*100)/CharacterAttribute->wMaxMinusPoint;
+			iTemp = (CharacterAttribute->wMinusPoint * 100) / CharacterAttribute->wMaxMinusPoint;
 		}
 
 		if(iTemp <= 10)
@@ -442,32 +429,31 @@ void SEASON3B::CNewUICharacterInfoWindow::RenderAttribute()
 
 	wStrength = CharacterAttribute->Strength + CharacterAttribute->AddStrength;
 
-	if( g_isCharacterBuff((&Hero->Object), eBuff_SecretPotion1) )
+	if (g_isCharacterBuff((&Hero->Object), eBuff_SecretPotion1))
 	{
 		g_pRenderText->SetTextColor(255, 120, 0, 255);
 	}
-	else
-    if(CharacterAttribute->AddStrength)
-    {
+	else if (CharacterAttribute->AddStrength)
+	{
 		g_pRenderText->SetTextColor(100, 150, 255, 255);
-    }
-    else
-    {
+	}
+	else
+	{
 		g_pRenderText->SetTextColor(230, 230, 0, 255);
-    }
+	}
 
 	unicode::t_char strStrength[32];
 	unicode::_sprintf(strStrength, "%d", wStrength);
 
 	g_pRenderText->SetBgColor(0);
-	g_pRenderText->RenderText(m_Pos.x+12, m_Pos.y+HEIGHT_STRENGTH+6, GlobalText[166], 74, 0, RT3_SORT_CENTER);
-	g_pRenderText->RenderText(m_Pos.x+86, m_Pos.y+HEIGHT_STRENGTH+6, strStrength, 86, 0, RT3_SORT_CENTER);
+	g_pRenderText->RenderText(m_Pos.x + 12, m_Pos.y + HEIGHT_STRENGTH + 6, GlobalText[166], 74, 0, RT3_SORT_CENTER);
+	g_pRenderText->RenderText(m_Pos.x + 86, m_Pos.y + HEIGHT_STRENGTH + 6, strStrength, 86, 0, RT3_SORT_CENTER);
 
 	unicode::t_char strAttakMamage[256];
 	int iAttackDamageMin = 0;
 	int iAttackDamageMax = 0;
 
-	bool bAttackDamage = GetAttackDamage( &iAttackDamageMin, &iAttackDamageMax );
+	bool bAttackDamage = GetAttackDamage(&iAttackDamageMin, &iAttackDamageMax);
 
 	int Add_Dex = 0;
 	int Add_Rat = 0;
@@ -479,101 +465,76 @@ void SEASON3B::CNewUICharacterInfoWindow::RenderAttribute()
 	int Add_Mana_Max = 0;
 	int Add_Mana_Min = 0;
 
-	for(int i=0; i < MAX_MAGIC; ++i)
+	for (int i = 0; i < MAX_MAGIC; ++i)
 	{
-		if(CharacterAttribute->Skill[i] >= AT_SKILL_TOMAN_ATTACKUP && CharacterAttribute->Skill[i] < AT_SKILL_TOMAN_ATTACKUP + 5)
+		int skillId = CharacterAttribute->Skill[i];
+
+		if (skillId >= AT_SKILL_TOMAN_ATTACKUP && skillId < AT_SKILL_TOMAN_ATTACKUP + 5)
 		{
-			Add_Dex = SkillAttribute[CharacterAttribute->Skill[i]].Damage;
+			Add_Dex = SkillAttribute[skillId].Damage;
 		}
-		else
-		if(CharacterAttribute->Skill[i] >= AT_SKILL_ATTACK_RATEUP && CharacterAttribute->Skill[i] < AT_SKILL_ATTACK_RATEUP + 5)
+		else if (skillId >= AT_SKILL_ATTACK_RATEUP && skillId < AT_SKILL_ATTACK_RATEUP + 5)
 		{
-			Add_Rat = SkillAttribute[CharacterAttribute->Skill[i]].Damage;
+			Add_Rat = SkillAttribute[skillId].Damage;
 		}
-		else
-		if(CharacterAttribute->Skill[i] >= AT_SKILL_TOMAN_DEFENCEUP && CharacterAttribute->Skill[i] < AT_SKILL_TOMAN_DEFENCEUP + 5)
+		else if (skillId >= AT_SKILL_TOMAN_DEFENCEUP && skillId < AT_SKILL_TOMAN_DEFENCEUP + 5)
 		{
-			Add_Dfe = SkillAttribute[CharacterAttribute->Skill[i]].Damage;
+			Add_Dfe = SkillAttribute[skillId].Damage;
 		}
-		else
-		if(CharacterAttribute->Skill[i] >= AT_SKILL_DEF_UP && CharacterAttribute->Skill[i] < AT_SKILL_DEF_UP + 5)
+		else if (skillId >= AT_SKILL_DEF_UP && skillId < AT_SKILL_DEF_UP + 5)
 		{
-			Add_Ch_Dfe = SkillAttribute[CharacterAttribute->Skill[i]].Damage;
+			Add_Ch_Dfe = SkillAttribute[skillId].Damage;
 		}
-//		else
-//		if(CharacterAttribute->Skill[i] >= AT_SKILL_MAX_HP_UP && CharacterAttribute->Skill[i] < AT_SKILL_MAX_HP_UP + 5)
-//		{
-//			Add_Life = SkillAttribute[CharacterAttribute->Skill[i]].Damage;
-//		}
-//		else
-//		if(CharacterAttribute->Skill[i] >= AT_SKILL_MAX_AG_UP && CharacterAttribute->Skill[i] < AT_SKILL_MAX_AG_UP + 5)
-//		{
-//			Add_Ag = SkillAttribute[CharacterAttribute->Skill[i]].Damage;
-//		}
-		else
-		if(CharacterAttribute->Skill[i] >= AT_SKILL_MAX_ATTACKRATE_UP && CharacterAttribute->Skill[i] < AT_SKILL_MAX_ATTACKRATE_UP + 5)
+		else if (skillId >= AT_SKILL_MAX_ATTACKRATE_UP && skillId < AT_SKILL_MAX_ATTACKRATE_UP + 5)
 		{
-			Add_Att_Max = SkillAttribute[CharacterAttribute->Skill[i]].Damage;
+			Add_Att_Max = SkillAttribute[skillId].Damage;
 		}
-		else
-		if(CharacterAttribute->Skill[i] >= AT_SKILL_MAX_ATT_MAGIC_UP && CharacterAttribute->Skill[i] < AT_SKILL_MAX_ATT_MAGIC_UP + 5)
+		else if (skillId >= AT_SKILL_MAX_ATT_MAGIC_UP && skillId < AT_SKILL_MAX_ATT_MAGIC_UP + 5)
 		{
-			Add_Mana_Max = Add_Att_Max = SkillAttribute[CharacterAttribute->Skill[i]].Damage;
+			Add_Mana_Max = Add_Att_Max = SkillAttribute[skillId].Damage;
 		}
-		else
-		if(CharacterAttribute->Skill[i] >= AT_SKILL_MIN_ATT_MAGIC_UP && CharacterAttribute->Skill[i] < AT_SKILL_MIN_ATT_MAGIC_UP + 5)
+		else if (skillId >= AT_SKILL_MIN_ATT_MAGIC_UP && skillId < AT_SKILL_MIN_ATT_MAGIC_UP + 5)
 		{
-			Add_Mana_Min = Add_Att_Min = SkillAttribute[CharacterAttribute->Skill[i]].Damage;
+			Add_Mana_Min = Add_Att_Min = SkillAttribute[skillId].Damage;
 		}
-		else
-		if(CharacterAttribute->Skill[i] >= AT_SKILL_MAX_MANA_UP && CharacterAttribute->Skill[i] < AT_SKILL_MAX_MANA_UP + 5)
+		else if (skillId >= AT_SKILL_MAX_MANA_UP && skillId < AT_SKILL_MAX_MANA_UP + 5)
 		{
-			Add_Mana_Max = SkillAttribute[CharacterAttribute->Skill[i]].Damage;
+			Add_Mana_Max = SkillAttribute[skillId].Damage;
 		}
-		else
-		if(CharacterAttribute->Skill[i] >= AT_SKILL_MIN_MANA_UP && CharacterAttribute->Skill[i] < AT_SKILL_MIN_MANA_UP + 5)
+		else if (skillId >= AT_SKILL_MIN_MANA_UP && skillId < AT_SKILL_MIN_MANA_UP + 5)
 		{
-			Add_Mana_Min = SkillAttribute[CharacterAttribute->Skill[i]].Damage;
+			Add_Mana_Min = SkillAttribute[skillId].Damage;
 		}
-		else
-		if(CharacterAttribute->Skill[i] >= AT_SKILL_MIN_ATTACKRATE_UP && CharacterAttribute->Skill[i] < AT_SKILL_MIN_ATTACKRATE_UP + 5)
+		else if (skillId >= AT_SKILL_MIN_ATTACKRATE_UP && skillId < AT_SKILL_MIN_ATTACKRATE_UP + 5)
 		{
-			Add_Att_Min = SkillAttribute[CharacterAttribute->Skill[i]].Damage;
+			Add_Att_Min = SkillAttribute[skillId].Damage;
 		}
 	}
 
 	ITEM* pWeaponRight = &CharacterMachine->Equipment[EQUIPMENT_WEAPON_RIGHT];
 	ITEM* pWeaponLeft = &CharacterMachine->Equipment[EQUIPMENT_WEAPON_LEFT];
-	
-    int iAttackRating = CharacterAttribute->AttackRating + Add_Rat;
+
+	int iAttackRating = CharacterAttribute->AttackRating + Add_Rat;
 	int iAttackRatingPK = CharacterAttribute->AttackRatingPK + Add_Dex;
 	iAttackDamageMax += Add_Att_Max;
 	iAttackDamageMin += Add_Att_Min;
 
-	if( g_isCharacterBuff((&Hero->Object), eBuff_AddAG) ) 
-    {
-    	WORD wDexterity = CharacterAttribute->Dexterity+ CharacterAttribute->AddDexterity;
-        iAttackRating += wDexterity;
-		iAttackRatingPK += wDexterity;
-        if(PartyNumber >= 3)
-        {
-			int iPlusRating = (wDexterity * ((PartyNumber - 2) * 0.01f));
-            iAttackRating += iPlusRating;
-			iAttackRatingPK = iPlusRating;
-        }
-    }
-	if( g_isCharacterBuff((&Hero->Object), eBuff_HelpNpc) )
+	if (g_isCharacterBuff((&Hero->Object), eBuff_AddAG))
 	{
-		int iTemp = 0;
-		if(CharacterAttribute->Level > 180)
+		WORD wDexterity = CharacterAttribute->Dexterity + CharacterAttribute->AddDexterity;
+		iAttackRating += wDexterity;
+		iAttackRatingPK += wDexterity;
+		if (PartyNumber >= 3)
 		{
-			iTemp = (180 / 3) + 45;
+			int iPlusRating = static_cast<int>(wDexterity * ((PartyNumber - 2) * 0.01f));
+			iAttackRating += iPlusRating;
+			iAttackRatingPK += iPlusRating;
 		}
-		else
-		{
-			iTemp = (CharacterAttribute->Level / 3) + 45;
-		}
-		
+	}
+
+	if (g_isCharacterBuff((&Hero->Object), eBuff_HelpNpc))
+	{
+		int iTemp = (CharacterAttribute->Level > 180) ? (180 / 3) + 45 : (CharacterAttribute->Level / 3) + 45;
 		iAttackDamageMin += iTemp;
 		iAttackDamageMax += iTemp;
 	}

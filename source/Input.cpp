@@ -13,14 +13,10 @@ extern bool g_bWndActive;
 extern CTimer*	g_pTimer;
 
 CInput::CInput()
-{
-
-}
+{}
 
 CInput::~CInput()
-{
-
-}
+{}
 
 CInput& CInput::Instance()
 {

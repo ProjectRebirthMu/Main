@@ -228,6 +228,7 @@ bool SEASON3B::CNewUIHotKey::UpdateKeyEvent()
 		PlayBuffer(SOUND_CLICK01);
 		return false;
 	}
+#ifdef ENABLE_MASTERLEVELSKILLTREE
 	else if(SEASON3B::IsPress('A'))
 	{
 		if(gCharacterManager.IsMasterLevel( Hero->Class ) == true 
@@ -240,6 +241,7 @@ bool SEASON3B::CNewUIHotKey::UpdateKeyEvent()
 
 		return false;
 	}
+#endif //ENABLE_MASTERLEVELSKILLTREE
 	else if(SEASON3B::IsPress('U'))	
 	{
 		g_pNewUISystem->Toggle(SEASON3B::INTERFACE_WINDOW_MENU);
@@ -342,12 +344,14 @@ bool SEASON3B::CNewUIHotKey::UpdateKeyEvent()
 		PlayBuffer(SOUND_CLICK01);
 		return false;
 	}
+#ifdef ENABLE_MUHELPER
 	else if (SEASON3B::IsPress('Z'))
 	{
 		g_pNewUISystem->Toggle(SEASON3B::INTERFACE_MUHELPER);
 		PlayBuffer(SOUND_CLICK01);
 		return false;
 	}
+#endif // ENABLE_MUHELPER
 	return true;
 }
 

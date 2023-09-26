@@ -41,13 +41,19 @@ namespace SEASON3B
 			IMAGE_INVENTORY_MONEY,	//"newui_item_money.tga"
 			IMAGE_INVENTORY_EXIT_BTN, //"newui_exit_00.tga"
 			IMAGE_INVENTORY_REPAIR_BTN, //"newui_repair_00.tga"
-			
+			IMAGE_INVENTORY_WAREHOUSE_BTN, //"newui_Bt_Warehouse.tga"
 		};
 
 		enum REPAIR_MODE
 		{
 			REPAIR_MODE_OFF = 0,
 			REPAIR_MODE_ON,
+		};
+
+		enum WAREHOUSE_MODE
+		{
+			WAREHOUSE_MODE_OPEN = 0,
+			WAREHOUSE_MODE_CLOSE,
 		};
 
 		enum MYSHOP_MODE
@@ -86,13 +92,16 @@ namespace SEASON3B
 		CNewUIButton m_BtnRepair;
 		CNewUIButton m_BtnExit;
 		CNewUIButton m_BtnMyShop;
+		CNewUIButton m_BtnWarehouse;
 
 		MYSHOP_MODE m_MyShopMode;
+		WAREHOUSE_MODE m_WarehouseMode;
 		REPAIR_MODE m_RepairMode;
 		DWORD m_dwStandbyItemKey;
 		
 		bool m_bRepairEnableLevel;
 		bool m_bMyShopOpen;
+		bool m_bWarehouseOpen;
 
 	public:
 		CNewUIMyInventory();
@@ -165,6 +174,9 @@ namespace SEASON3B
 		void LockMyShopButtonOpen();
 		void UnlockMyShopButtonOpen();
 
+		void WarehouseButtonStateOpen();
+		void WarehouseButtonStateClose();
+
 		void CreateEquippingEffect(ITEM* pItem);
 
 		static bool CanRegisterItemHotKey(int iType);
@@ -193,8 +205,9 @@ namespace SEASON3B
 
 		void RenderItemToolTip(int iSlotIndex);
 		bool CanOpenMyShopInterface();
+		bool CanOpenWarehouseInterface();
 		void ToggleRepairMode();
-		
+
 		void ResetMouseLButton();
 		void ResetMouseRButton();
 	};

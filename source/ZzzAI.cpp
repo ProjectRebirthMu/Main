@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "ZzzBMD.h"
 #include "ZzzInfomation.h"
 #include "ZzzObject.h"
@@ -130,26 +130,26 @@ int CalcAngle(float PositionX, float PositionY, float TargetX, float TargetY)
 	return TargetTheta;
 }
 
-float MoveHumming(vec3_t Position,vec3_t Angle,vec3_t TargetPosition,float Turn)
+float MoveHumming(vec3_t Position, vec3_t Angle, vec3_t TargetPosition, float Turn)
 {
 	float TargetAngle;
-	TargetAngle = CreateAngle(Position[0],Position[1],TargetPosition[0],TargetPosition[1]);
-	Angle[2] = TurnAngle2(Angle[2],TargetAngle,Turn);
+	TargetAngle = CreateAngle(Position[0], Position[1], TargetPosition[0], TargetPosition[1]);
+	Angle[2] = TurnAngle2(Angle[2], TargetAngle, Turn);
 	vec3_t Range;
-	VectorSubtract(Position,TargetPosition,Range);
-	float Distance = sqrtf(Range[0]*Range[0]+Range[1]*Range[1]);
-	TargetAngle = 360.f-CreateAngle(Position[2],Distance,TargetPosition[2],0.f);
-	Angle[0] = TurnAngle2(Angle[0],TargetAngle,Turn);
-    return VectorLength(Range);
+	VectorSubtract(Position, TargetPosition, Range);
+	float Distance = sqrtf(Range[0] * Range[0] + Range[1] * Range[1]);
+	TargetAngle = 360.f - CreateAngle(Position[2], Distance, TargetPosition[2], 0.f);
+	Angle[0] = TurnAngle2(Angle[0], TargetAngle, Turn);
+	return VectorLength(Range);
 }
 
-void MovePosition(vec3_t Position,vec3_t Angle,vec3_t Speed)
+void MovePosition(vec3_t Position, vec3_t Angle, vec3_t Speed)
 {
 	float Matrix[3][4];
-	AngleMatrix(Angle,Matrix);
+	AngleMatrix(Angle, Matrix);
 	vec3_t Velocity;
-	VectorRotate(Speed,Matrix,Velocity);
-	VectorAdd(Position,Velocity,Position);
+	VectorRotate(Speed, Matrix, Velocity);
+	VectorAdd(Position, Velocity, Position);
 }
 
 BYTE CalcTargetPos(float x, float y, int Tx, int Ty)
@@ -256,13 +256,13 @@ void PushObject(vec3_t PushPosition, vec3_t Position, float Power, vec3_t Angle)
 void SetAction_Fenrir_Skill(CHARACTER* c, OBJECT* o)
 {
 #ifdef PBG_ADD_NEWCHAR_MONK_ANI
-	if(gCharacterManager.GetBaseClass(c->Class) == CLASS_RAGEFIGHTER)
+	if (gCharacterManager.GetBaseClass(c->Class) == CLASS_RAGEFIGHTER)
 	{
-		if(c->Weapon[0].Type != -1 && c->Weapon[1].Type != -1)
+		if (c->Weapon[0].Type != -1 && c->Weapon[1].Type != -1)
 			SetAction(&c->Object, PLAYER_RAGE_FENRIR_TWO_SWORD);
-		else if(c->Weapon[0].Type != -1 && c->Weapon[1].Type == -1)
+		else if (c->Weapon[0].Type != -1 && c->Weapon[1].Type == -1)
 			SetAction(&c->Object, PLAYER_RAGE_FENRIR_ONE_RIGHT);
-		else if(c->Weapon[0].Type == -1 && c->Weapon[1].Type != -1)
+		else if (c->Weapon[0].Type == -1 && c->Weapon[1].Type != -1)
 			SetAction(&c->Object, PLAYER_RAGE_FENRIR_ONE_LEFT);
 		else
 			SetAction(&c->Object, PLAYER_RAGE_FENRIR);
@@ -270,14 +270,14 @@ void SetAction_Fenrir_Skill(CHARACTER* c, OBJECT* o)
 	else
 	{
 #endif //PBG_ADD_NEWCHAR_MONK_ANI
-	if(c->Weapon[0].Type != -1 && c->Weapon[1].Type != -1)
-		SetAction(o, PLAYER_FENRIR_SKILL_TWO_SWORD);
-	else if(c->Weapon[0].Type != -1 && c->Weapon[1].Type == -1)
-		SetAction(o, PLAYER_FENRIR_SKILL_ONE_RIGHT);
-	else if(c->Weapon[0].Type == -1 && c->Weapon[1].Type != -1)
-		SetAction(o, PLAYER_FENRIR_SKILL_ONE_LEFT);
-	else
-		SetAction(o, PLAYER_FENRIR_SKILL);
+		if (c->Weapon[0].Type != -1 && c->Weapon[1].Type != -1)
+			SetAction(o, PLAYER_FENRIR_SKILL_TWO_SWORD);
+		else if (c->Weapon[0].Type != -1 && c->Weapon[1].Type == -1)
+			SetAction(o, PLAYER_FENRIR_SKILL_ONE_RIGHT);
+		else if (c->Weapon[0].Type == -1 && c->Weapon[1].Type != -1)
+			SetAction(o, PLAYER_FENRIR_SKILL_ONE_LEFT);
+		else
+			SetAction(o, PLAYER_FENRIR_SKILL);
 #ifdef PBG_ADD_NEWCHAR_MONK_ANI
 	}
 #endif //PBG_ADD_NEWCHAR_MONK_ANI
@@ -286,13 +286,13 @@ void SetAction_Fenrir_Skill(CHARACTER* c, OBJECT* o)
 void SetAction_Fenrir_Damage(CHARACTER* c, OBJECT* o)
 {
 #ifdef PBG_ADD_NEWCHAR_MONK_ANI
-	if(gCharacterManager.GetBaseClass(c->Class) == CLASS_RAGEFIGHTER)
+	if (gCharacterManager.GetBaseClass(c->Class) == CLASS_RAGEFIGHTER)
 	{
-		if(c->Weapon[0].Type != -1 && c->Weapon[1].Type != -1)
+		if (c->Weapon[0].Type != -1 && c->Weapon[1].Type != -1)
 			SetAction(o, PLAYER_RAGE_FENRIR_DAMAGE_TWO_SWORD);
-		else if(c->Weapon[0].Type != -1 && c->Weapon[1].Type == -1)
+		else if (c->Weapon[0].Type != -1 && c->Weapon[1].Type == -1)
 			SetAction(o, PLAYER_RAGE_FENRIR_DAMAGE_ONE_RIGHT);
-		else if(c->Weapon[0].Type == -1 && c->Weapon[1].Type != -1)
+		else if (c->Weapon[0].Type == -1 && c->Weapon[1].Type != -1)
 			SetAction(o, PLAYER_RAGE_FENRIR_DAMAGE_ONE_LEFT);
 		else
 			SetAction(o, PLAYER_RAGE_FENRIR_DAMAGE);
@@ -300,18 +300,18 @@ void SetAction_Fenrir_Damage(CHARACTER* c, OBJECT* o)
 	else
 	{
 #endif //PBG_ADD_NEWCHAR_MONK_ANI
-	if(c->Weapon[0].Type != -1 && c->Weapon[1].Type != -1)
-		SetAction(o, PLAYER_FENRIR_DAMAGE_TWO_SWORD);
-	else if(c->Weapon[0].Type != -1 && c->Weapon[1].Type == -1)
-		SetAction(o, PLAYER_FENRIR_DAMAGE_ONE_RIGHT);
-	else if(c->Weapon[0].Type != -1 && c->Weapon[1].Type != -1 && c->Weapon[1].Type ==MODEL_BOW+7)
-		SetAction(o, PLAYER_FENRIR_DAMAGE_ONE_RIGHT);
-	else if(c->Weapon[0].Type == -1 && c->Weapon[1].Type != -1)
-		SetAction(o, PLAYER_FENRIR_DAMAGE_ONE_LEFT);
-	else if(c->Weapon[0].Type != -1 && c->Weapon[1].Type != -1 && c->Weapon[0].Type ==MODEL_BOW+15)
-		SetAction(o, PLAYER_FENRIR_DAMAGE_ONE_LEFT);
-	else	// ¸Ç¼Õ
-		SetAction(o, PLAYER_FENRIR_DAMAGE);
+		if (c->Weapon[0].Type != -1 && c->Weapon[1].Type != -1)
+			SetAction(o, PLAYER_FENRIR_DAMAGE_TWO_SWORD);
+		else if (c->Weapon[0].Type != -1 && c->Weapon[1].Type == -1)
+			SetAction(o, PLAYER_FENRIR_DAMAGE_ONE_RIGHT);
+		else if (c->Weapon[0].Type != -1 && c->Weapon[1].Type != -1 && c->Weapon[1].Type == MODEL_BOW + 7)
+			SetAction(o, PLAYER_FENRIR_DAMAGE_ONE_RIGHT);
+		else if (c->Weapon[0].Type == -1 && c->Weapon[1].Type != -1)
+			SetAction(o, PLAYER_FENRIR_DAMAGE_ONE_LEFT);
+		else if (c->Weapon[0].Type != -1 && c->Weapon[1].Type != -1 && c->Weapon[0].Type == MODEL_BOW + 15)
+			SetAction(o, PLAYER_FENRIR_DAMAGE_ONE_LEFT);
+		else	//  Ç¼ 
+			SetAction(o, PLAYER_FENRIR_DAMAGE);
 #ifdef PBG_ADD_NEWCHAR_MONK_ANI
 	}
 #endif //PBG_ADD_NEWCHAR_MONK_ANI
@@ -319,57 +319,57 @@ void SetAction_Fenrir_Damage(CHARACTER* c, OBJECT* o)
 
 void SetAction_Fenrir_Run(CHARACTER* c, OBJECT* o)
 {
-	if(c->Weapon[0].Type != -1 && c->Weapon[1].Type != -1 && c->Weapon[0].Type !=MODEL_BOW+15 && c->Weapon[1].Type !=MODEL_BOW+7)
+	if (c->Weapon[0].Type != -1 && c->Weapon[1].Type != -1 && c->Weapon[0].Type != MODEL_BOW + 15 && c->Weapon[1].Type != MODEL_BOW + 7)
 	{
-		if(gCharacterManager.GetBaseClass(c->Class) == CLASS_ELF)
+		if (gCharacterManager.GetBaseClass(c->Class) == CLASS_ELF)
 			SetAction(o, PLAYER_FENRIR_RUN_TWO_SWORD_ELF);
-		else if(gCharacterManager.GetBaseClass(c->Class) == CLASS_DARK)
+		else if (gCharacterManager.GetBaseClass(c->Class) == CLASS_DARK)
 			SetAction(o, PLAYER_FENRIR_RUN_TWO_SWORD_MAGOM);
 #ifdef PBG_ADD_NEWCHAR_MONK_ANI
-		else if(gCharacterManager.GetBaseClass(c->Class) == CLASS_RAGEFIGHTER)
+		else if (gCharacterManager.GetBaseClass(c->Class) == CLASS_RAGEFIGHTER)
 			SetAction(o, PLAYER_RAGE_FENRIR_RUN_TWO_SWORD);
 #endif //PBG_ADD_NEWCHAR_MONK_ANI
 		else
 			SetAction(o, PLAYER_FENRIR_RUN_TWO_SWORD);
 	}
-	else if(c->Weapon[0].Type != -1 && c->Weapon[1].Type == -1)
+	else if (c->Weapon[0].Type != -1 && c->Weapon[1].Type == -1)
 	{
-		if(gCharacterManager.GetBaseClass(c->Class) == CLASS_ELF)
+		if (gCharacterManager.GetBaseClass(c->Class) == CLASS_ELF)
 			SetAction(o, PLAYER_FENRIR_RUN_ONE_RIGHT_ELF);
-		else if(gCharacterManager.GetBaseClass(c->Class) == CLASS_DARK)
+		else if (gCharacterManager.GetBaseClass(c->Class) == CLASS_DARK)
 			SetAction(o, PLAYER_FENRIR_RUN_ONE_RIGHT_MAGOM);
 #ifdef PBG_ADD_NEWCHAR_MONK_ANI
-		else if(gCharacterManager.GetBaseClass(c->Class) == CLASS_RAGEFIGHTER)
+		else if (gCharacterManager.GetBaseClass(c->Class) == CLASS_RAGEFIGHTER)
 			SetAction(o, PLAYER_RAGE_FENRIR_RUN_ONE_RIGHT);
 #endif //PBG_ADD_NEWCHAR_MONK_ANI
 		else
 			SetAction(o, PLAYER_FENRIR_RUN_ONE_RIGHT);
 	}
-	else if(c->Weapon[0].Type != -1 && c->Weapon[1].Type != -1 && c->Weapon[1].Type ==MODEL_BOW+7)
+	else if (c->Weapon[0].Type != -1 && c->Weapon[1].Type != -1 && c->Weapon[1].Type == MODEL_BOW + 7)
 		SetAction(o, PLAYER_FENRIR_RUN_ONE_RIGHT_ELF);
-	else if(c->Weapon[0].Type == -1 && c->Weapon[1].Type != -1)
+	else if (c->Weapon[0].Type == -1 && c->Weapon[1].Type != -1)
 	{
-		if(gCharacterManager.GetBaseClass(c->Class) == CLASS_ELF)
+		if (gCharacterManager.GetBaseClass(c->Class) == CLASS_ELF)
 			SetAction(o, PLAYER_FENRIR_RUN_ONE_LEFT_ELF);
-		else if(gCharacterManager.GetBaseClass(c->Class) == CLASS_DARK)
+		else if (gCharacterManager.GetBaseClass(c->Class) == CLASS_DARK)
 			SetAction(o, PLAYER_FENRIR_RUN_ONE_LEFT_MAGOM);
 #ifdef PBG_ADD_NEWCHAR_MONK_ANI
-		else if(gCharacterManager.GetBaseClass(c->Class) == CLASS_RAGEFIGHTER)
+		else if (gCharacterManager.GetBaseClass(c->Class) == CLASS_RAGEFIGHTER)
 			SetAction(o, PLAYER_RAGE_FENRIR_RUN_ONE_LEFT);
 #endif //PBG_ADD_NEWCHAR_MONK_ANI
 		else
 			SetAction(o, PLAYER_FENRIR_RUN_ONE_LEFT);
 	}
-	else if(c->Weapon[0].Type != -1 && c->Weapon[1].Type != -1 && c->Weapon[0].Type ==MODEL_BOW+15)
+	else if (c->Weapon[0].Type != -1 && c->Weapon[1].Type != -1 && c->Weapon[0].Type == MODEL_BOW + 15)
 		SetAction(o, PLAYER_FENRIR_RUN_ONE_LEFT_ELF);
 	else
 	{
-		if(gCharacterManager.GetBaseClass(c->Class) == CLASS_ELF)
+		if (gCharacterManager.GetBaseClass(c->Class) == CLASS_ELF)
 			SetAction(o, PLAYER_FENRIR_RUN_ELF);
-		else if(gCharacterManager.GetBaseClass(c->Class) == CLASS_DARK)
+		else if (gCharacterManager.GetBaseClass(c->Class) == CLASS_DARK)
 			SetAction(o, PLAYER_FENRIR_RUN_MAGOM);
 #ifdef PBG_ADD_NEWCHAR_MONK_ANI
-		else if(gCharacterManager.GetBaseClass(c->Class) == CLASS_RAGEFIGHTER)
+		else if (gCharacterManager.GetBaseClass(c->Class) == CLASS_RAGEFIGHTER)
 			SetAction(o, PLAYER_RAGE_FENRIR_RUN);
 #endif //PBG_ADD_NEWCHAR_MONK_ANI
 		else
@@ -380,13 +380,13 @@ void SetAction_Fenrir_Run(CHARACTER* c, OBJECT* o)
 void SetAction_Fenrir_Walk(CHARACTER* c, OBJECT* o)
 {
 #ifdef PBG_ADD_NEWCHAR_MONK_ANI
-	if(gCharacterManager.GetBaseClass(c->Class) == CLASS_RAGEFIGHTER)
+	if (gCharacterManager.GetBaseClass(c->Class) == CLASS_RAGEFIGHTER)
 	{
-		if(c->Weapon[0].Type != -1 && c->Weapon[1].Type != -1)
+		if (c->Weapon[0].Type != -1 && c->Weapon[1].Type != -1)
 			SetAction(o, PLAYER_RAGE_FENRIR_WALK_TWO_SWORD);
-		else if(c->Weapon[0].Type != -1 && c->Weapon[1].Type == -1)
+		else if (c->Weapon[0].Type != -1 && c->Weapon[1].Type == -1)
 			SetAction(o, PLAYER_RAGE_FENRIR_WALK_ONE_RIGHT);
-		else if(c->Weapon[0].Type == -1 && c->Weapon[1].Type != -1)
+		else if (c->Weapon[0].Type == -1 && c->Weapon[1].Type != -1)
 			SetAction(o, PLAYER_RAGE_FENRIR_WALK_ONE_LEFT);
 		else
 			SetAction(o, PLAYER_RAGE_FENRIR_WALK);
@@ -394,18 +394,18 @@ void SetAction_Fenrir_Walk(CHARACTER* c, OBJECT* o)
 	else
 	{
 #endif //PBG_ADD_NEWCHAR_MONK_ANI
-	if(c->Weapon[0].Type != -1 && c->Weapon[1].Type != -1 && c->Weapon[0].Type !=MODEL_BOW+15 && c->Weapon[1].Type !=MODEL_BOW+7)
-		SetAction(o, PLAYER_FENRIR_WALK_TWO_SWORD);
-	else if(c->Weapon[0].Type != -1 && c->Weapon[1].Type == -1)
-		SetAction(o, PLAYER_FENRIR_WALK_ONE_RIGHT);
-	else if(c->Weapon[0].Type != -1 && c->Weapon[1].Type != -1 && c->Weapon[1].Type ==MODEL_BOW+7)
-		SetAction(o, PLAYER_FENRIR_WALK_ONE_RIGHT);
-	else if(c->Weapon[0].Type == -1 && c->Weapon[1].Type != -1)
-		SetAction(o, PLAYER_FENRIR_WALK_ONE_LEFT);
-	else if(c->Weapon[0].Type != -1 && c->Weapon[1].Type != -1 && c->Weapon[0].Type ==MODEL_BOW+15)
-		SetAction(o, PLAYER_FENRIR_WALK_ONE_LEFT);
-	else
-		SetAction(o, PLAYER_FENRIR_WALK);
+		if (c->Weapon[0].Type != -1 && c->Weapon[1].Type != -1 && c->Weapon[0].Type != MODEL_BOW + 15 && c->Weapon[1].Type != MODEL_BOW + 7)
+			SetAction(o, PLAYER_FENRIR_WALK_TWO_SWORD);
+		else if (c->Weapon[0].Type != -1 && c->Weapon[1].Type == -1)
+			SetAction(o, PLAYER_FENRIR_WALK_ONE_RIGHT);
+		else if (c->Weapon[0].Type != -1 && c->Weapon[1].Type != -1 && c->Weapon[1].Type == MODEL_BOW + 7)
+			SetAction(o, PLAYER_FENRIR_WALK_ONE_RIGHT);
+		else if (c->Weapon[0].Type == -1 && c->Weapon[1].Type != -1)
+			SetAction(o, PLAYER_FENRIR_WALK_ONE_LEFT);
+		else if (c->Weapon[0].Type != -1 && c->Weapon[1].Type != -1 && c->Weapon[0].Type == MODEL_BOW + 15)
+			SetAction(o, PLAYER_FENRIR_WALK_ONE_LEFT);
+		else
+			SetAction(o, PLAYER_FENRIR_WALK);
 #ifdef PBG_ADD_NEWCHAR_MONK_ANI
 	}
 #endif //PBG_ADD_NEWCHAR_MONK_ANI
@@ -416,7 +416,7 @@ bool IsAliceRideAction_UniDino(unsigned short byAction)
 bool IsAliceRideAction_UniDino(BYTE byAction)
 #endif //PBG_ADD_NEWCHAR_MONK_ANI
 {
-	if(
+	if (
 		byAction == PLAYER_SKILL_CHAIN_LIGHTNING_UNI
 		|| byAction == PLAYER_SKILL_CHAIN_LIGHTNING_DINO
 		|| byAction == PLAYER_SKILL_LIGHTNING_ORB_UNI
@@ -426,7 +426,7 @@ bool IsAliceRideAction_UniDino(BYTE byAction)
 		)
 	{
 		return true;
-	}	
+	}
 
 	return false;
 }
@@ -436,31 +436,31 @@ bool IsAliceRideAction_Fenrir(unsigned short byAction)
 bool IsAliceRideAction_Fenrir(BYTE byAction)
 #endif //PBG_ADD_NEWCHAR_MONK_ANI
 {
-	if(
+	if (
 		byAction == PLAYER_SKILL_CHAIN_LIGHTNING_FENRIR
 		|| byAction == PLAYER_SKILL_LIGHTNING_ORB_FENRIR
 		|| byAction == PLAYER_SKILL_DRAIN_LIFE_FENRIR
 		)
 	{
 		return true;
-	}	
-	
-	return false;	
+	}
+
+	return false;
 }
 
-void SetAction(OBJECT *o,int Action, bool bBlending)
+void SetAction(OBJECT* o, int Action, bool bBlending)
 {
-	BMD *b = &Models[o->Type];
-	if(Action >= b->NumActions) return;
-	if(o->CurrentAction != Action)
+	BMD* b = &Models[o->Type];
+	if (Action >= b->NumActions) return;
+	if (o->CurrentAction != Action)
 	{
 		o->PriorAction = o->CurrentAction;
 		o->PriorAnimationFrame = o->AnimationFrame;
 		o->CurrentAction = Action;
 		o->AnimationFrame = 0;
-		if(bBlending == false)
+		if (bBlending == false)
 		{
-			o->PriorAnimationFrame = 0;	
+			o->PriorAnimationFrame = 0;
 		}
 	}
 }
@@ -592,11 +592,11 @@ void Damage(vec3_t soPosition, CHARACTER* tc, float AttackRange, int AttackPoint
 	CreatePoint(position, AttackPoint, color);
 }
 
-bool MovePath(CHARACTER *c,bool Turn)
+bool MovePath(CHARACTER* c, bool Turn)
 {
 	bool Success = false;
-	PATH_t *p = &c->Path;
-	if(p->CurrentPath < p->PathNum)
+	PATH_t* p = &c->Path;
+	if (p->CurrentPath < p->PathNum)
 	{
 		if (p->CurrentPathFloat == 0)
 		{
@@ -639,20 +639,20 @@ bool MovePath(CHARACTER *c,bool Turn)
 			cy = y[2];
 			break;
 		}
-     	OBJECT *o = &c->Object;
+		OBJECT* o = &c->Object;
 		float dx = o->Position[0] - cx;
 		float dy = o->Position[1] - cy;
-		float Distance = sqrtf(dx*dx+dy*dy);
-		if(Distance <= 20.f)
+		float Distance = sqrtf(dx * dx + dy * dy);
+		if (Distance <= 20.f)
 		{
 			p->CurrentPathFloat++;
-			if(p->CurrentPathFloat > 3)
+			if (p->CurrentPathFloat > 3)
 			{
 				p->CurrentPathFloat = 0;
 				p->CurrentPath++;
-				if(p->CurrentPath >= p->PathNum-1)
+				if (p->CurrentPath >= p->PathNum - 1)
 				{
-					p->CurrentPath = p->PathNum-1;
+					p->CurrentPath = p->PathNum - 1;
 					c->PositionX = p->PathX[p->CurrentPath];
 					c->PositionY = p->PathY[p->CurrentPath];
 					o->Position[0] = cx;
@@ -661,17 +661,17 @@ bool MovePath(CHARACTER *c,bool Turn)
 				}
 			}
 		}
-		if(!Success && Turn)
+		if (!Success && Turn)
 		{
-         	float Angle = CreateAngle(o->Position[0],o->Position[1],cx,cy);
-			float TargetAngle = FarAngle(o->Angle[2],Angle);
-			if(TargetAngle >= 45.f)
+			float Angle = CreateAngle(o->Position[0], o->Position[1], cx, cy);
+			float TargetAngle = FarAngle(o->Angle[2], Angle);
+			if (TargetAngle >= 45.f)
 			{
-            	o->Angle[2] = Angle;
+				o->Angle[2] = Angle;
 			}
 			else
 			{
-      			o->Angle[2] = TurnAngle2(o->Angle[2],Angle,TargetAngle*0.5f);
+				o->Angle[2] = TurnAngle2(o->Angle[2], Angle, TargetAngle * 0.5f);
 			}
 		}
 	}
@@ -680,33 +680,33 @@ bool MovePath(CHARACTER *c,bool Turn)
 }
 
 #ifdef SAVE_PATH_TIME
-void WriteDebugInfoStr( char *lpszFileName, char *lpszToWrite)
+void WriteDebugInfoStr(char* lpszFileName, char* lpszToWrite)
 {
-	HANDLE hFile = CreateFile( lpszFileName, GENERIC_WRITE, FILE_SHARE_READ, NULL, OPEN_ALWAYS,
-								FILE_ATTRIBUTE_NORMAL, NULL);
-	SetFilePointer( hFile, 0, NULL, FILE_END);
+	HANDLE hFile = CreateFile(lpszFileName, GENERIC_WRITE, FILE_SHARE_READ, NULL, OPEN_ALWAYS,
+		FILE_ATTRIBUTE_NORMAL, NULL);
+	SetFilePointer(hFile, 0, NULL, FILE_END);
 	DWORD dwNumber;
-	WriteFile( hFile, lpszToWrite, strlen( lpszToWrite), &dwNumber, NULL);
-	CloseHandle( hFile);
+	WriteFile(hFile, lpszToWrite, strlen(lpszToWrite), &dwNumber, NULL);
+	CloseHandle(hFile);
 }
 
-void DebugUtil_Write( char *lpszFileName, ...)
+void DebugUtil_Write(char* lpszFileName, ...)
 {
 	char lpszBuffer[1024];
 	va_list va;
-	va_start( va, lpszFileName);
-	char *lpszFormat = va_arg( va, char*);
-	wvsprintf( lpszBuffer, lpszFormat, va);
-	WriteDebugInfoStr( lpszFileName, lpszBuffer);
-	va_end( va);
+	va_start(va, lpszFileName);
+	char* lpszFormat = va_arg(va, char*);
+	wvsprintf(lpszBuffer, lpszFormat, va);
+	WriteDebugInfoStr(lpszFileName, lpszBuffer);
+	va_end(va);
 }
 #endif
 
-PATH* path  = new PATH;
+PATH* path = new PATH;
 
 void InitPath()
 {
-    path->SetMapDimensions(256,256,TerrainWall);
+	path->SetMapDimensions(256, 256, TerrainWall);
 }
 
 bool PathFinding2(int sx, int sy, int tx, int ty, PATH_t* a, float fDistance, int iDefaultWall)

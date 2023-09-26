@@ -51,10 +51,12 @@ SEASON3B::CNewUIMyInventory::CNewUIMyInventory()
 
 	m_MyShopMode = MYSHOP_MODE_OPEN;
 	m_RepairMode = REPAIR_MODE_OFF;
+	m_WarehouseMode = WAREHOUSE_MODE_OPEN;
 	m_dwStandbyItemKey = 0;
 
 	m_bRepairEnableLevel = false;
 	m_bMyShopOpen = false;
+	m_bWarehouseOpen = false;
 }
 
 SEASON3B::CNewUIMyInventory::~CNewUIMyInventory() 
@@ -412,6 +414,7 @@ void SEASON3B::CNewUIMyInventory::SetPos(int x, int y)
 	m_BtnExit.SetPos(m_Pos.x+13, m_Pos.y+391);
 	m_BtnRepair.SetPos(m_Pos.x+50, m_Pos.y+391);
 	m_BtnMyShop.SetPos(m_Pos.x+87, m_Pos.y+391);
+	m_BtnWarehouse.SetPos(m_Pos.x + 124, m_Pos.y + 391);
 }
 
 const POINT& SEASON3B::CNewUIMyInventory::GetPos() const
@@ -783,6 +786,7 @@ void SEASON3B::CNewUIMyInventory::OpenningProcess()
 	SetRepairMode(false);
 
 	m_MyShopMode = MYSHOP_MODE_OPEN;
+	m_WarehouseMode = WAREHOUSE_MODE_OPEN;
 	ChangeMyShopButtonStateOpen();
 
 	WORD wLevel = CharacterAttribute->Level;
@@ -803,6 +807,15 @@ void SEASON3B::CNewUIMyInventory::OpenningProcess()
 	else
 	{
 		m_bMyShopOpen = false;
+	}
+
+	if (wLevel >= 8)
+	{
+		m_bWarehouseOpen = true;
+	}
+	else
+	{
+		m_bWarehouseOpen = false;
 	}
 
 	if (g_QuestMng.IsIndexInCurQuestIndexList(0x1000F))
@@ -1146,8 +1159,11 @@ void SEASON3B::CNewUIMyInventory::SetButtonInfo()
 
 	m_BtnMyShop.ChangeButtonImgState(true, IMAGE_INVENTORY_MYSHOP_OPEN_BTN, false);
 	m_BtnMyShop.ChangeButtonInfo(m_Pos.x+87, m_Pos.y+391, 36, 29);
-
 	m_BtnMyShop.ChangeToolTipText(GlobalText[1125], true);
+
+	m_BtnWarehouse.ChangeButtonImgState(true, IMAGE_INVENTORY_WAREHOUSE_BTN, false);
+	m_BtnWarehouse.ChangeButtonInfo(m_Pos.x + 124, m_Pos.y + 391, 36, 29);
+	m_BtnWarehouse.ChangeToolTipText(GlobalText[1149], true);
 }
 
 void SEASON3B::CNewUIMyInventory::LoadImages()
@@ -1174,6 +1190,8 @@ void SEASON3B::CNewUIMyInventory::LoadImages()
 	LoadBitmap("Interface\\newui_repair_00.tga", IMAGE_INVENTORY_REPAIR_BTN, GL_LINEAR);
 	LoadBitmap("Interface\\newui_Bt_openshop.tga", IMAGE_INVENTORY_MYSHOP_OPEN_BTN, GL_LINEAR);
 	LoadBitmap("Interface\\newui_Bt_closeshop.tga", IMAGE_INVENTORY_MYSHOP_CLOSE_BTN, GL_LINEAR);
+	//--
+	LoadBitmap("Interface\\newui_Bt_Warehouse.tga", IMAGE_INVENTORY_WAREHOUSE_BTN, GL_LINEAR);
 }
 
 void SEASON3B::CNewUIMyInventory::UnloadImages()
@@ -1200,6 +1218,8 @@ void SEASON3B::CNewUIMyInventory::UnloadImages()
 	DeleteBitmap(IMAGE_INVENTORY_BACK_TOP2);
 	DeleteBitmap(IMAGE_INVENTORY_BACK_TOP);
 	DeleteBitmap(IMAGE_INVENTORY_BACK);
+	//--
+	DeleteBitmap(IMAGE_INVENTORY_WAREHOUSE_BTN);
 }
 
 void SEASON3B::CNewUIMyInventory::RenderFrame()
@@ -1319,6 +1339,10 @@ void SEASON3B::CNewUIMyInventory::RenderButtons()
 		if(m_bMyShopOpen == true)
 		{
 			m_BtnMyShop.Render();
+		}
+		if (m_bWarehouseOpen == true)
+		{
+			m_BtnWarehouse.Render();
 		}
 	}
 	m_BtnExit.Render();
@@ -2301,6 +2325,22 @@ bool SEASON3B::CNewUIMyInventory::BtnProcess()
 			return true;
 		}
 
+		if (m_bWarehouseOpen == true && m_BtnWarehouse.UpdateMouseEvent() == true)
+		{
+			if (m_WarehouseMode == WAREHOUSE_MODE_OPEN)
+			{
+				WarehouseButtonStateOpen();
+				g_pNewUISystem->Show(SEASON3B::INTERFACE_STORAGE);
+			}
+			else if (m_WarehouseMode == WAREHOUSE_MODE_CLOSE)
+			{
+				WarehouseButtonStateClose();
+				g_pNewUISystem->Hide(SEASON3B::INTERFACE_STORAGE);
+			}
+
+			return true;
+		}
+
 		if( m_bMyShopOpen == true && m_BtnMyShop.UpdateMouseEvent() == true )
 		{
 			if(m_MyShopMode == MYSHOP_MODE_OPEN)
@@ -2391,6 +2431,7 @@ bool SEASON3B::CNewUIMyInventory::CanRegisterItemHotKey(int iType)
 	return false;
 }
 
+
 bool SEASON3B::CNewUIMyInventory::CanOpenMyShopInterface()
 {
 	if(g_pNewUISystem->IsVisible(SEASON3B::INTERFACE_NPCSHOP)	
@@ -2428,6 +2469,16 @@ void SEASON3B::CNewUIMyInventory::ChangeMyShopButtonStateOpen()
 	m_BtnMyShop.ChangeToolTipText(GlobalText[1125], true);
 }
 
+void SEASON3B::CNewUIMyInventory::WarehouseButtonStateOpen()
+{
+	m_WarehouseMode = WAREHOUSE_MODE_OPEN;
+	m_BtnWarehouse.UnRegisterButtonState();
+	m_BtnWarehouse.RegisterButtonState(BUTTON_STATE_UP, IMAGE_INVENTORY_WAREHOUSE_BTN, 0);
+	m_BtnWarehouse.RegisterButtonState(BUTTON_STATE_DOWN, IMAGE_INVENTORY_WAREHOUSE_BTN, 1);
+	m_BtnWarehouse.ChangeImgIndex(IMAGE_INVENTORY_MYSHOP_OPEN_BTN, 0);
+	m_BtnWarehouse.ChangeToolTipText(GlobalText[1149], true);
+}
+
 void SEASON3B::CNewUIMyInventory::ChangeMyShopButtonStateClose()
 {
 	m_MyShopMode = MYSHOP_MODE_CLOSE;
@@ -2436,6 +2487,16 @@ void SEASON3B::CNewUIMyInventory::ChangeMyShopButtonStateClose()
 	m_BtnMyShop.RegisterButtonState(BUTTON_STATE_DOWN, IMAGE_INVENTORY_MYSHOP_CLOSE_BTN, 1);
 	m_BtnMyShop.ChangeImgIndex(IMAGE_INVENTORY_MYSHOP_CLOSE_BTN, 0);
 	m_BtnMyShop.ChangeToolTipText(GlobalText[1127], true);
+}
+
+void SEASON3B::CNewUIMyInventory::WarehouseButtonStateClose()
+{
+	m_WarehouseMode = WAREHOUSE_MODE_CLOSE;
+	m_BtnWarehouse.UnRegisterButtonState();
+	m_BtnWarehouse.RegisterButtonState(BUTTON_STATE_UP, IMAGE_INVENTORY_WAREHOUSE_BTN, 0);
+	m_BtnWarehouse.RegisterButtonState(BUTTON_STATE_DOWN, IMAGE_INVENTORY_WAREHOUSE_BTN, 1);
+	m_BtnWarehouse.ChangeImgIndex(IMAGE_INVENTORY_WAREHOUSE_BTN, 0);
+	m_BtnWarehouse.ChangeToolTipText(GlobalText[1154], true);
 }
 
 void SEASON3B::CNewUIMyInventory::LockMyShopButtonOpen()

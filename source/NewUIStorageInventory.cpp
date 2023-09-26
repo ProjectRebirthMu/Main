@@ -29,31 +29,27 @@ CNewUIStorageInventory::~CNewUIStorageInventory()
 	Release();
 }
 
-bool CNewUIStorageInventory::Create(CNewUIManager* pNewUIMng, int x, int y)
-{
-	if (NULL == pNewUIMng || NULL == g_pNewUI3DRenderMng
-		|| NULL == g_pNewItemMng)
+bool CNewUIStorageInventory::Create(CNewUIManager* pNewUIMng, int x, int y) {
+	if (!pNewUIMng || !g_pNewUI3DRenderMng || !g_pNewItemMng) {
 		return false;
+	}
 
 	m_pNewUIMng = pNewUIMng;
 	m_pNewUIMng->AddUIObj(SEASON3B::INTERFACE_STORAGE, this);
 
 	m_pNewInventoryCtrl = new CNewUIInventoryCtrl;
-	if (false == m_pNewInventoryCtrl->Create(
-		g_pNewUI3DRenderMng, g_pNewItemMng, this, x + 15, y + 36, 8, 15))
-	{
+	if (!m_pNewInventoryCtrl->Create(g_pNewUI3DRenderMng, g_pNewItemMng, this,
+		x + 15, y + 36, 8, 15)) {
 		SAFE_DELETE(m_pNewInventoryCtrl);
 		return false;
 	}
 
 	SetPos(x, y);
-
 	LoadImages();
 
 	int anBtnPosX[MAX_BTN] = { 38, 78, 118 };
 	int anToolTipText[MAX_BTN] = { 235, 236, 242 };
-	for (int i = BTN_INSERT_ZEN; i < MAX_BTN; ++i)
-	{
+	for (int i = BTN_INSERT_ZEN; i < MAX_BTN; ++i) {
 		m_abtn[i].ChangeButtonImgState(true, IMAGE_STORAGE_BTN_INSERT_ZEN + i);
 		m_abtn[i].ChangeButtonInfo(x + anBtnPosX[i], y + 390, 36, 29);
 		m_abtn[i].ChangeToolTipText(GlobalText[anToolTipText[i]], true);
@@ -62,22 +58,19 @@ bool CNewUIStorageInventory::Create(CNewUIManager* pNewUIMng, int x, int y)
 	m_bLock = false;
 	SetItemAutoMove(false);
 	InitBackupItemInfo();
-
-	Show(false);	
+	Show(false);
 
 	return true;
 }
 
-void CNewUIStorageInventory::Release()
-{
+void CNewUIStorageInventory::Release() {
 	UnloadImages();
 
-	SAFE_DELETE(m_pNewInventoryCtrl);
+	std::unique_ptr<CNewUIInventoryCtrl> pNewInventoryCtrl(m_pNewInventoryCtrl);
 
-	if(m_pNewUIMng)
-	{
+	if (m_pNewUIMng) {
 		m_pNewUIMng->RemoveUIObj(this);
-		m_pNewUIMng = NULL;
+		m_pNewUIMng = nullptr;
 	}
 }
 
