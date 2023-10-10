@@ -240,7 +240,7 @@
 254	1	"Pasi the Mage"	
 255	1	"Lumen the Barmaid"	
 256	1	"Lahap"	
-257	1	"Shadow Phantom Soldier"		
+257	1	"Soldado das Sombras"		
 263	1	"Aegis"	
 264	1	"Rogue Centurion"	
 262	1	"Blood Soldier"	
