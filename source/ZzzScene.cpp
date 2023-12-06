@@ -81,31 +81,20 @@ extern CTimer*	g_pTimer;
 #ifdef MOVIE_DIRECTSHOW
 	extern CMovieScene* g_pMovieScene;
 #endif // MOVIE_DIRECTSHOW
-	
 
-bool	g_bTimeCheck = false;
-int 	g_iBackupTime = 0;
+// Framerate Time Update
+bool g_bTimeCheck = false;
 
-float	g_fMULogoAlpha = 0;
-
-
-   // extern CGuildCache g_GuildCache;
-
+int g_iBackupTime = 0;
+float g_fMULogoAlpha = 0;
 extern float g_fSpecialHeight;
-
-short   g_shCameraLevel = 0;
-
-
-/*#ifdef _DEBUG
-bool EnableEdit    = true;
-#else
-bool EnableEdit    = false;
-#endif*/
+short g_shCameraLevel = 0;
 
 int g_iLengthAuthorityCode = 20;
 
-char *szServerIpAddress = "169.254.107.213";
-WORD g_ServerPort = 44405;
+// ServerConfig
+char *szServerIpAddress = "YOUR-IP"; //< IP
+WORD g_ServerPort = 44405; //< Port
 
 #ifdef MOVIE_DIRECTSHOW
 int  SceneFlag = MOVIE_SCENE;
@@ -119,7 +108,6 @@ extern int g_iKeyPadEnable;
 
 
 CPhysicsManager g_PhysicsManager;
-
 
 char *g_lpszMp3[NUM_MUSIC] =
 {
@@ -181,10 +169,10 @@ extern char Mp3FileName[256];
 DWORD   g_dwWaitingStartTick;
 int     g_iRequestCount;
 
-int     g_iMessageTextStart     = 0;
-char    g_cMessageTextCurrNum   = 0;
-char    g_cMessageTextNum       = 0;
-int     g_iNumLineMessageBoxCustom;
+int     g_iMessageTextStart = 0;
+char    g_cMessageTextCurrNum = 0;
+char    g_cMessageTextNum = 0;
+int     g_iNumLineMessageBoxCustom = 0;
 char    g_lpszMessageBoxCustom[NUM_LINE_CMB][MAX_LENGTH_CMB];
 int     g_iCustomMessageBoxButton[NUM_BUTTON_CMB][NUM_PAR_BUTTON_CMB];
 
@@ -266,8 +254,8 @@ bool CheckAbuseNameFilter(char *Text)
 bool CheckName()
 {
     if( CheckAbuseNameFilter(InputText[0]) || CheckAbuseFilter(InputText[0]) ||
-		FindText(InputText[0]," ") || FindText(InputText[0],"¡¡") ||
-		FindText(InputText[0],".") || FindText(InputText[0],"¡¤") || FindText(InputText[0],"¡­") ||
+		FindText(InputText[0]," ") || FindText(InputText[0],"  ") ||
+		FindText(InputText[0],".") || FindText(InputText[0],"  ") || FindText(InputText[0],"  ") ||
 		FindText(InputText[0],"Webzen") || FindText(InputText[0],"WebZen") || FindText(InputText[0],"webzen") ||  FindText(InputText[0],"WEBZEN") ||
 		FindText(InputText[0],GlobalText[457]) || FindText(InputText[0],GlobalText[458]))
 		return true;
@@ -338,6 +326,7 @@ void WebzenScene(HDC hDC) {
 	LoadBitmap("Interface\\lo_lo.jpg", BITMAP_TITLE + 5, GL_LINEAR, GL_REPEAT);
 	LoadBitmap("Interface\\lo_back_s5_03.jpg", BITMAP_TITLE + 6, GL_LINEAR);
 	LoadBitmap("Interface\\lo_back_s5_04.jpg", BITMAP_TITLE + 7, GL_LINEAR);
+
 	if (rand() % 100 <= 70) {
 		LoadBitmap("Interface\\lo_back_im01.jpg", BITMAP_TITLE + 8, GL_LINEAR);
 		LoadBitmap("Interface\\lo_back_im02.jpg", BITMAP_TITLE + 9, GL_LINEAR);
@@ -367,14 +356,7 @@ void WebzenScene(HDC hDC) {
 	rUIMng.RenderTitleSceneUI(hDC, 11, 11);
 
 	rUIMng.ReleaseTitleSceneUI();
-	DeleteBitmap(BITMAP_TITLE);
-	DeleteBitmap(BITMAP_TITLE + 1);
-	DeleteBitmap(BITMAP_TITLE + 2);
-	DeleteBitmap(BITMAP_TITLE + 3);
-	DeleteBitmap(BITMAP_TITLE + 4);
-	DeleteBitmap(BITMAP_TITLE + 5);
-
-	for (int i = 6; i < 14; ++i) {
+	for (int i = 0; i < 14; ++i) {
 		DeleteBitmap(BITMAP_TITLE + i);
 	}
 
@@ -396,15 +378,16 @@ void DeleteCharacter()
 		g_pSinglePasswdInputBox->SetText(NULL);
 		g_pSinglePasswdInputBox->SetState(UISTATE_HIDE);
 	}
-	SendRequestDeleteCharacter(CharactersClient[SelectedHero].ID,InputText[0]);
+	SendRequestDeleteCharacter(CharactersClient[SelectedHero].ID, InputText[0]);
 
 	MenuStateCurrent = MENU_DELETE_LEFT;
-	MenuStateNext    = MENU_NEW_DOWN;
+	MenuStateNext = MENU_NEW_DOWN;
 	PlayBuffer(SOUND_MENU01);
-	
+
 	ClearInput();
 	InputEnable = false;
 }
+
 int  ErrorMessage = NULL;
 int	 ErrorMessageNext = NULL;
 extern bool g_bEnterPressed;
@@ -419,12 +402,12 @@ void SetEnterPressed( bool enterpressed ) {
 
 BOOL CheckOptionMouseClick(int iOptionPos_y, BOOL bPlayClickSound = TRUE)
 {
-	if (CheckMouseIn((640-120)/2, 30+iOptionPos_y, 120, 22) && MouseLButtonPush)
+	if (CheckMouseIn((640 - 120) / 2, 30 + iOptionPos_y, 120, 22) && MouseLButtonPush)
 	{
 		MouseLButtonPush = false;
 		MouseUpdateTime = 0;
 		MouseUpdateTimeMax = 6;
-		if (bPlayClickSound == TRUE) PlayBuffer(SOUND_CLICK01);
+		if (bPlayClickSound) PlayBuffer(SOUND_CLICK01);
 		return TRUE;
 	}
 	return FALSE;
@@ -1061,31 +1044,32 @@ bool NewRenderCharacterScene(HDC hDC)
 
 	OBJECT *o = &CharactersClient[SelectedHero].Object;
 
-	CreateScreenVector(MouseX,MouseY,MouseTarget);
-	for(int i = 0; i < 5; i++)
+	CreateScreenVector(MouseX, MouseY, MouseTarget);
+
+	for (int i = 0; i < 5; i++)
 	{
 		CharactersClient[i].Object.Position[2] = 163.0f;
-		Vector ( 0.0f, 0.0f, 0.0f, CharactersClient[i].Object.Light );
+		Vector(0.0f, 0.0f, 0.0f, CharactersClient[i].Object.Light);
 	}
 
-	if(SelectedHero!=-1 && o->Live)
+	if (SelectedHero != -1 && o->Live)
 	{
 		EnableAlphaBlend();
 		vec3_t Light;
-		Vector ( 1.0f, 1.0f, 1.0f, Light );
-		Vector ( 1.0f, 1.0f, 1.0f, o->Light );
-		AddTerrainLight(o->Position[0],o->Position[1],Light,1,PrimaryTerrainLight);
+		Vector(1.0f, 1.0f, 1.0f, Light);
+		Vector(1.0f, 1.0f, 1.0f, o->Light);
+		AddTerrainLight(o->Position[0], o->Position[1], Light, 1, PrimaryTerrainLight);
 		DisableAlphaBlend();
 	}
 
 	CHARACTER* pCha = NULL;
 	OBJECT* pObj = NULL;
 
-	for(int i=0; i<5; ++i)
+	for (int i = 0; i < 5; ++i)
 	{
 		pCha = &CharactersClient[i];
 		pObj = &pCha->Object;
-		if(pCha->Helper.Type == MODEL_HELPER+3)
+		if (pCha->Helper.Type == MODEL_HELPER + 3)
 		{
 #ifdef PJH_NEW_SERVER_SELECT_MAP
 			pObj->Position[2] = 194.5f;
@@ -1107,7 +1091,7 @@ bool NewRenderCharacterScene(HDC hDC)
 	RenderObjects();
 	RenderCharactersClient();
 
-	if(!CUIMng::Instance().IsCursorOnUI())
+	if (!CUIMng::Instance().IsCursorOnUI())
 		SelectObjects();
 
 	RenderBugs();
@@ -1119,31 +1103,30 @@ bool NewRenderCharacterScene(HDC hDC)
 	RenderObjects_AfterCharacter();
 	CheckSprites();
 
-	if(SelectedHero!=-1 && o->Live)
+	if (SelectedHero != -1 && o->Live)
 	{
 		vec3_t vLight;
-		
-		Vector ( 1.0f, 1.0f, 1.f, vLight );
-		float fLumi = sinf ( WorldTime*0.0015f )*0.3f+0.5f;
-		Vector ( fLumi*vLight[0], fLumi*vLight[1], fLumi*vLight[2], vLight );
+
+		Vector(1.0f, 1.0f, 1.f, vLight);
+		float fLumi = sinf(WorldTime * 0.0015f) * 0.3f + 0.5f;
+		Vector(fLumi * vLight[0], fLumi * vLight[1], fLumi * vLight[2], vLight);
+
 #ifdef PJH_NEW_SERVER_SELECT_MAP
 		EnableAlphaBlend();
-		RenderTerrainAlphaBitmap(BITMAP_GM_AURORA, o->Position[0], o->Position[1], 1.8f, 1.8f, vLight, WorldTime*0.01f);
-		RenderTerrainAlphaBitmap(BITMAP_GM_AURORA, o->Position[0], o->Position[1], 1.2f, 1.2f, vLight, -WorldTime*0.01f);
+		RenderTerrainAlphaBitmap(BITMAP_GM_AURORA, o->Position[0], o->Position[1], 1.8f, 1.8f, vLight, WorldTime * 0.01f);
+		RenderTerrainAlphaBitmap(BITMAP_GM_AURORA, o->Position[0], o->Position[1], 1.2f, 1.2f, vLight, -WorldTime * 0.01f);
 		DisableAlphaBlend();
 #else //PJH_NEW_SERVER_SELECT_MAP
-		RenderTerrainAlphaBitmap ( BITMAP_GM_AURORA, o->Position[0], o->Position[1], 1.5f, 1.5f, vLight, WorldTime*0.01f );
-		RenderTerrainAlphaBitmap ( BITMAP_GM_AURORA, o->Position[0], o->Position[1], 1.f, 1.f, vLight, -WorldTime*0.01f );
+		RenderTerrainAlphaBitmap(BITMAP_GM_AURORA, o->Position[0], o->Position[1], 1.5f, 1.5f, vLight, WorldTime * 0.01f);
+		RenderTerrainAlphaBitmap(BITMAP_GM_AURORA, o->Position[0], o->Position[1], 1.f, 1.f, vLight, -WorldTime * 0.01f);
 #endif //PJH_NEW_SERVER_SELECT_MAP
 
-		//CreateParticle(BITMAP_FLARE+1,o->Position,o->Angle,Light,0,0.15f);
-
-		float Rotation = (int)WorldTime%3600/(float)10.f;
-		Vector ( 0.15f, 0.15f, 0.15f, o->Light );
+		float Rotation = static_cast<float>((int)WorldTime % 3600) / 10.0f;
+		Vector(0.15f, 0.15f, 0.15f, o->Light);
 		CreateParticle(BITMAP_EFFECT, o->Position, o->Angle, o->Light, 4);
 		CreateParticle(BITMAP_EFFECT, o->Position, o->Angle, o->Light, 5);
 
-		g_csMapServer.SetHeroID ( (char *)CharactersClient[SelectedHero].ID );
+		g_csMapServer.SetHeroID(reinterpret_cast<char*>(CharactersClient[SelectedHero].ID));
 	}
 
 	BeginSprite();
@@ -1291,10 +1274,6 @@ bool NewRenderLogInScene(HDC hDC)
 	if(!InitLogIn) return false;
 
 	FogEnable = false;
-// 	extern GLfloat FogColor[4];
-// 	FogColor[0] = 178.f/256.f; FogColor[1] = 178.f/256.f; FogColor[2] = 178.f/256.f; FogColor[3] = 0.f;
-// 	glFogf(GL_FOG_START, 3700.0f);
-// 	glFogf(GL_FOG_END, 4000.0f);
 
 #ifdef MOVIE_DIRECTSHOW
 	if(CUIMng::Instance().IsMoving() == true)
@@ -1378,7 +1357,7 @@ bool NewRenderLogInScene(HDC hDC)
 	if (CCameraMove::GetInstancePtr()->IsTourMode())
 	{
 #ifndef PJH_NEW_SERVER_SELECT_MAP
-		// È­¸é Èå¸®±â
+		// È­    å¸®  
 		EnableAlphaBlend4();
 		glColor4f(0.7f,0.7f,0.7f,1.0f);
 		float fScale = (sinf(WorldTime*0.0005f) + 1.f) * 0.00011f;
@@ -1390,17 +1369,17 @@ bool NewRenderLogInScene(HDC hDC)
 		fScale = (sinf(WorldTime*0.0015f) + 1.f) * 0.00021f;
 		RenderBitmapLocalRotate(BITMAP_CHROME+4,320.0f,240.0f, 1150.0f, 1150.0f, fAngle, fScale*512.f,fScale*512.f, (512.f)/512.f-fScale*2*512.f,(512.f)/512.f-fScale*2*512.f);
 
-		// À§¾Æ·¡ ÀÚ¸£±â
+		//    Æ·   Ú¸   
 		EnableAlphaTest();
 		glColor4f(0.0f,0.0f,0.0f,1.0f);
 		RenderColor(0, 0, 640, 25);
 		RenderColor(0, 480-25, 640, 25);
 
-		// È­¸éÄ¥
+		// È­  Ä¥
 		glColor4f(0.0f,0.0f,0.0f,0.2f);
 		RenderColor(0, 25, 640, 430);
 #endif //PJH_NEW_SERVER_SELECT_MAP
-		// ¹Â·Î°í
+		//  Â·Î° 
 		g_fMULogoAlpha += 0.02f;
 		if (g_fMULogoAlpha > 10.0f) g_fMULogoAlpha = 10.0f;
 		
@@ -2306,7 +2285,7 @@ bool RenderMainScene()
 	return true;
 }
 
-int TimeRemain = 40;
+int TimeRemain;
 extern int ChatTime;
 extern int WaterTextureNumber;
 
@@ -2334,7 +2313,7 @@ void MainScene(HDC hDC)
 			g_pTimer->ResetTimer();
 
 			CInput::Instance().Update();
-			CUIMng::Instance().Update(dDeltaTick);
+			CUIMng::Instance().Update(static_cast<float>(dDeltaTick));
 		}
 
 		g_dwMouseUseUIID = 0;
@@ -2363,10 +2342,7 @@ void MainScene(HDC hDC)
 
 		if (PressKey(VK_SNAPSHOT))
 		{
-			if (GrabEnable)
-				GrabEnable = false;
-			else
-				GrabEnable = true;
+			GrabEnable = !GrabEnable;
 		}
 		if (ChatTime > 0) ChatTime--;
 		if (MacroTime > 0) MacroTime--;
@@ -2453,10 +2429,6 @@ void MainScene(HDC hDC)
 		
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-	int32_t DifTimer = 0;
-	uint32_t LastTimeCurrent = TimePrior;
-	TimePrior = GetTickCount();
-
 	bool Success = false;
 
 	if(SceneFlag == LOG_IN_SCENE)
@@ -2509,6 +2481,9 @@ void MainScene(HDC hDC)
 		SwapBuffers(hDC);
 	}
 
+	int32_t DifTimer = 0;
+	uint32_t LastTimeCurrent = TimePrior;
+	TimePrior = GetTickCount();
 	DifTimer = TimePrior - LastTimeCurrent;
 
 	if (DifTimer < 40)
@@ -2840,7 +2815,7 @@ void Scene(HDC hDC)
 	case MAIN_SCENE:
 		MainScene(hDC);
 		break;
-	}
+    }
 
 	if (g_iNoMouseTime > 31)
 	{
@@ -2863,5 +2838,6 @@ bool GetTimeCheck(int DelayTime)
 		g_bTimeCheck = true;
 		return true;
 	}
+
 	return false;
 }

@@ -354,50 +354,52 @@ void CCameraMove::RenderWayPoint()
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_ALPHA_TEST);
 	glDisable(GL_TEXTURE_2D);
-	
+
 	glBegin(GL_QUADS);
-	glColor4f(1.0f,0.0f,0.0f,0.8f);
+	glColor4f(1.0f, 0.0f, 0.0f, 0.8f);
 	t_WayPointList::iterator iter = m_listWayPoint.begin();
-	for(; iter != m_listWayPoint.end(); iter++) {
+	for (; iter != m_listWayPoint.end(); iter++) {
 		WAYPOINT* pWayPoint = (*iter);
 		glNormal3f(0.0f, 0.0f, 1.0f);
-		glVertex3f(pWayPoint->fCameraX+50-10, pWayPoint->fCameraY+50-10, pWayPoint->fCameraZ);
-		glVertex3f(pWayPoint->fCameraX+50+10, pWayPoint->fCameraY+50-10, pWayPoint->fCameraZ);
-		glVertex3f(pWayPoint->fCameraX+50+10, pWayPoint->fCameraY+50+10, pWayPoint->fCameraZ);
-		glVertex3f(pWayPoint->fCameraX+50-10, pWayPoint->fCameraY+50+10, pWayPoint->fCameraZ);
+		glVertex3f(pWayPoint->fCameraX + 50 - 10, pWayPoint->fCameraY + 50 - 10, pWayPoint->fCameraZ);
+		glVertex3f(pWayPoint->fCameraX + 50 + 10, pWayPoint->fCameraY + 50 - 10, pWayPoint->fCameraZ);
+		glVertex3f(pWayPoint->fCameraX + 50 + 10, pWayPoint->fCameraY + 50 + 10, pWayPoint->fCameraZ);
+		glVertex3f(pWayPoint->fCameraX + 50 - 10, pWayPoint->fCameraY + 50 + 10, pWayPoint->fCameraZ);
 	}
 	glEnd();
 
 	glBegin(GL_LINE_STRIP);
 
-	glColor4f(1.0f,1.0f,1.0f,0.5f);
+	glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
 	iter = m_listWayPoint.begin();
-	for(; iter != m_listWayPoint.end(); iter++) {
+	for (; iter != m_listWayPoint.end(); iter++) {
 		WAYPOINT* pWayPoint = (*iter);
-		glVertex3f(pWayPoint->fCameraX+50, pWayPoint->fCameraY+50, pWayPoint->fCameraZ);
+		glVertex3f(pWayPoint->fCameraX + 50, pWayPoint->fCameraY + 50, pWayPoint->fCameraZ);
 	}
 
 	glEnd();
-
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_ALPHA_TEST);
 	glEnable(GL_TEXTURE_2D);
 }
+
 void CCameraMove::SetSelectedTile(int iTileIndex)
 {
-	//. find
 	t_WayPointList::iterator iter = m_listWayPoint.begin();
-	for(; iter != m_listWayPoint.end(); iter++) {
-		if((*iter)->iIndex == iTileIndex) {
+	for (; iter != m_listWayPoint.end(); iter++) {
+		if ((*iter)->iIndex == iTileIndex) {
 			m_iSelectedTile = iTileIndex;
-			return ;
+			return;
 		}
 	}
 	m_iSelectedTile = -1;
 }
+
 DWORD CCameraMove::GetSelectedTile() const
-{ return m_iSelectedTile; }
+{
+	return m_iSelectedTile;
+}
 
 CCameraMove* CCameraMove::GetInstancePtr()
 {
@@ -439,8 +441,8 @@ BOOL CCameraMove::SetTourMode(BOOL bFlag, BOOL bRandomStart)
 		m_CameraStartPos[1] = m_CurrentCameraPos[1] = m_vTourCameraPos[1] = pStartWayPoint->fCameraY;
 		m_CameraStartPos[2] = m_CurrentCameraPos[2] = m_vTourCameraPos[2] = pStartWayPoint->fCameraZ;
 
-		float fSubVector[2] = { pTargetWayPoint->fCameraX - pStartWayPoint->fCameraX,pTargetWayPoint->fCameraY - pStartWayPoint->fCameraY };
-		float fSubDistance = sqrt(fSubVector[0]*fSubVector[0] + fSubVector[1]*fSubVector[1]);
+		float fSubVector[2] = { pTargetWayPoint->fCameraX - pStartWayPoint->fCameraX, pTargetWayPoint->fCameraY - pStartWayPoint->fCameraY };
+		float fSubDistance = sqrt(fSubVector[0] * fSubVector[0] + fSubVector[1] * fSubVector[1]);
 		float fDirVector[2] = { fSubVector[0] / fSubDistance, fSubVector[1] / fSubDistance };
 		m_fTargetTourCameraAngle = m_fTourCameraAngle = CreateAngle(0, 0, fDirVector[0], -fDirVector[1]);
 	}
@@ -538,7 +540,6 @@ UPDATE_WAY_POINT_ENTRY:
 				{
 					m_fTargetTourCameraAngle = CreateAngle(0, 0, fTourDirVector[0], -fTourDirVector[1]);
 				}
-				//if (m_fTargetTourCameraAngle != m_fTourCameraAngle)
 				{
 					float fRotDir = 0;
 					float fAngleDistance = 0;

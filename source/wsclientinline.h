@@ -1035,22 +1035,22 @@ __forceinline void SendRequestEquipmentItem(int SrcFlag,int SrcIndex,int DstFlag
 	}
 #endif // #ifdef KJH_ADD_PERIOD_ITEM_SYSTEM
 
-	BYTE spareBits;
+	DWORD spareBits;
 	if (g_SocketItemMgr.IsSocketItem(&PickItem))
 	{
 		spareBits = PickItem.SocketSeedSetOption;
 	}
 	else
 	{
-		spareBits = (((BYTE)PickItem.Jewel_Of_Harmony_Option)<<4)+((BYTE)PickItem.Jewel_Of_Harmony_OptionLevel);
+		spareBits = (((DWORD)PickItem.Jewel_Of_Harmony_Option)<<4)+((DWORD)PickItem.Jewel_Of_Harmony_OptionLevel);
 	}
 
 	BYTE socketBits[5] = { PickItem.bySocketOption[0], PickItem.bySocketOption[1], PickItem.bySocketOption[2], PickItem.bySocketOption[3], PickItem.bySocketOption[4] };
 	
-	spe << ( BYTE)SrcFlag << ( BYTE)SrcIndex << ( BYTE)PickItem.Type << ( BYTE)( PickItem.Level)
-		<< ( BYTE)( PickItem.Durability) << ( BYTE)( PickItem.Option1) << ( BYTE)( PickItem.ExtOption) << splitType << spareBits
+	spe << (DWORD)SrcFlag << (DWORD)SrcIndex << (DWORD)PickItem.Type << (DWORD)( PickItem.Level)
+		<< (DWORD)( PickItem.Durability) << (DWORD)( PickItem.Option1) << (DWORD)( PickItem.ExtOption) << splitType << spareBits
 		<< socketBits[0] << socketBits[1] << socketBits[2] << socketBits[3] << socketBits[4]
-		<< ( BYTE)DstFlag << ( BYTE)DstIndex;
+		<< (DWORD)DstFlag << (DWORD)DstIndex;
 	spe.Send( TRUE);
 
 	g_ConsoleDebug->Write(MCD_SEND, "0x24 [SendRequestEquipmentItem(%d %d %d %d %d %d %d)]", SrcIndex,DstIndex,SrcFlag,DstFlag, (PickItem.Type&0x1FFF), ( BYTE)( PickItem.Level), ( BYTE)( PickItem.Durability));
