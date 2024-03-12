@@ -93,7 +93,7 @@ short g_shCameraLevel = 0;
 int g_iLengthAuthorityCode = 20;
 
 // ServerConfig
-char *szServerIpAddress = "169.254.107.213"; //< IP
+char *szServerIpAddress = "YOUR-IP"; //< IP
 WORD g_ServerPort = 44405; //< Port
 
 #ifdef MOVIE_DIRECTSHOW
