@@ -379,14 +379,14 @@ void SEASON3B::CNewUICommonMessageBox::SetAddCallbackFunc()
 		AddCallbackFunc(SEASON3B::CNewUICommonMessageBox::LButtonUp, MSGBOX_EVENT_MOUSE_LBUTTON_UP);
 		AddCallbackFunc(SEASON3B::CNewUICommonMessageBox::Close, MSGBOX_EVENT_USER_COMMON_OK);
 		AddCallbackFunc(SEASON3B::CNewUICommonMessageBox::Close, MSGBOX_EVENT_PRESSKEY_ESC);
-		//AddCallbackFunc(SEASON3B::CNewUICommonMessageBox::Close, MSGBOX_EVENT_PRESSKEY_RETURN);
+		AddCallbackFunc(SEASON3B::CNewUICommonMessageBox::Close, MSGBOX_EVENT_PRESSKEY_RETURN);
 		break;
 	case MSGBOX_COMMON_TYPE_OKCANCEL:
 		AddCallbackFunc(SEASON3B::CNewUICommonMessageBox::LButtonUp, MSGBOX_EVENT_MOUSE_LBUTTON_UP);
 		AddCallbackFunc(SEASON3B::CNewUICommonMessageBox::Close, MSGBOX_EVENT_USER_COMMON_OK);
 		AddCallbackFunc(SEASON3B::CNewUICommonMessageBox::Close, MSGBOX_EVENT_USER_COMMON_CANCEL);
-		//AddCallbackFunc(SEASON3B::CNewUICommonMessageBox::Close, MSGBOX_EVENT_PRESSKEY_ESC);
-		//AddCallbackFunc(SEASON3B::CNewUICommonMessageBox::Close, MSGBOX_EVENT_PRESSKEY_RETURN);
+		AddCallbackFunc(SEASON3B::CNewUICommonMessageBox::Close, MSGBOX_EVENT_PRESSKEY_ESC);
+		AddCallbackFunc(SEASON3B::CNewUICommonMessageBox::Close, MSGBOX_EVENT_PRESSKEY_RETURN);
 		break;
 	}
 }
@@ -883,14 +883,14 @@ void SEASON3B::CNewUI3DItemCommonMsgBox::SetAddCallbackFunc()
 		AddCallbackFunc(SEASON3B::CNewUI3DItemCommonMsgBox::LButtonUp, MSGBOX_EVENT_MOUSE_LBUTTON_UP);
 		AddCallbackFunc(SEASON3B::CNewUI3DItemCommonMsgBox::Close, MSGBOX_EVENT_USER_COMMON_OK);
 		AddCallbackFunc(SEASON3B::CNewUI3DItemCommonMsgBox::Close, MSGBOX_EVENT_PRESSKEY_ESC);
-		//AddCallbackFunc(SEASON3B::CNewUICommonMessageBox::Close, MSGBOX_EVENT_PRESSKEY_RETURN);
+		AddCallbackFunc(SEASON3B::CNewUICommonMessageBox::Close, MSGBOX_EVENT_PRESSKEY_RETURN);
 		break;
 	case MSGBOX_COMMON_TYPE_OKCANCEL:
 		AddCallbackFunc(SEASON3B::CNewUI3DItemCommonMsgBox::LButtonUp, MSGBOX_EVENT_MOUSE_LBUTTON_UP);
 		AddCallbackFunc(SEASON3B::CNewUI3DItemCommonMsgBox::Close, MSGBOX_EVENT_USER_COMMON_OK);
 		AddCallbackFunc(SEASON3B::CNewUI3DItemCommonMsgBox::Close, MSGBOX_EVENT_USER_COMMON_CANCEL);
-		//AddCallbackFunc(SEASON3B::CNewUICommonMessageBox::Close, MSGBOX_EVENT_PRESSKEY_ESC);
-		//AddCallbackFunc(SEASON3B::CNewUICommonMessageBox::Close, MSGBOX_EVENT_PRESSKEY_RETURN);
+		AddCallbackFunc(SEASON3B::CNewUICommonMessageBox::Close, MSGBOX_EVENT_PRESSKEY_ESC);
+		AddCallbackFunc(SEASON3B::CNewUICommonMessageBox::Close, MSGBOX_EVENT_PRESSKEY_RETURN);
 		break;
 	}
 }

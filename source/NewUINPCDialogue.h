@@ -88,6 +88,7 @@ namespace SEASON3B
 		void SetPos(int x, int y);
 		
 		bool UpdateMouseEvent();
+		bool ProcessBtns();
 		bool UpdateKeyEvent();
 		bool Update();
 		bool Render();
@@ -120,8 +121,6 @@ namespace SEASON3B
 #ifdef ASG_ADD_GENS_SYSTEM
 		void RenderContributePoint();
 #endif	// ASG_ADD_GENS_SYSTEM
-		
-		bool ProcessBtns();
 		
 		void SetCurNPCWords(int nQuestListCount = 0);
 		void SetCurSelTexts();

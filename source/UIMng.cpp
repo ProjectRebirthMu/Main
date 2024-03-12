@@ -18,13 +18,8 @@
 #include "ServerListManager.h"
 
 #define	DOCK_EXTENT		10
-
-//#define	UIM_TS_BG_BLACK		0
 #define	UIM_TS_BACK0		0
 #define	UIM_TS_BACK1		1
-#define	UIM_TS_MU			2
-#define	UIM_TS_121518		3
-#define	UIM_TS_WEBZEN		4
 	#define UIM_TS_BACK2		5
 	#define UIM_TS_BACK3		6
 	#define UIM_TS_BACK4		7
@@ -48,7 +43,6 @@ CUIMng::CUIMng()
 
 CUIMng::~CUIMng()
 {
-
 }
 
 CUIMng& CUIMng::Instance()
@@ -113,22 +107,6 @@ void CUIMng::CreateTitleSceneUI()
 		false, SPR_SIZING_DATUMS_LT, _fScaleXTemp, _fScaleYTemp);
 	m_asprTitle[UIM_TS_BACK9].SetPosition(1024, 512+119);
 
-
- 	m_asprTitle[UIM_TS_MU].Create(216, 138, BITMAP_TITLE+2, 0, NULL, 0, 0,
-		false, SPR_SIZING_DATUMS_LT, _fScaleXTemp, _fScaleXTemp);
-
-	if((float)rInput.GetScreenWidth() == 1280)
-		m_asprTitle[UIM_TS_MU].SetPosition(640-108, 663+53);
-	else
-		m_asprTitle[UIM_TS_MU].SetPosition(640-108, 663);
-	
-	m_asprTitle[UIM_TS_121518].Create(256, 206, BITMAP_TITLE+3, 0, NULL, 0, 0,
-		false, SPR_SIZING_DATUMS_LT, fScaleX, fScaleY);
-	m_asprTitle[UIM_TS_121518].SetPosition(544, 60);
-	m_asprTitle[UIM_TS_WEBZEN].Create(187, 151, BITMAP_TITLE+4, 0, NULL, 0, 0,
-		false, SPR_SIZING_DATUMS_LT, fScaleX, fScaleY);
-	m_asprTitle[UIM_TS_WEBZEN].SetPosition(307, 225);
-
 	m_pgbLoding = new CGaugeBar;
 	
 	RECT rc = { 0, 0, 656, 15 };
@@ -140,7 +118,6 @@ void CUIMng::CreateTitleSceneUI()
 		m_asprTitle[i].Show();
 	}
 	m_pgbLoding->Show();
-	m_asprTitle[UIM_TS_121518].Show(false);
 	m_nScene = UIM_SCENE_TITLE;
 }
 
@@ -167,7 +144,6 @@ void CUIMng::RenderTitleSceneUI(HDC hDC, DWORD dwNow, DWORD dwTotal)
 		m_asprTitle[i].Render();
 	}
 
-	m_asprTitle[UIM_TS_MU].Render();
 	m_pgbLoding->SetValue(dwNow, dwTotal);
 	m_pgbLoding->Render();
 

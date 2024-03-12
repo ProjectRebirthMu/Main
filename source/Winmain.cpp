@@ -1095,7 +1095,7 @@ BOOL OpenInitFile()
 		WindowHeight = 768;
 		break;
 	case 4:
-		WindowWidth = 1366;
+		WindowWidth = 1360;
 		WindowHeight = 768;
 		break;
 	case 5:
@@ -1431,7 +1431,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
 	case 800:FontHeight = 12; break;
 	case 1024:FontHeight = 13; break;
 	case 1280:FontHeight = 13; break;
-	case 1366:FontHeight = 14; break;	
+	case 1360:FontHeight = 14; break;	
 	case 1440:FontHeight = 16; break;
 	case 1600:FontHeight = 16; break;
 	case 1680:FontHeight = 16; break;

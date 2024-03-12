@@ -1058,9 +1058,6 @@ __forceinline void SendRequestEquipmentItem(int SrcFlag,int SrcIndex,int DstFlag
 
 extern int  EnableUse;
 
-
-#ifndef ENABLE_EDIT
-
 #define SendRequestUse( p_Index, p_Target)\
 {\
 	if( !IsCanUseItem() )\
@@ -1082,39 +1079,14 @@ extern int  EnableUse;
 			{\
 				if(pItem->Type == ITEM_POTION)\
 					PlayBuffer(SOUND_EAT_APPLE01);\
+                else if(pItem->Type >= ITEM_POTION+35 && pItem->Type <= ITEM_POTION+37)\
+                    PlayBuffer(SOUND_DRINK01);\
 				else if(pItem->Type >= ITEM_POTION+1 && pItem->Type <= ITEM_POTION + 9)\
 					PlayBuffer(SOUND_DRINK01);\
 			}\
 		}\
 	}\
 }
-
-#else	// ENABLE_EDIT
-__forceinline void SendRequestUse(int Index,int Target)
-{
-	if( !IsCanUseItem() )
-	{
-		g_pChatListBox->AddText("", GlobalText[474], SEASON3B::TYPE_ERROR_MESSAGE);
-		return;
-	}
-	if(EnableUse > 0) 
-	{
-		return;
-	}
-	EnableUse = 10;
-	CStreamPacketEngine spe;
-	spe.Init( 0xC1, 0x26);
-	spe << ( BYTE)( Index+MAX_EQUIPMENT_INDEX ) << ( BYTE)Target;
-	spe << (BYTE)g_byItemUseType;
-	spe.Send( TRUE);
-	if(Inventory[Index].Type==ITEM_POTION)
-		PlayBuffer(SOUND_EAT_APPLE01);
-	else if(Inventory[Index].Type>=ITEM_POTION + 1 && Inventory[Index].Type<=ITEM_POTION + 9)
-		PlayBuffer(SOUND_DRINK01);
-
-	g_ConsoleDebug->Write(MCD_SEND, "0x26 [SendRequestUse(%d)]", Index+12);
-}
-#endif //ENABLE_EDIT
 
 extern int SendGetItem;
 extern int SendDropItem;

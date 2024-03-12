@@ -145,7 +145,7 @@ void SEASON3B::CNewUIMoveCommandWindow::SetPos(int x, int y)
 	case 1280:
 		m_MapNameUISize.x = 160; m_MapNamePos.x = m_Pos.x + 59; m_ReqLevelPos.x = m_Pos.x + 104; m_ReqZenPos.x = m_Pos.x + 139;
 		break;
-	case 1366:
+	case 1360:
 		m_MapNameUISize.x = 150; m_MapNamePos.x = m_Pos.x + 56; m_ReqLevelPos.x = m_Pos.x + 101; m_ReqZenPos.x = m_Pos.x + 134;
 		break;
 	case 1440:

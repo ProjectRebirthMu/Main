@@ -93,7 +93,7 @@ short g_shCameraLevel = 0;
 int g_iLengthAuthorityCode = 20;
 
 // ServerConfig
-char *szServerIpAddress = "YOUR-IP"; //< IP
+char *szServerIpAddress = "169.254.107.213"; //< IP
 WORD g_ServerPort = 44405; //< Port
 
 #ifdef MOVIE_DIRECTSHOW
@@ -319,10 +319,7 @@ void WebzenScene(HDC hDC) {
 	ClearInput();
 
 	LoadBitmap("Interface\\New_lo_back_01.jpg", BITMAP_TITLE, GL_LINEAR);
-	LoadBitmap("Interface\\New_lo_back_02.jpg", BITMAP_TITLE + 1, GL_LINEAR);
-	LoadBitmap("Interface\\MU_TITLE.tga", BITMAP_TITLE + 2, GL_LINEAR);
-	LoadBitmap("Interface\\lo_121518.tga", BITMAP_TITLE + 3, GL_LINEAR);
-	LoadBitmap("Interface\\New_lo_webzen_logo.tga", BITMAP_TITLE + 4, GL_LINEAR);
+	LoadBitmap("Interface\\New_lo_back_02.jpg", BITMAP_TITLE + 1, GL_LINEAR);	
 	LoadBitmap("Interface\\lo_lo.jpg", BITMAP_TITLE + 5, GL_LINEAR, GL_REPEAT);
 	LoadBitmap("Interface\\lo_back_s5_03.jpg", BITMAP_TITLE + 6, GL_LINEAR);
 	LoadBitmap("Interface\\lo_back_s5_04.jpg", BITMAP_TITLE + 7, GL_LINEAR);

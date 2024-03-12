@@ -163,6 +163,9 @@
 #define SOUND_MONSTER              210
 #define SOUND_MONSTER_END          450
 
+//Npc Speak
+#define VOICE_SHADOWPHANTOMSOLDIER 500
+
 enum
 {
     SOUND_EXPAND_START          = SOUND_MONSTER_END,

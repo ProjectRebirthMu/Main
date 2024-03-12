@@ -1,6 +1,6 @@
 //*****************************************************************************
 // CLoadingScene
-// Revised: 10/07/23
+// Revised: 18/02/24
 //*****************************************************************************
 
 #include "stdafx.h"
@@ -16,14 +16,12 @@ CLoadingScene::~CLoadingScene()
 void CLoadingScene::Create()
 {
     CInput rInput = CInput::Instance();
-    float fScaleX = static_cast<float>(rInput.GetScreenWidth()) / 800.0f;
-    float fScaleY = static_cast<float>(rInput.GetScreenHeight()) / 600.0f;
 
     int anHeight[LDS_BACK_MAX] = { 512, 512, 88, 88 };
     for (int i = 0; i < LDS_BACK_MAX; ++i)
     {
         m_asprBack[i].Create(400, anHeight[i], BITMAP_TITLE + i, 0, nullptr, 0, 0, false,
-            SPR_SIZING_DATUMS_LT, fScaleX, fScaleY);
+            SPR_SIZING_DATUMS_LT);
         m_asprBack[i].Show(true);
     }
 

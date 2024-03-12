@@ -7,10 +7,12 @@
 #include "csQuest.h"
 
 using namespace SEASON3B;
+#define MAX_BUFFER_SIZE 1024 // Adjust the size based on your needs
 
 extern int g_iNumLineMessageBoxCustom;
 extern int g_iNumAnswer;
 extern char g_lpszMessageBoxCustom[NUM_LINE_CMB][MAX_LENGTH_CMB];
+BYTE ReceiveBuffer[MAX_BUFFER_SIZE];
 
 SEASON3B::CNewUIMyQuestInfoWindow::CNewUIMyQuestInfoWindow()
 {
@@ -334,26 +336,48 @@ void SEASON3B::CNewUIMyQuestInfoWindow::RenderCastleInfo()
 	g_pRenderText->RenderText(m_Pos.x, m_Pos.y+145, strText, 190, 0, RT3_SORT_CENTER);
 }
 
-
 void SEASON3B::CNewUIMyQuestInfoWindow::RenderTempleInfo()
 {
 	g_pRenderText->SetFont(g_hFontBold);
 	g_pRenderText->SetTextColor(255, 255, 0, 255);
 	g_pRenderText->SetBgColor(0, 0, 0, 0);
 
-	g_pRenderText->RenderText(m_Pos.x, m_Pos.y+285, GlobalText[2369], 190, 0, RT3_SORT_CENTER);
+	g_pRenderText->RenderText(m_Pos.x, m_Pos.y+285, GlobalText[2369], 190, 0, RT3_SORT_CENTER); // Illusion Temple
 
 	g_pRenderText->SetFont(g_hFont);
 	g_pRenderText->SetTextColor(255, 255, 255, 255);
 	g_pRenderText->SetBgColor(0, 0, 0, 0);
 
 	unicode::t_char strText[256];
-	unicode::_sprintf(strText, GlobalText[868], g_csQuest.GetEventCount(3));
+	unicode::_sprintf(strText, GlobalText[868], g_csQuest.GetEventCount(3)); // A entrada é permitida %d vezes
 	g_pRenderText->RenderText(m_Pos.x, m_Pos.y+305, strText, 190, 0, RT3_SORT_CENTER);
 	
-	unicode::_sprintf(strText, GlobalText[829], 6);
+	unicode::_sprintf(strText, GlobalText[829], 6); // Apenas é permitido entrar %d vezes por dia
 	g_pRenderText->RenderText(m_Pos.x, m_Pos.y+325, strText, 190, 0, RT3_SORT_CENTER);
 
+	//unicode::_sprintf(strText, GlobalText[851], GlobalText[1147]); //Timer Beta Test
+	//g_pRenderText->RenderText(m_Pos.x, m_Pos.y + 345, strText, 190, 0, RT3_SORT_CENTER);
+	// Assuming 'time' is a variable representing the time in minutes
+	LPPHEADER_MATCH_OPEN_VALUE Data = (LPPHEADER_MATCH_OPEN_VALUE)ReceiveBuffer;
+	WORD time = MAKEWORD(Data->KeyL, Data->KeyH);
+	int Hour = (int)(time / 60);
+	int Mini = (int)(time)-(Hour * 60);
+
+	char szOpenTime[256] = { 0, };
+	wsprintf(szOpenTime, GlobalText[1164], Hour);
+
+	// Replace placeholders in GlobalText[851] with time values
+	unicode::_sprintf(strText, GlobalText[851], Mini, GlobalText[1147]);
+
+	// Concatenate the two strings
+	strcat(szOpenTime, strText);
+
+	// Assuming you want to update GlobalText[1154] with the generated string
+	GlobalText.Remove(1154);
+	GlobalText.Add(1154, szOpenTime);
+
+	// Render the text in your UI
+	g_pRenderText->RenderText(m_Pos.x, m_Pos.y + 345, szOpenTime, 190, 0, RT3_SORT_CENTER);
 }
 
 void SEASON3B::CNewUIMyQuestInfoWindow::OpenningProcess()

@@ -4773,6 +4773,9 @@ void OpenSounds()
 	LoadWaveFile(SOUND_RAGESKILL_BUFF_1, "Data\\Sound\\Ragefighter\\Rage_Buff_1.wav");
 	LoadWaveFile(SOUND_RAGESKILL_BUFF_2, "Data\\Sound\\Ragefighter\\Rage_Buff_2.wav");
 #endif //PBG_ADD_NEWCHAR_MONK
+
+	// Voice
+	LoadWaveFile(VOICE_SHADOWPHANTOMSOLDIER, "Data\\NPC_Voice\\ShadowPhantom.wav", 1); // Shadow Phantom Soldier
 }
 
 extern int	g_iRenderTextType;
@@ -4781,9 +4784,9 @@ void OpenFont()
 {
    	InitPath();
 
-    LoadBitmap("Interface\\FontInput.tga"     ,BITMAP_FONT    ,GL_NEAREST,GL_CLAMP_TO_EDGE);
-	LoadBitmap("Interface\\FontTest.tga"      ,BITMAP_FONT+1  );
-	LoadBitmap("Interface\\Hit.tga"			,BITMAP_FONT_HIT,GL_NEAREST,GL_CLAMP_TO_EDGE);
+    LoadBitmap("Interface\\FontInput.tga",BITMAP_FONT,GL_NEAREST,GL_CLAMP_TO_EDGE);
+	LoadBitmap("Interface\\FontTest.tga",BITMAP_FONT+1  );
+	LoadBitmap("Interface\\Hit.tga",BITMAP_FONT_HIT,GL_NEAREST,GL_CLAMP_TO_EDGE);
 
 	g_pRenderText->Create(0, g_hDC);
 }

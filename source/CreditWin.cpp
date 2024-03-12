@@ -88,7 +88,7 @@ void CCreditWin::Create()
 	case 800: nFontSize = 12; break;
 	case 1024: nFontSize = 13; break;
 	case 1280: nFontSize = 13; break;
-	case 1366: nFontSize = 14; break;
+	case 1360: nFontSize = 14; break;
 	case 1440: nFontSize = 16; break;
 	case 1600: nFontSize = 16; break;
 	case 1680: nFontSize = 16; break;
